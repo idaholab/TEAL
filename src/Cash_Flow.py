@@ -479,97 +479,97 @@ class CashFlow(ExternalModelPluginBase):
   #### RAVEN API methods END ####
   ###############################
   
-  ###################################
-  #### LOCAL CLASS methods BEGIN ####
-  ###################################
-  def recursiveXmlReader(xmlNode, inDictionary):
-    # 'Components' and 'CasFlows' are treated specially, since the node name <Component> or <CashFlow> can be repeated multiple times
-    #  => The dictionary is not called <Component> (or <CashFlow>) but replaced with the 'name' attribute of these
-    # the 'attribute' of these is replaced with 'Component' or 'CashFlow' for identification. This implies that all attributes for these
-    # two nodes have to be treated explicitely
-    # ==> The attributes of all other nodes will be available in the 'attr' dictionary
-  
-    # treat components
-    # - - - - - - - - - - - - - - - - - - - 
-    if xmlNode.tag == "Component":
-      if 'name' in xmlNode.attrib:
-        xmlNodeName = xmlNode.attrib['name']
-        if xmlNodeName in inDictionary.keys():
-          raise IOError("Economics ERROR (XML reading): 'Component' names need to be unique (cant be 'attr', 'val' or any other existing XML tag name): %s" %xmlNodeName)
-        inDictionary[xmlNodeName] = {'val':xmlNode.text,'attr':'Component'}
-      else:
-        raise IOError("Economics ERROR (XML reading): 'Component' requires attribute 'name'")
-    # treat CashFlow in conmponents
-    # - - - - - - - - - - - - - - - - - - - 
-    elif xmlNode.tag == "CashFlow":
-      if 'name' in xmlNode.attrib:
-        xmlNodeName = xmlNode.attrib['name']
-        if xmlNodeName in inDictionary.keys():
-          raise IOError("Economics ERROR (XML reading): 'CashFlow' names need to be unique (cant be 'attr', 'val' or any other existing XML tag name): %s" %xmlNodeName)
-        inDictionary[xmlNodeName] = {'val':xmlNode.text,'attr':'CashFlow'}
-      else:
-        raise IOError("Economics ERROR (XML reading): 'CashFlow' requires attribute 'name'")
-  
-      for attribute in ['driver', 'tax', 'inflation']: 
-        if attribute in xmlNode.attrib:
-          inDictionary[xmlNodeName][attribute] = {'val':xmlNode.attrib[attribute],'attr': {}}
-        else:
-          raise IOError("Economics ERROR (XML reading): 'CashFlow' requires attribute %s" %attribute)
-      # treat multiply
-        if 'multiply' in xmlNode.attrib:
-          inDictionary[xmlNodeName]['multiply'] = {'val':xmlNode.attrib['multiply'],'attr': {}}
-        else:
-          inDictionary[xmlNodeName]['multiply'] = {'val':'Default','attr': {}}
-      # treat mult_target
-        if 'mult_target' in xmlNode.attrib:
-          inDictionary[xmlNodeName]['mult_target'] = {'val':xmlNode.attrib['mult_target'],'attr': {}}
-        else:
-          inDictionary[xmlNodeName]['mult_target'] = {'val':'None','attr': {}}
-  
-    # treat rest
-    # - - - - - - - - - - - - - - - - - - - 
-    else:
-      xmlNodeName = xmlNode.tag
+###################################
+#### LOCAL CLASS methods BEGIN ####
+###################################
+def recursiveXmlReader(xmlNode, inDictionary):
+  # 'Components' and 'CasFlows' are treated specially, since the node name <Component> or <CashFlow> can be repeated multiple times
+  #  => The dictionary is not called <Component> (or <CashFlow>) but replaced with the 'name' attribute of these
+  # the 'attribute' of these is replaced with 'Component' or 'CashFlow' for identification. This implies that all attributes for these
+  # two nodes have to be treated explicitely
+  # ==> The attributes of all other nodes will be available in the 'attr' dictionary
+
+  # treat components
+  # - - - - - - - - - - - - - - - - - - - 
+  if xmlNode.tag == "Component":
+    if 'name' in xmlNode.attrib:
+      xmlNodeName = xmlNode.attrib['name']
       if xmlNodeName in inDictionary.keys():
-        raise IOError("Economics ERROR (XML reading): XML Tags need to be unique (cant be 'attr', 'val' or any Component or CashFlow names): %s" %xmlNodeName)
-      inDictionary[xmlNodeName] = {'val':xmlNode.text,'attr':xmlNode.attrib}
-    # recursion
-    # - - - - - - - - - - - - - - - - - - - 
-    if len(list(xmlNode)) > 0:
-      for child in xmlNode:  
-        recursiveXmlReader(child, inDictionary[xmlNodeName])
-  # =====================================================================================================================
-  
-  # =====================================================================================================================
-  def isInt(string):
-    try:
-      int(string)
-      return True
-    except:
-      return False
-  # =====================================================================================================================
-  
-  # =====================================================================================================================
-  def isReal(string):
-    try:
-      float(string)
-      return True
-    except:
-      return False
-  # =====================================================================================================================
-  
-  # =====================================================================================================================
-  def gcd(a, b):
-    """Return greatest common divisor using Euclid's Algorithm."""
-    while b:
-      a, b = b, a % b
-    return a
-  def lcm(a, b):
-    """Return lowest common multiple."""
-    return a * b // gcd(a, b)
-  def lcmm(*args):
-    """Return lcm of args."""   
-    return reduce(lcm, args)
-  #################################
-  #### LOCAL CLASS methods END ####
-  #################################
+        raise IOError("Economics ERROR (XML reading): 'Component' names need to be unique (cant be 'attr', 'val' or any other existing XML tag name): %s" %xmlNodeName)
+      inDictionary[xmlNodeName] = {'val':xmlNode.text,'attr':'Component'}
+    else:
+      raise IOError("Economics ERROR (XML reading): 'Component' requires attribute 'name'")
+  # treat CashFlow in conmponents
+  # - - - - - - - - - - - - - - - - - - - 
+  elif xmlNode.tag == "CashFlow":
+    if 'name' in xmlNode.attrib:
+      xmlNodeName = xmlNode.attrib['name']
+      if xmlNodeName in inDictionary.keys():
+        raise IOError("Economics ERROR (XML reading): 'CashFlow' names need to be unique (cant be 'attr', 'val' or any other existing XML tag name): %s" %xmlNodeName)
+      inDictionary[xmlNodeName] = {'val':xmlNode.text,'attr':'CashFlow'}
+    else:
+      raise IOError("Economics ERROR (XML reading): 'CashFlow' requires attribute 'name'")
+
+    for attribute in ['driver', 'tax', 'inflation']: 
+      if attribute in xmlNode.attrib:
+        inDictionary[xmlNodeName][attribute] = {'val':xmlNode.attrib[attribute],'attr': {}}
+      else:
+        raise IOError("Economics ERROR (XML reading): 'CashFlow' requires attribute %s" %attribute)
+    # treat multiply
+      if 'multiply' in xmlNode.attrib:
+        inDictionary[xmlNodeName]['multiply'] = {'val':xmlNode.attrib['multiply'],'attr': {}}
+      else:
+        inDictionary[xmlNodeName]['multiply'] = {'val':'Default','attr': {}}
+    # treat mult_target
+      if 'mult_target' in xmlNode.attrib:
+        inDictionary[xmlNodeName]['mult_target'] = {'val':xmlNode.attrib['mult_target'],'attr': {}}
+      else:
+        inDictionary[xmlNodeName]['mult_target'] = {'val':'None','attr': {}}
+
+  # treat rest
+  # - - - - - - - - - - - - - - - - - - - 
+  else:
+    xmlNodeName = xmlNode.tag
+    if xmlNodeName in inDictionary.keys():
+      raise IOError("Economics ERROR (XML reading): XML Tags need to be unique (cant be 'attr', 'val' or any Component or CashFlow names): %s" %xmlNodeName)
+    inDictionary[xmlNodeName] = {'val':xmlNode.text,'attr':xmlNode.attrib}
+  # recursion
+  # - - - - - - - - - - - - - - - - - - - 
+  if len(list(xmlNode)) > 0:
+    for child in xmlNode:  
+      recursiveXmlReader(child, inDictionary[xmlNodeName])
+# =====================================================================================================================
+
+# =====================================================================================================================
+def isInt(string):
+  try:
+    int(string)
+    return True
+  except:
+    return False
+# =====================================================================================================================
+
+# =====================================================================================================================
+def isReal(string):
+  try:
+    float(string)
+    return True
+  except:
+    return False
+# =====================================================================================================================
+
+# =====================================================================================================================
+def gcd(a, b):
+  """Return greatest common divisor using Euclid's Algorithm."""
+  while b:
+    a, b = b, a % b
+  return a
+def lcm(a, b):
+  """Return lowest common multiple."""
+  return a * b // gcd(a, b)
+def lcmm(*args):
+  """Return lcm of args."""   
+  return reduce(lcm, args)
+#################################
+#### LOCAL CLASS methods END ####
+#################################
