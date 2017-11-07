@@ -8,14 +8,14 @@
  [../]
  [./CashFlow_NPV]
   type = 'RavenFramework'
-  input = 'Cash_Flow_input_NPV.xml'
+  input = 'CashFlow_test_NPV.xml'
   csv = 'dumpNPV.csv'
   max_time = 500
   rel_err = 0.001
  [../]
  [./CashFlow_NPVsearch]
   type = 'RavenFramework'
-  input = 'Cash_Flow_input_NPVsearch.xml'
+  input = 'CashFlow_test_NPVsearch.xml'
   csv = 'dumpNPVsearch.csv'
   max_time = 500
   rel_err = 0.001
