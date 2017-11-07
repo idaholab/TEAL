@@ -20,7 +20,7 @@
   </VariableGroups>
 
   <Models>
-    <ExternalModel ModuleToLoad="../src/Cash_Flow" name="Cash_Flow" subType="">
+    <ExternalModel name="Cash_Flow" subType="CashFlow">
       <variables> GRO_CashFlow_in, GRO_CashFlow_out</variables>
       <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_NPV.xml"/>
     </ExternalModel>
