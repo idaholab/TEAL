@@ -21,7 +21,7 @@ class CashFlow(ExternalModelPluginBase):
   #################################
   #### RAVEN API methods BEGIN ####
   #################################
-  def _readMoreXML(container,xmlNode):
+  def _readMoreXML(self, container, xmlNode):
     container.CFparams = {}
     for child in xmlNode:
       if child.tag == "Economics":
@@ -37,7 +37,7 @@ class CashFlow(ExternalModelPluginBase):
           print ("Economics INFO (XML reading): verbosity level: %s" %container.CFver)
         recursiveXmlReader(child, container.CFparams)
 
-  def initialize(container,runInfoDict,inputFiles):
+  def initialize(self, container,runInfoDict,inputFiles):
     # check that the values that we need are in the dict CFparams
     # check if Economics exists
     # - - - - - - - - - - - - - - - - - - -
@@ -172,7 +172,7 @@ class CashFlow(ExternalModelPluginBase):
   # =====================================================================================================================
   
   # =====================================================================================================================
-  def run(container, Inputs):
+  def run(self, container, Inputs):
     """
       Computes economic key figures (NPV, IRR, PI as well as NPV serach)
       Inputs  : container and Inputs dictionaries from RAVEN
