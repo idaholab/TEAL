@@ -1,11 +1,11 @@
 <Simulation verbosity="debug">
   <TestInfo>
-    <name>CashFlow_test_IRR</name>
+    <name>CashFlow_test_PI</name>
     <author>A. Epiney</author>
     <created>2017-10-25</created>
     <description>
       This input tests the RAVEN plugin CashFlow.
-      The tested functionality is called IRR.
+      The tested functionality is called PI.
     </description>
   </TestInfo>
 
@@ -16,13 +16,13 @@
 
   <VariableGroups>
     <Group name="GRO_CashFlow_in">BOP_capacity, BOP_TOT_revenueEL, IP_capacity, IP_TOT_revenueBY</Group> 
-    <Group name="GRO_CashFlow_out">IRR</Group>
+    <Group name="GRO_CashFlow_out">PI</Group>
   </VariableGroups>
 
   <Models>
-    <ExternalModel ModuleToLoad="../src/Cash_Flow" name="Cash_Flow" subType="">
+    <ExternalModel name="Cash_Flow" subType="CashFlow">
       <variables> GRO_CashFlow_in, GRO_CashFlow_out</variables>
-      <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_IRR.xml"/>
+      <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_PI.xml"/>
     </ExternalModel>
   </Models>
 
@@ -58,12 +58,12 @@
     </MultiRun>
     <IOStep name="printTOfile">
      <Input          class="DataObjects"   type="PointSet">SET_CashFlow_out</Input>
-     <Output         class="OutStreams"    type="Print">dumpIRR</Output>  
+     <Output         class="OutStreams"    type="Print">dumpPI</Output>  
     </IOStep>
   </Steps>
 
   <OutStreams>
-    <Print name="dumpIRR">
+    <Print name="dumpPI">
       <type>csv</type>
       <source>SET_CashFlow_out</source>
     </Print>
