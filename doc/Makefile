@@ -17,7 +17,6 @@ clean:
 
 #creating version file
 version.tex : $(MANUAL_FILES)
-#	git log -1 --format="%H %an %aD" .. > version.tex
-	echo "d317572ffb80f564d27ec54e5db24d763705a8a5 Aaron Epiney - INL Tue, 17 Oct 2017 XX:XX:XX -0600" > version.tex
+	git log -1 --format="%H %an %aD" .. > version.tex
 
 
