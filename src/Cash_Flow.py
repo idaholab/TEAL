@@ -33,8 +33,8 @@ class CashFlow(ExternalModelPluginBase):
       Note that the following is read/put from/into the container:
       - Out, container.cashFlowVerbosity, integer, The verbosity level of the CashFlow plugin
       - Out, container.cashFlowParameters, dict, contains all the information read from the XML input, i.e. components and cash flow definitions
-      @ In, container, local 'self'
-      @ In, xmlNode, ElementTree, Xml element node 
+      @ In, container, object, external 'self'
+      @ In, xmlNode, xml.etree.ElementTree.Element, Xml element node 
       @ Out, None
     """
     container.cashFlowParameters = {}
@@ -62,8 +62,9 @@ class CashFlow(ExternalModelPluginBase):
       - In, container.cashFlowVerbosity, integer, The verbosity level of the CashFlow plugin
       - Out, container.cashFlowComponentsList, list, contais a list of all Components found in the XML input
       - Out, container.cashFlowCashFlowsList, lisy, contains a list of all CashFlows found in the XML input
+      @ In, container, object, external 'self'
       @ In, runInfoDict, dict, the dictionary containing the runInfo (read in the XML input file)
-      @ In, inputFiles, not used
+      @ In, inputFiles, list, not used
       @ Out, None
     """
     # INPUT CHECKER (check that the values that we need are in the dict cashFlowParameters)
@@ -215,7 +216,7 @@ class CashFlow(ExternalModelPluginBase):
       - Out, container.IRR, real, IRR  (only if<Indicator name='IRR'>) 
       - Out, container.IP, real, IP (only if<Indicator name='IP'>)
       - Out,container.NPV_mult, real, multiplier (only if<Indicator name='NPV_search'>)
-      @ In, container, local 'self'
+      @ In, container, object, external 'self'
       @ In, Inputs, dict, contains the inputs needed by the CashFlow plugin as specified in the RAVEN input file
       @ Out, None
     """
@@ -525,8 +526,9 @@ class CashFlow(ExternalModelPluginBase):
 def recursiveXmlReader(xmlNode, inDictionary):
   """
     reads an infinte depth of an XML tree into a dictionary
-    @ In, xmlNode, ElementTree, Xml element node 
-    @ In/Out, inDictionary, dict, is filled with the information read from the XML input, i.e. components and cash flow definitions 
+    @ In, xmlNode, xml.etree.ElementTree.Element, Xml element node 
+    @ In, inDictionary, dict, is filled with the information read from the XML input, i.e. components and cash flow definitions 
+    @ Out, inDictionary, dict, is filled with the information read from the XML input, i.e. components and cash flow definitions 
   """
   # 'Components' and 'CasFlows' are treated specially, since the node name <Component> or <CashFlow> can be repeated multiple times
   #  => The dictionary is not called <Component> (or <CashFlow>) but replaced with the 'name' attribute of these
