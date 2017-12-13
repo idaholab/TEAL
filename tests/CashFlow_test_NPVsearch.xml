@@ -15,7 +15,7 @@
   </RunInfo>
 
   <VariableGroups>
-    <Group name="GRO_CashFlow_in">BOP_capacity, BOP_TOT_revenueEL, IP_capacity, IP_TOT_revenueBY</Group> 
+    <Group name="GRO_CashFlow_in">BOP_capacity, BOP_TOT_revenueEL, IP_capacity, IP_TOT_revenueBY, Multiplier</Group> 
     <Group name="GRO_CashFlow_out">NPV_mult</Group>
   </VariableGroups>
 
@@ -35,6 +35,7 @@
       <constant name="BOP_TOT_revenueEL">350.0E6</constant>
       <constant name="IP_capacity">51.0E6</constant>
       <constant name="IP_TOT_revenueBY">31.5E6</constant>
+      <constant name="Multiplier">1.0</constant>
     </MonteCarlo>
   </Samplers>
 
