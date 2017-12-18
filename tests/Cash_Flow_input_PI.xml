@@ -1,4 +1,4 @@
-  <Economics verbosity="50"> <!-- “0” all debug output, “1” some output, “100” only errors  -->
+  <Economics verbosity="0"> <!-- “0” all debug output, “1” some output, “100” only errors  -->
       <Global>
           <WACC>0.05</WACC> <!-- %/100 -->
           <tax>0.392</tax> <!-- %/100 -->
@@ -6,6 +6,8 @@
           <Indicator name='PI' target='0'>
             BOP_CA
             BOP_RE
+            BOP_DA1
+            BOP_DA2
             IP_CA
             IP_RE
           </Indicator> 
@@ -17,7 +19,7 @@
             <!-- Capital Cost -->
             <!-- ============ -->
             <!-- alpha in $ for the <reference> MW plant -->
-              <CashFlow name="BOP_CA" driver="BOP_capacity" tax="false" inflation="none" mult_target="false">
+              <CashFlow name="BOP_CA" driver="BOP_capacity" tax="false" inflation="none" mult_target="false" multiply="Multiplier">
               <alpha> -4510000000
                       0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
                       0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
@@ -40,6 +42,48 @@
                       1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
                       1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
                       1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0</alpha>
+              <reference>1.0</reference>
+              <X>1.0</X>
+            </CashFlow>
+
+            <!-- Amortisation/Depreciation --> 
+            <!-- ================ -->
+            <!-- alpha is % * CAPEX [$ for 1100MW ref plant ]  = MACRS *  4510000000   -->
+            <CashFlow name="BOP_DA1" driver="BOP_capacity" tax="false" inflation="real" mult_target="false">
+              <alpha> 0.0 
+                225500000
+                405900000
+                385605000
+                347270000
+                312543000
+                280973000
+                266090000
+                266090000
+                266541000
+                266090000
+                266541000
+                266090000
+                266541000
+                266090000
+                266541000
+                133045000
+                      0.0 0.0 0.0 0.0
+                      0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+                      0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+                      0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+                      0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+              </alpha>
+              <reference>1100000000</reference>
+              <X>0.64</X>
+            </CashFlow>
+            <CashFlow name="BOP_DA2" driver="BOP_DA1" tax="true" inflation="real" mult_target="false">
+              <alpha> 0.0 
+                      -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
+                      -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
+                      -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
+                      -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
+                      -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
+                      -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 </alpha>
               <reference>1.0</reference>
               <X>1.0</X>
             </CashFlow>
