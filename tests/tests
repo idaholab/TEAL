@@ -2,28 +2,28 @@
  [./CashFlow_PI]
   type = 'RavenFramework'
   input = 'CashFlow_test_PI.xml'
-  csv = 'dumpPI.csv'
+  UnorderedCsv = 'dumpPI.csv'
   max_time = 500
   rel_err = 0.001
  [../]
  [./CashFlow_NPV]
   type = 'RavenFramework'
   input = 'CashFlow_test_NPV.xml'
-  csv = 'dumpNPV.csv'
+  UnorderedCsv = 'dumpNPV.csv'
   max_time = 500
   rel_err = 0.001
  [../]
  [./CashFlow_NPVsearch]
   type = 'RavenFramework'
   input = 'CashFlow_test_NPVsearch.xml'
-  csv = 'dumpNPVsearch.csv'
+  UnorderedCsv = 'dumpNPVsearch.csv'
   max_time = 500
   rel_err = 0.001
  [../]
  [./CashFlow_IRR]
   type = 'RavenFramework'
   input = 'CashFlow_test_IRR.xml'
-  csv = 'dumpIRR.csv'
+  UnorderedCsv = 'dumpIRR.csv'
   max_time = 500
   rel_err = 0.001
  [../]

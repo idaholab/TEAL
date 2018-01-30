@@ -15,7 +15,7 @@
   </RunInfo>
 
   <VariableGroups>
-    <Group name="GRO_CashFlow_in">BOP_capacity, BOP_TOT_revenueEL, IP_capacity, IP_TOT_revenueBY, Multiplier</Group> 
+    <Group name="GRO_CashFlow_in">BOP_capacity, BOP_TOT_revenueEL, IP_capacity, IP_TOT_revenueBY, Multiplier</Group>
     <Group name="GRO_CashFlow_out">IRR</Group>
   </VariableGroups>
 
@@ -59,7 +59,7 @@
     </MultiRun>
     <IOStep name="printTOfile">
      <Input          class="DataObjects"   type="PointSet">SET_CashFlow_out</Input>
-     <Output         class="OutStreams"    type="Print">dumpIRR</Output>  
+     <Output         class="OutStreams"    type="Print">dumpIRR</Output>
     </IOStep>
   </Steps>
 
@@ -67,6 +67,7 @@
     <Print name="dumpIRR">
       <type>csv</type>
       <source>SET_CashFlow_out</source>
+      <what>input,output</what>
     </Print>
   </OutStreams>
 </Simulation>
