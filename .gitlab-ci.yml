@@ -23,7 +23,9 @@ before_script:
     - git checkout master
     - git clean -xfd
       # check that we have conda # TODO does this work?  Can you apt-install conda without sudo?
-    - if ! which conda 2> /dev/null; then
+    - if which conda 2> /dev/null; then
+        echo 'Conda found!'
+      else
         echo 'Error: Conda not installed!'
         exit 42
       fi
