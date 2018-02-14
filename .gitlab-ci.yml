@@ -1,6 +1,11 @@
 before_script:
     - echo "Checking python version ..."
     - python -V      # Print out python version for debugging
+    - echo 'Setting up proxy'
+    - export http_proxy=http://webbalance.inl.gov:8080;
+        export https_proxy=http://webbalance.inl.gov:8080;
+        export ftp_proxy=http://webbalance.inl.gov:8080;
+        export ftps_proxy=http://webbalance.inl.gov:8080
     # clone path is at $CI_PROJECT_PATH
     - echo "Checking out RAVEN master ..."
     # enter "~/projects" if it exists; otherwise make it
