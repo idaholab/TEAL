@@ -1,10 +1,21 @@
 before_script:
+    - echo "Checking python version ..."
     - python -V      # Print out python version for debugging
+    # clone path is at $CI_PROJECT_PATH
+    - echo "Checking out RAVEN master ..."
+    - cd ~/projects/raven
+    - git checkout master
+    - git clean -xfd
+    - echo "Installing CashFlow branch ..."
+    - cd ~/projects/raven/scripts
+    - python install_plugins.py -s $CI_PROJECT_PATH -f
 
-build:
-    script:
-    - echo "Put your build stuff here."
+#build:
+#    script:
+#    - echo "Put your build stuff here."
 
 test:
     script:
-    - echo "Put your test runs here."
+      #- echo "Put your test runs here."
+      - cd ~/projects/raven
+      - ./run_tests -j4 --re=plugins/CashFlow # does this return a failed status?
