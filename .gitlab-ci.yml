@@ -14,7 +14,7 @@ before_script:
     # if RAVEN isn't there, clone it, install it, etc
     ## we technically still need moose for running the tests, currently
     - if [ ! -d "raven" ]; then
-        echo 'Cloning RAVEN ...'
+        echo "Cloning RAVEN ..."
         git clone https://github.com/idaholab/raven.git
         cd raven
         git submodule update --init moose
@@ -24,9 +24,9 @@ before_script:
     - git clean -xfd
       # check that we have conda # TODO does this work?  Can you apt-install conda without sudo?
     - if which conda 2> /dev/null; then
-        echo 'Conda found!'
+        echo "Conda found!"
       else
-        echo 'Error: Conda not installed!'
+        echo "Error: Conda not installed!"
         exit 42
       fi
       # update libraries or create them
