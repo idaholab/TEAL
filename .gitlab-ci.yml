@@ -22,6 +22,17 @@ before_script:
     - cd ~/projects/raven
     - git checkout master
     - git clean -xfd
+      # check that we have conda # TODO does this work?  Can you apt-install conda without sudo?
+    - if ! which conda 2> /dev/null; then
+        echo 'Error: Conda not installed!'
+        exit 42
+      fi
+      # update libraries or create them
+    - if conda env list | grep -q raven_libaries; then
+        `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-install`
+      else
+        `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-create`
+      fi
     - make
     - echo "Installing CashFlow branch ..."
     - cd ~/projects/raven/scripts
