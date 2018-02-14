@@ -1,0 +1,10 @@
+before_script:
+    - python -V      # Print out python version for debugging
+
+build:
+    script:
+    - echo "Put your build stuff here."
+
+test:
+    script:
+    - echo "Put your test runs here."
