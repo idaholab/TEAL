@@ -6,34 +6,34 @@ before_script:
     # enter "~/projects" if it exists; otherwise make it
     - cd ~/
     - if [ -d "projects" ]; then
-        cd projects
+        cd projects;
       else
-        mkdir projects
-        cd projects
+        mkdir projects;
+        cd projects;
       fi
     # if RAVEN isn't there, clone it, install it, etc
     ## we technically still need moose for running the tests, currently
     - if [ ! -d "raven" ]; then
-        echo "Cloning RAVEN ..."
-        git clone https://github.com/idaholab/raven.git
-        cd raven
-        git submodule update --init moose
+        echo "Cloning RAVEN ...";
+        git clone https://github.com/idaholab/raven.git;
+        cd raven;
+        git submodule update --init moose;
       fi
     - cd ~/projects/raven
     - git checkout master
     - git clean -xfd
       # check that we have conda # TODO does this work?  Can you apt-install conda without sudo?
     - if which conda 2> /dev/null; then
-        echo "Conda found!"
+        echo "Conda found!";
       else
-        echo "Error Conda not installed!"
-        exit 42
+        echo "Error Conda not installed!";
+        exit 42;
       fi
       # update libraries or create them
     - if conda env list | grep -q raven_libaries; then
-        `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-install`
+        `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-install`;
       else
-        `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-create`
+        `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-create`;
       fi
     - make
     - echo "Installing CashFlow branch ..."
