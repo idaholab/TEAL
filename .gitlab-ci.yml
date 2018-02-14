@@ -26,7 +26,7 @@ before_script:
     - if which conda 2> /dev/null; then
         echo "Conda found!"
       else
-        echo "Error: Conda not installed!"
+        echo "Error Conda not installed!"
         exit 42
       fi
       # update libraries or create them
