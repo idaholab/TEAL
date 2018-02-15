@@ -8,11 +8,11 @@ before_script:
         export https_proxy=http://webbalance.inl.gov:8080;
         export ftp_proxy=http://webbalance.inl.gov:8080;
         export ftps_proxy=http://webbalance.inl.gov:8080
-    # clone raven
-    # we technically still need moose for running the tests, currently
+      # clone raven
     - echo "Cloning RAVEN ..."
     - git clone https://github.com/idaholab/raven.git
     - cd raven
+      # we technically still need moose for running the tests, currently
     - git submodule update --init moose
     - cd raven
     - git checkout master
