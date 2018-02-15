@@ -7,7 +7,7 @@ before_script:
     - export http_proxy=http://webbalance.inl.gov:8080;
         export https_proxy=http://webbalance.inl.gov:8080;
         export ftp_proxy=http://webbalance.inl.gov:8080;
-        export ftps_proxy=http://webbalance.inl.gov:8080
+        export ftps_proxy=http://webbalance.inl.gov:8080;
       # clone raven
     - echo "Cloning RAVEN ..."
     - git clone https://github.com/idaholab/raven.git
@@ -23,7 +23,7 @@ before_script:
         echo "Conda found!";
       else
         echo "ERROR Conda not found!";
-        exit 404; # TODO make some meaningful error codes
+        exit 404;
       fi
       # update libraries or create them
     - if conda env list | grep -q raven_libraries; then
@@ -34,7 +34,7 @@ before_script:
     - make
     - echo "Installing CashFlow branch ..."
     - cd scripts
-    - python install_plugins.py -s ../../ -f
+    - python install_plugins.py -s ../../../CashFlow -f
 
 #build:
 #    script:
