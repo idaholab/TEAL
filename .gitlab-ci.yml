@@ -1,8 +1,8 @@
 before_script:
+    - python -V      # Print out python version for debugging
     - echo "project path" $CI_PROJECT_PATH
     - echo "cwd" `pwd`
     - echo "Checking python version ..."
-    - python -V      # Print out python version for debugging
     - echo 'Setting up proxy'
     - export http_proxy=http://webbalance.inl.gov:8080;
         export https_proxy=http://webbalance.inl.gov:8080;
