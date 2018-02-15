@@ -27,7 +27,8 @@ before_script:
     - cd ~/projects/raven
     - git checkout master
     - git clean -xfd
-      # check that we have conda # TODO does this work?  Can you apt-install conda without sudo?
+      # check that we have conda
+    - export PATH=export PATH=/opt/miniconda2/bin:$PATH
     - if which conda 2> /dev/null; then
         echo "Conda found!";
       else
