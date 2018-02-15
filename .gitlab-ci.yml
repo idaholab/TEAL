@@ -14,7 +14,6 @@ before_script:
     - cd raven
       # we technically still need moose for running the tests, currently
     - git submodule update --init moose
-    - cd raven
     - git checkout master
     - git clean -xfd
       # check that we have conda
