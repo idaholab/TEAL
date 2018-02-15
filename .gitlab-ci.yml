@@ -8,44 +8,33 @@ before_script:
         export https_proxy=http://webbalance.inl.gov:8080;
         export ftp_proxy=http://webbalance.inl.gov:8080;
         export ftps_proxy=http://webbalance.inl.gov:8080
-    - echo "Checking out RAVEN master ..."
-    # enter "~/projects" if it exists; otherwise make it
-    - cd ~/
-    - if [ -d "projects" ]; then
-        cd projects;
-      else
-        mkdir projects;
-        cd projects;
-      fi
-    # if RAVEN isn't there, clone it, install it, etc
-    ## we technically still need moose for running the tests, currently
-    - if [ ! -d "raven" ]; then
-        echo "Cloning RAVEN ...";
-        git clone https://github.com/idaholab/raven.git;
-        cd raven;
-        git submodule update --init moose;
-      fi
-    - cd ~/projects/raven
+    # clone raven
+    # we technically still need moose for running the tests, currently
+    - echo "Cloning RAVEN ..."
+    - git clone https://github.com/idaholab/raven.git
+    - cd raven
+    - git submodule update --init moose
+    - cd raven
     - git checkout master
     - git clean -xfd
       # check that we have conda
-    - export PATH=export PATH=/opt/miniconda2/bin:$PATH
+    - export PATH=/opt/miniconda2/bin:$PATH
     - if which conda 2> /dev/null; then
         echo "Conda found!";
       else
-        echo "Error Conda not installed!";
-        exit 42;
+        echo "ERROR Conda not found!";
+        exit 404; # TODO make some meaningful error codes
       fi
       # update libraries or create them
-    - if conda env list | grep -q raven_libaries; then
+    - if conda env list | grep -q raven_libraries; then
         `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-install`;
       else
         `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-create`;
       fi
     - make
     - echo "Installing CashFlow branch ..."
-    - cd ~/projects/raven/scripts
-    - python install_plugins.py -s $CI_PROJECT_PATH -f
+    - cd scripts
+    - python install_plugins.py -s ../../ -f
 
 #build:
 #    script:
