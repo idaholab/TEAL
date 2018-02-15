@@ -1,5 +1,6 @@
 before_script:
     - echo "project path:" $CI_PROJECT_PATH
+    - ehco "cwd:" `pwd`
     - echo "Checking python version ..."
     - python -V      # Print out python version for debugging
     - echo 'Setting up proxy'
