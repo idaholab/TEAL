@@ -26,9 +26,9 @@ before_script:
       fi
       # update libraries or create them
     - if conda env list | grep -q raven_libraries; then
-        `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-install`;
+        `python raven/scripts/TestHarness/testers/RavenUtils.py --conda-install`;
       else
-        `python ~/projects/raven/scripts/TestHarness/testers/RavenUtils.py --conda-create`;
+        `python raven/scripts/TestHarness/testers/RavenUtils.py --conda-create`;
       fi
     - make
     - echo "Installing CashFlow branch ..."
