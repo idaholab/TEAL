@@ -3,7 +3,8 @@
           <DiscountRate>0.05</DiscountRate> <!-- %/100 -->
           <tax>0.392</tax> <!-- %/100 -->
           <inflation>0.04</inflation> <!-- %/100 -->
-          <Indicator name='IRR' target='0'>
+          <ProjectTime>120</ProjectTime>
+          <Indicator name='NPV' target='0'>
             BOP_CA
             BOP_RE
             BOP_DA1
@@ -91,6 +92,8 @@
 
       <Component name="IP">
           <Life_time>40</Life_time>   <!-- years -->
+          <StartTime>15</StartTime>
+          <Repetitions>2</Repetitions>
 
             <!-- Capital Cost -->
             <!-- ============ -->
