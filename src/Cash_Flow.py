@@ -197,7 +197,7 @@ class CashFlow(ExternalModelPluginBase):
                 for tags in ['alpha']:
                   container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'] = container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'].split()
                 if len(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val']) - 1 <> container.cashFlowParameters['Economics'][compo]['Life_time']['val']:
-                  raise IOError("CashFlow ERROR (XML reading): '%s' needs to have the lenght of 'Life_time' (%s) + 1 in '%s'" %(tags, container.cashFlowParameters['Economics'][compo]['Life_time']['val'], rcCashFlow))
+                  raise IOError("CashFlow ERROR (XML reading): '%s' needs to have the lenght of 'Life_time' (%s) + 1 in '%s'" %(tags, container.cashFlowParameters['Economics'][compo]['Life_time']['val'], cashFlow))
                 for i in range(len(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'])):
                   if isReal(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'][i]):
                     container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'][i] = float(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'][i])
