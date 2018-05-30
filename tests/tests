@@ -49,11 +49,8 @@
   rel_err = 0.001
  [../]
  [./CashFlow_NPV_RunAsCode]
-  type = 'RavenFramework'
-  input = 'CashFlow_test_NPV_RunAsCode.xml'
-  UnorderedCsv = 'dumpNPV_RunAsCode.csv'
-  max_time = 500
-  rel_err = 0.001
+  type = 'RavenPython'
+  input = 'CashFlow_test_NPV_RunAsCode.py'
  [../]
  [./CashFlow_NPV_customTime]
   type = 'RavenFramework'
