@@ -3,6 +3,7 @@
     <name>CashFlow_test_NPV</name>
     <author>A. Epiney</author>
     <created>2018-03-23</created>
+    <classesTested>CashFlow</classesTested>
     <description>
       This input tests the RAVEN plugin CashFlow.
       The tested functionality is called NPV.
@@ -64,24 +65,24 @@
       <Input>GRO_RevenueData_in_scalar</Input>
       <Output>OutputPlaceHolder</Output>
     </PointSet>
+    <PointSet name="SET_CashFlow_in">
+      <Input>GRO_CashFlow_in_scalar</Input>
+      <Output>OutputPlaceHolder</Output>
+    </PointSet>
+    <PointSet name="SET_output">
+      <Input>GRO_CashFlow_in_scalar</Input>
+      <Output>GRO_CashFlow_out_scalar</Output>
+    </PointSet>
     <DataSet name="SET_RevenueData_out">
       <Input>GRO_RevenueData_in_scalar</Input>
       <Output>GRO_RevenueData_out_year</Output>
       <Index var="year">GRO_RevenueData_out_year</Index>
     </DataSet>
-    <PointSet name="SET_CashFlow_in">
-      <Input>GRO_CashFlow_in_scalar</Input>
-      <Output>OutputPlaceHolder</Output>
-    </PointSet>
     <DataSet name="SET_CashFlow_out">
       <Input>GRO_CashFlow_in_scalar, GRO_CashFlow_in_year</Input>
       <Output>GRO_CashFlow_out_scalar</Output>
       <Index var="year">GRO_CashFlow_in_year</Index>
     </DataSet>
-    <PointSet name="SET_output">
-      <Input>GRO_CashFlow_in_scalar</Input>
-      <Output>GRO_CashFlow_out_scalar</Output>
-    </PointSet>
   </DataObjects>
 
   <Steps>
