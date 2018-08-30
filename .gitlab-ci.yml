@@ -17,6 +17,7 @@ before_script:
     - export PATH=/opt/miniconda2/bin:$PATH
     - if which conda 2> /dev/null; then
         echo "Conda found!";
+        conda update conda; 
       else
         echo "ERROR Conda not found!";
         exit 404;
