@@ -21,12 +21,8 @@ before_script:
         echo "ERROR Conda not found!";
         exit 404;
       fi
-      # update libraries or create them
-    - if conda env list | grep -q raven_libraries; then
-        `python scripts/TestHarness/testers/RavenUtils.py --conda-install`;
-      else
-        `python scripts/TestHarness/testers/RavenUtils.py --conda-create`;
-      fi
+      # create libraries or create them
+    - `./scripts/establish_conda_env.sh --install --conda-defs /opt/miniconda2/etc/profile.d/conda.sh`
     - make
       # Install CashFlow branch ...
     - cd scripts
