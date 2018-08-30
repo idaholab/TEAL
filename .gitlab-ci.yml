@@ -22,7 +22,7 @@ before_script:
         exit 404;
       fi
       # create libraries or create them
-    - `./scripts/establish_conda_env.sh --install --conda-defs /opt/miniconda2/etc/profile.d/conda.sh`
+    - ./scripts/establish_conda_env.sh --install --conda-defs /opt/miniconda2/etc/profile.d/conda.sh
     - make
       # Install CashFlow branch ...
     - cd scripts
