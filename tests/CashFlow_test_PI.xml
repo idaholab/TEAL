@@ -3,6 +3,7 @@
     <name>CashFlow_test_PI</name>
     <author>A. Epiney</author>
     <created>2017-10-25</created>
+    <classesTested>CashFlow</classesTested>
     <description>
       This input tests the RAVEN plugin CashFlow.
       The tested functionality is called PI.
