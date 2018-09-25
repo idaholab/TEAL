@@ -3,7 +3,6 @@
     <name>CashFlow_test_NPV_multiply</name>
     <author>A. Epiney</author>
     <created>2018-03-22</created>
-    <classesTested>CashFlow</classesTested>
     <description>
       This input tests the RAVEN plugin CashFlow.
       The tested functionality is called NPV.
