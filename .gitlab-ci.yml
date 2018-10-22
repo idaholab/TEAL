@@ -14,7 +14,7 @@ before_script:
     - git submodule update --init moose
     - git clean -xfd
       # check that we have conda
-    - export PATH=/opt/miniconda2/bin:$PATH
+    - export PATH=$HOME/miniconda2/bin:$PATH
     - if which conda 2> /dev/null; then
         echo "Conda found!";
         conda update conda; 
@@ -23,7 +23,7 @@ before_script:
         exit 404;
       fi
       # create libraries or create them
-    - ./scripts/establish_conda_env.sh --install --conda-defs /opt/miniconda2/etc/profile.d/conda.sh
+    - ./scripts/establish_conda_env.sh --install --conda-defs $HOME/miniconda2/etc/profile.d/conda.sh
     - make
       # Install CashFlow branch ...
     - cd scripts
