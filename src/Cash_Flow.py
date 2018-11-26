@@ -10,6 +10,7 @@ warnings.simplefilter('default', DeprecationWarning)
 
 #External Modules---------------------------------------------------------------
 import numpy as np
+import functools
 #External Modules End-----------------------------------------------------------
 
 #Internal Modules---------------------------------------------------------------
@@ -41,7 +42,7 @@ class CashFlow(ExternalModelPluginBase):
       - Out, container.cashFlowVerbosity, integer, The verbosity level of the CashFlow plugin
       - Out, container.cashFlowParameters, dict, contains all the information read from the XML input, i.e. components and cash flow definitions
       @ In, container, object, external 'self'
-      @ In, xmlNode, xml.etree.ElementTree.Element, Xml element node 
+      @ In, xmlNode, xml.etree.ElementTree.Element, Xml element node
       @ Out, None
     """
     container.cashFlowParameters = {}
@@ -76,7 +77,7 @@ class CashFlow(ExternalModelPluginBase):
       @ Out, None
     """
     # INPUT CHECKER (check that the values that we need are in the dict cashFlowParameters)
-    # ===================================================================================== 
+    # =====================================================================================
 
     # check if Economics exists
     # - - - - - - - - - - - - - - - - - - -
@@ -84,7 +85,7 @@ class CashFlow(ExternalModelPluginBase):
       raise IOError("CashFlow ERROR (XML reading): 'Economics' node is required")
 
     # check if Global and children exist and are of the correct type
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if 'Global' not in container.cashFlowParameters['Economics'].keys():
       raise IOError("CashFlow ERROR (XML reading): 'Global' node is required inside 'Economics'")
 
@@ -132,13 +133,13 @@ class CashFlow(ExternalModelPluginBase):
     container.cashFlowCashFlowsList = []
     oneMultTargetTrue = False
     for compo in container.cashFlowParameters['Economics'].keys():
-      if compo <> 'attr' and compo <> 'val':
+      if compo != 'attr' and compo != 'val':
         if container.cashFlowParameters['Economics'][compo]['attr'] == 'Component':
           if container.cashFlowVerbosity < 2:
             print ("CashFlow INFO (XML reading): Found component %s" %compo)
           container.cashFlowComponentsList.append(compo)
           # Life_time
-          for tags in ['Life_time']: 
+          for tags in ['Life_time']:
             if tags not in container.cashFlowParameters['Economics'][compo].keys():
               raise IOError("CashFlow ERROR (XML reading): '%s' node is required inside '%s'" %(tags, compo))
           # type check: integers
@@ -172,19 +173,19 @@ class CashFlow(ExternalModelPluginBase):
               container.cashFlowParameters['Economics'][compo][tags] = {}
               container.cashFlowParameters['Economics'][compo][tags]['val'] = 0
               container.cashFlowParameters['Economics'][compo][tags]['attr'] = {}
-  
+
           # Check CashFlow Nodes
-          # - - - - - - - - - - - - - 
+          # - - - - - - - - - - - - -
           for cashFlow in container.cashFlowParameters['Economics'][compo]:
-            if cashFlow <> 'attr' and cashFlow <> 'val':
+            if cashFlow != 'attr' and cashFlow != 'val':
               if container.cashFlowParameters['Economics'][compo][cashFlow]['attr'] == 'CashFlow':
                 if container.cashFlowVerbosity < 2:
                   print ("CashFlow INFO (XML reading): Found CashFlow definition %s" %cashFlow)
                 if cashFlow in container.cashFlowCashFlowsList:
                   raise IOError("CashFlow ERROR (XML reading): Cashflow names need to be unique over all components: '%s" %cashFlow)
                 container.cashFlowCashFlowsList.append(cashFlow)
-                # reference, alpha, X 
-                for tags in ['alpha', 'reference', 'X']: 
+                # reference, alpha, X
+                for tags in ['alpha', 'reference', 'X']:
                   if tags not in container.cashFlowParameters['Economics'][compo][cashFlow].keys():
                     raise IOError("CashFlow ERROR (XML reading): '%s' node is required inside CashFlow '%s'" %(tags, cashFlow))
                 # type check: reals
@@ -196,7 +197,7 @@ class CashFlow(ExternalModelPluginBase):
                 # type check: arrays
                 for tags in ['alpha']:
                   container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'] = container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'].split()
-                if len(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val']) - 1 <> container.cashFlowParameters['Economics'][compo]['Life_time']['val']:
+                if len(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val']) - 1 != container.cashFlowParameters['Economics'][compo]['Life_time']['val']:
                   raise IOError("CashFlow ERROR (XML reading): '%s' needs to have the lenght of 'Life_time' (%s) + 1 in '%s'" %(tags, container.cashFlowParameters['Economics'][compo]['Life_time']['val'], cashFlow))
                 for i in range(len(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'])):
                   if isReal(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'][i]):
@@ -204,7 +205,7 @@ class CashFlow(ExternalModelPluginBase):
                   else:
                     raise IOError("CashFlow ERROR (XML reading): '%s' needs to be an array of real numbers inside '%s'" %(tags, cashFlow))
                 # check CashFlow attributes
-                # - - - - - - - - - - - - - 
+                # - - - - - - - - - - - - -
                 # Existence of 'driver' and 'multiply' in input space are checked during runtime (this check is not possible during initialisation)
                 # tax, inflation => existence for attributes is already checked during reading
                 # type check: logical
@@ -246,7 +247,7 @@ class CashFlow(ExternalModelPluginBase):
       if request not in container.cashFlowCashFlowsList:
         raise IOError("CashFlow ERROR (XML reading): '%s' requested in 'Indicator' needs to be a CashFlow" %request)
   # =====================================================================================================================
-  
+
   # =====================================================================================================================
   def run(self, container, Inputs):
     """
@@ -258,7 +259,7 @@ class CashFlow(ExternalModelPluginBase):
       - In, container.cashFlowCashFlowsList, list, contains a list of all CashFlows found in the XML input
       - In, container.customTime, bool, flag true if a <ProjectTime> has been input
       _ Out, container.NPV, real, NPV  (only if<Indicator name='NPV'>)
-      - Out, container.IRR, real, IRR  (only if<Indicator name='IRR'>) 
+      - Out, container.IRR, real, IRR  (only if<Indicator name='IRR'>)
       - Out, container.IP, real, IP (only if<Indicator name='IP'>)
       - Out, container.NPV_mult, real, multiplier (only if<Indicator name='NPV_search'>)
       @ In, container, object, external 'self'
@@ -283,7 +284,7 @@ class CashFlow(ExternalModelPluginBase):
     for compo in container.cashFlowComponentsList:
       # loop over cash flows
       for cashFlow in container.cashFlowParameters['Economics'][compo]:
-        if cashFlow <> 'attr' and cashFlow <> 'val':
+        if cashFlow != 'attr' and cashFlow != 'val':
           if container.cashFlowParameters['Economics'][compo][cashFlow]['attr'] == 'CashFlow':
             if container.cashFlowVerbosity < 1:
               print ("CashFlow INFO (run): Checking component %s, cash flow: %s " %(compo,cashFlow))
@@ -292,7 +293,7 @@ class CashFlow(ExternalModelPluginBase):
             multiply = container.cashFlowParameters['Economics'][compo][cashFlow]['multiply']['val']
             if multiply not in Inputs.keys():
               raise IOError("CashFlow ERROR (run): multiply %s for cash flow %s not in inputs" %(multiply, cashFlow))
-            # check if the driver is present in Input or is another cash flow 
+            # check if the driver is present in Input or is another cash flow
             # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             driver = container.cashFlowParameters['Economics'][compo][cashFlow]['driver']['val']
             # construct dictionaryOfNodes for Graph later
@@ -337,12 +338,12 @@ class CashFlow(ExternalModelPluginBase):
     # if everything is OK, build the sequence to execute the CsahFlows
     # ------------------------------------------------------------------------
     myGraph = graphObject(dictionaryOfNodes)
-    cashFlowSequence = myGraph.createSingleListOfVertices() 
+    cashFlowSequence = myGraph.createSingleListOfVertices()
     if container.cashFlowVerbosity < 2:
       print ("CashFlow INFO (run): Found sequence for execution of cash flows: %s" %cashFlowSequence)
 
     # construct cash flow terms for each component and year untill the end for the component life time
-    # since cash flows can depend on other cash flows, the cash flows computed here are without tax and inflation 
+    # since cash flows can depend on other cash flows, the cash flows computed here are without tax and inflation
     # ------------------------------------------------------------------------------------------------------------
     cashFlowForLife = {}
     # loop over cash_flows
@@ -377,10 +378,10 @@ class CashFlow(ExternalModelPluginBase):
             print ("CashFlow INFO (run): cash flow has different values for each year of the project lifetime")
       else:
         # The driver is another cash flow!
-        # the lenght of the list, i.e. the lifetime of the component that provides the driver has 
+        # the lenght of the list, i.e. the lifetime of the component that provides the driver has
         # to be the same than for the component to whiah the cash flow belongs
         # this check is done at the reading statge
-  
+
         # to which component does this driver belong?
         for compo in container.cashFlowComponentsList:
           if driverName in container.cashFlowParameters['Economics'][compo].keys():
@@ -408,7 +409,7 @@ class CashFlow(ExternalModelPluginBase):
         cashFlowForLife[compos][cashFlow].append(cashFlowForYear)
         if container.cashFlowVerbosity < 1:
           print ("CashFlow INFO (run):      for year (a, driver, cashflow) %s    : %s, %s, %s" %(y,alpha,driverValue,cashFlowForYear))
-  
+
     # Include tax and inflation for all cash flows for the lenght of the cumulative project
     # ------------------------------------------------------------------------------------------------------------
     if container.customTime:
@@ -429,7 +430,7 @@ class CashFlow(ExternalModelPluginBase):
       lcmTime = lcmm(*lifeTimes)
       if container.cashFlowVerbosity < 2:
         print ("CashFlow INFO (run):  LCM is                    : %s" %(lcmTime))
-  
+
     # compute all cash flows for the years
     # loop over components in cashFlowForLife
     cashFlowForLifeEquilibrium = {}
@@ -443,9 +444,9 @@ class CashFlow(ExternalModelPluginBase):
         if container.cashFlowParameters['Economics'][compo][cashFlow]['tax']['val']:
           # Does this compoent have his own tax?
           if 'tax' in container.cashFlowParameters['Economics'][compo].keys():
-            multiplyTax = 1 - container.cashFlowParameters['Economics'][compo]['tax']['val'] 
+            multiplyTax = 1 - container.cashFlowParameters['Economics'][compo]['tax']['val']
           else:
-            multiplyTax = 1 - container.cashFlowParameters['Economics']['Global']['tax']['val'] 
+            multiplyTax = 1 - container.cashFlowParameters['Economics']['Global']['tax']['val']
         else:
           multiplyTax = 1
         # treat inflation
@@ -457,7 +458,7 @@ class CashFlow(ExternalModelPluginBase):
         # is inflation real, nominal or none?
         if container.cashFlowParameters['Economics'][compo][cashFlow]['inflation']['val'] == 'real':
           inflat = 1 + infRate
-        elif container.cashFlowParameters['Economics'][compo][cashFlow]['inflation']['val'] == 'nominal':    
+        elif container.cashFlowParameters['Economics'][compo][cashFlow]['inflation']['val'] == 'nominal':
           print ("CashFlow WARNING (run):      nominal inflation is not supported at the moment!")
           inflat = 1
         else:
@@ -472,7 +473,7 @@ class CashFlow(ExternalModelPluginBase):
           print ("CashFlow INFO (run):      component start time              : %s" %container.cashFlowParameters['Economics'][compo]['StartTime']['val'])
           print ("CashFlow INFO (run):      component repetitions             : %s" %container.cashFlowParameters['Economics'][compo]['Repetitions']['val'])
         # compute all the years untill the lcmTime
-        # - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - - - - - - - - - - - - -
         # find end time for his cash flow
         if container.cashFlowParameters['Economics'][compo]['Repetitions']['val'] == 0:
           lcmTime_compo = lcmTime
@@ -534,27 +535,27 @@ class CashFlow(ExternalModelPluginBase):
           cashFlowForLifeEquilibrium[compo][cashFlow].append(cashFlowForYear)
           if container.cashFlowVerbosity < 1 and printHere:
             print ("CashFlow INFO (run):      for global year (y, component year, inflation, cashFlowForYear)     : %s, %s, %s, %s" %(y,yReal, inflat**(-y),  cashFlowForYear))
-  
+
     # compute the IRR, NPV or do a NPV search on a multiplier (like the cost)
     # NPV search
-    # == == === == == 
+    # == == === == ==
     if 'NPV_search' in container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['name']:
       # loop over all CashFlows included in NPV
       cashFlowIncludingMultiplier = 0.0 # all contributions that include the multiplier (left hand side of the equation)
       cashFlowNotIncludingMultiplier = 0.0 # all contributions that do not include the multiplier (right hand side of the equation)
-      for cashFlow in container.cashFlowParameters['Economics']['Global']['Indicator']['val']: 
+      for cashFlow in container.cashFlowParameters['Economics']['Global']['Indicator']['val']:
         # to which component does this cash flow belong?
         for compo in container.cashFlowComponentsList:
           if cashFlow in container.cashFlowParameters['Economics'][compo].keys():
             break
         for y in range(lcmTime+1):
           DiscountRate = (1 + container.cashFlowParameters['Economics']['Global']['DiscountRate']['val'])**y
-          # sum multiplier true 
+          # sum multiplier true
           if container.cashFlowParameters['Economics'][compo][cashFlow]['mult_target']['val']:
-            cashFlowIncludingMultiplier += cashFlowForLifeEquilibrium[compo][cashFlow][y]/DiscountRate 
+            cashFlowIncludingMultiplier += cashFlowForLifeEquilibrium[compo][cashFlow][y]/DiscountRate
           # sum multiplier false
           else:
-            cashFlowNotIncludingMultiplier += cashFlowForLifeEquilibrium[compo][cashFlow][y]/DiscountRate 
+            cashFlowNotIncludingMultiplier += cashFlowForLifeEquilibrium[compo][cashFlow][y]/DiscountRate
       # THIS COMPUTES THE MULTIPLIER
       container.NPV_mult = (container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['target']-cashFlowNotIncludingMultiplier)/cashFlowIncludingMultiplier
       if container.cashFlowVerbosity < 51:
@@ -563,7 +564,7 @@ class CashFlow(ExternalModelPluginBase):
       # => compute FCFF with the found multiplier and recompute NPV
       if container.cashFlowVerbosity < 1:
         FCFF = np.zeros(lcmTime + 1)
-        for cashFlow in container.cashFlowParameters['Economics']['Global']['Indicator']['val']: 
+        for cashFlow in container.cashFlowParameters['Economics']['Global']['Indicator']['val']:
           # to which component does this cash flow belong?
           for compo in container.cashFlowComponentsList:
             if cashFlow in container.cashFlowParameters['Economics'][compo].keys():
@@ -571,17 +572,17 @@ class CashFlow(ExternalModelPluginBase):
           for y in range(lcmTime+1):
             if container.cashFlowParameters['Economics'][compo][cashFlow]['mult_target']['val']:
               FCFF[y] += cashFlowForLifeEquilibrium[compo][cashFlow][y] * container.NPV_mult[0]
-            else:  
+            else:
               FCFF[y] += cashFlowForLifeEquilibrium[compo][cashFlow][y]
         NPV = np.npv(container.cashFlowParameters['Economics']['Global']['DiscountRate']['val'], FCFF)
         print ("CashFlow INFO (run): NPV check : %s"  %NPV)
-  
+
     # NPV, IRR
-    # == == === == == 
+    # == == === == ==
     if 'NPV' in container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['name'] or 'IRR' in container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['name'] or 'PI' in container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['name']:
       # create FCFF_R for every year
       FCFF = np.zeros(lcmTime + 1)
-      for cashFlow in container.cashFlowParameters['Economics']['Global']['Indicator']['val']: 
+      for cashFlow in container.cashFlowParameters['Economics']['Global']['Indicator']['val']:
         # to which component does this cash flow belong?
         for compo in container.cashFlowComponentsList:
           if cashFlow in container.cashFlowParameters['Economics'][compo].keys():
@@ -596,7 +597,7 @@ class CashFlow(ExternalModelPluginBase):
         if container.cashFlowVerbosity < 51:
           print ("CashFlow INFO (run): NPV : %s"  %container.NPV)
       if 'IRR' in container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['name']:
-        try:  # np.irr crushes, when no solution exists..  very bad... this is just a quick workaround.. 
+        try:  # np.irr crushes, when no solution exists..  very bad... this is just a quick workaround..
           container.IRR = np.irr(FCFF)
         except:
           container.IRR = -10.0
@@ -623,9 +624,9 @@ class CashFlow(ExternalModelPluginBase):
 def recursiveXmlReader(xmlNode, inDictionary):
   """
     reads an infinte depth of an XML tree into a dictionary
-    @ In, xmlNode, xml.etree.ElementTree.Element, Xml element node 
-    @ In, inDictionary, dict, is filled with the information read from the XML input, i.e. components and cash flow definitions 
-    @ Out, inDictionary, dict, is filled with the information read from the XML input, i.e. components and cash flow definitions 
+    @ In, xmlNode, xml.etree.ElementTree.Element, Xml element node
+    @ In, inDictionary, dict, is filled with the information read from the XML input, i.e. components and cash flow definitions
+    @ Out, inDictionary, dict, is filled with the information read from the XML input, i.e. components and cash flow definitions
   """
   # 'Components' and 'CasFlows' are treated specially, since the node name <Component> or <CashFlow> can be repeated multiple times
   #  => The dictionary is not called <Component> (or <CashFlow>) but replaced with the 'name' attribute of these
@@ -634,7 +635,7 @@ def recursiveXmlReader(xmlNode, inDictionary):
   # ==> The attributes of all other nodes will be available in the 'attr' dictionary
 
   # treat components
-  # - - - - - - - - - - - - - - - - - - - 
+  # - - - - - - - - - - - - - - - - - - -
   if xmlNode.tag == "Component":
     if 'name' in xmlNode.attrib:
       xmlNodeName = xmlNode.attrib['name']
@@ -644,7 +645,7 @@ def recursiveXmlReader(xmlNode, inDictionary):
     else:
       raise IOError("CashFlow ERROR (XML reading): 'Component' requires attribute 'name'")
   # treat CashFlow in conmponents
-  # - - - - - - - - - - - - - - - - - - - 
+  # - - - - - - - - - - - - - - - - - - -
   elif xmlNode.tag == "CashFlow":
     if 'name' in xmlNode.attrib:
       xmlNodeName = xmlNode.attrib['name']
@@ -654,7 +655,7 @@ def recursiveXmlReader(xmlNode, inDictionary):
     else:
       raise IOError("CashFlow ERROR (XML reading): 'CashFlow' requires attribute 'name'")
 
-    for attribute in ['driver', 'tax', 'inflation']: 
+    for attribute in ['driver', 'tax', 'inflation']:
       if attribute in xmlNode.attrib:
         inDictionary[xmlNodeName][attribute] = {'val':xmlNode.attrib[attribute],'attr': {}}
       else:
@@ -671,16 +672,16 @@ def recursiveXmlReader(xmlNode, inDictionary):
         inDictionary[xmlNodeName]['mult_target'] = {'val':'None','attr': {}}
 
   # treat rest
-  # - - - - - - - - - - - - - - - - - - - 
+  # - - - - - - - - - - - - - - - - - - -
   else:
     xmlNodeName = xmlNode.tag
     if xmlNodeName in inDictionary.keys():
       raise IOError("CashFlow ERROR (XML reading): XML Tags need to be unique (cant be 'attr', 'val' or any Component or CashFlow names): %s" %xmlNodeName)
     inDictionary[xmlNodeName] = {'val':xmlNode.text,'attr':xmlNode.attrib}
   # recursion
-  # - - - - - - - - - - - - - - - - - - - 
+  # - - - - - - - - - - - - - - - - - - -
   if len(list(xmlNode)) > 0:
-    for child in xmlNode:  
+    for child in xmlNode:
       recursiveXmlReader(child, inDictionary[xmlNodeName])
 # =====================================================================================================================
 
@@ -736,8 +737,8 @@ def lcmm(*args):
     Return lcm of args
     @ In, args, *int, list of integers
     @ Out, lcmm, lowest common multiple of args
-  """   
-  return reduce(lcm, args)
+  """
+  return functools.reduce(lcm, args)
 # =====================================================================================================================
 
 #################################
@@ -793,7 +794,7 @@ if __name__ == "__main__":
   with open(inp_opt.iINP[0]) as f:
     for l in f:
       (key, val) = l.split(' ', 1)
-      MyInputs[key] = np.array([float(n) for n in val.split(",")]) 
+      MyInputs[key] = np.array([float(n) for n in val.split(",")])
   if MyContainer.cashFlowVerbosity < 2:
     print("CashFlow INFO (Run as Code): Variable input read ")
   if MyContainer.cashFlowVerbosity < 1:
