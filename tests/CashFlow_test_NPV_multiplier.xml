@@ -8,7 +8,7 @@
       The tested functionality is called NPV.
       This test uses the "Multiplier" functionality of CashFlow.
     </description>
-    <classTested>Models.ExternalModel.CashFlow</classTested>
+    <classesTested>Models.ExternalModel.CashFlow</classesTested>
     <revisions>
         <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
     </revisions>

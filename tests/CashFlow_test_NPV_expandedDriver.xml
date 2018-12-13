@@ -9,7 +9,7 @@
       The BOP revenue is an expanded driver, i.e. values for every year are provided
          instead of just one value that is repeated for all years.
     </description>
-    <classTested>Models.ExternalModel.CashFlow</classTested>
+    <classesTested>Models.ExternalModel.CashFlow</classesTested>
     <revisions>
         <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
     </revisions>
