@@ -8,6 +8,10 @@
       The tested functionality is called NPV.
         The functionality of different tax and inflation reates for different components is tested here.
     </description>
+    <classesTested>Models.ExternalModel.CashFlow</classesTested>
+    <revisions>
+        <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
+    </revisions>
   </TestInfo>
 
   <RunInfo>

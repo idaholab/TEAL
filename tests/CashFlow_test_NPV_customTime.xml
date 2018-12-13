@@ -10,6 +10,10 @@
         All sub-projects, i.e. components lifetimes (including repetition)
         finish before the ProjectTime finishes.
     </description>
+    <classesTested>Models.ExternalModel.CashFlow</classesTested>
+    <revisions>
+        <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
+    </revisions>
   </TestInfo>
 
   <RunInfo>
