@@ -782,7 +782,7 @@ if __name__ == "__main__":
   MyCashFlow = CashFlow()
   # read the XML input file inp_opt.iXML[0]
   MyContainer = FakeSelf()
-  notroot = ET.parse(file(inp_opt.iXML[0], 'r')).getroot()
+  notroot = ET.parse(open(inp_opt.iXML[0], 'r')).getroot()
   root = ET.Element('ROOT')
   root.append(notroot)
   MyCashFlow._readMoreXML(MyContainer, root)
