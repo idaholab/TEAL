@@ -9,9 +9,7 @@ before_script:
       # clone raven
     - git clone https://github.com/idaholab/raven.git
     - cd raven
-      # we technically still need moose for running the tests, currently
     - git checkout master
-    - git submodule update --init moose
     - git clean -xfd
       # check that we have conda
     - export PATH=$HOME/miniconda2/bin:$PATH
