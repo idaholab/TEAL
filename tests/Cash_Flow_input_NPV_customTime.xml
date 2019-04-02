@@ -1,4 +1,4 @@
-  <Economics verbosity="0"> <!-- “0” all debug output, “1” some output, “100” only errors  -->
+  <Economics verbosity="0"> <!-- "0" all debug output, "1" some output, "100" only errors  -->
       <Global>
           <DiscountRate>0.05</DiscountRate> <!-- %/100 -->
           <tax>0.392</tax> <!-- %/100 -->
