@@ -3,7 +3,7 @@ import os
 import sys
 #from collections import defaultdict
 #import numpy as np
-from CashFlows import CashFlowGroup
+from CashFlows import Component
 
 raven_path = '~/projects/raven/framework' # TODO plugin path
 sys.path.append(os.path.expanduser(raven_path))
@@ -26,7 +26,7 @@ class CashFlowUser:
       @ Out, input_specs, InputData, specs
     """
     # this unit probably has some economics
-    spec.addSub(CashFlowGroup.get_input_specs())
+    spec.addSub(Component.get_input_specs())
     return spec
 
   def __init__(self):
@@ -43,7 +43,7 @@ class CashFlowUser:
       @ In, specs, InputData params, input from user
       @ Out, None
     """
-    self._economics = CashFlowGroup(self)
+    self._economics = Component(self)
     self._economics.read_input(specs)
 
   def get_crossrefs(self):
