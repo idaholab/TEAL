@@ -10,8 +10,6 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-from ValuedParams import ValuedParam
-
 raven_path = '~/projects/raven/framework' # TODO fix with plugin relative path
 sys.path.append(os.path.expanduser(raven_path))
 from utils import InputData, xmlUtils
@@ -37,12 +35,13 @@ class GlobalSettings:
     glob.addSub(ind)
     return glob
 
-  def __init__(self):
+  def __init__(self, verbosity=100, **kwargs):
     """
       Constructor.
-      @ In, None
+      @ In, kwargs, dict, general keyword arguments: verbosity
       @ Out, None
     """
+    self._verbosity = verbosity
     self._metrics = None
     self._discount_rate = None
     self._tax = None
@@ -65,7 +64,7 @@ class GlobalSettings:
       specs.parseNode(source)
     else:
       specs = source
-    for node in specs:
+    for node in specs.subparts:
       name = node.getName()
       val = node.value
       if name == 'DiscountRate':
@@ -79,10 +78,23 @@ class GlobalSettings:
       elif name == 'Indicator':
         self._indicators = node.parameterValues['name']
         self._metric_target = node.parameterValues.get('target', None)
-        self._active_components = val
+        active_cf = val
+        self._active_components = defaultdict(list)
+        print('DEBUGG val:', val)
+        for request in active_cf:
+          print('DEBUGG request:', request)
+          comp, cf = request.split('|')
+          self._active_components[comp].append(cf)
     self.check_initialization()
 
   def check_initialization(self):
+    """
+      Checks that the reading in of inputs resulted in a sensible
+      set of global data. Should be checked whenever a new GlobalSetting is created
+      and initialized.
+      @ In, None
+      @ Out, None
+    """
     # required entries
     if self._discount_rate is None:
       raise IOError('Missing <DiscountRate> from global parameters!')
@@ -99,6 +111,26 @@ class GlobalSettings:
       if ind not in ['NPV_search', 'NPV', 'IRR', 'PI']:
         raise IOError('Unrecognized indicator type: "{}"'.format(ind))
 
+  def get_active_components(self):
+    return self._active_components
+
+  def get_project_time(self):
+    return self._project_time
+
+  def get_indicators(self):
+    return self._indicators
+
+  def get_discount_rate(self):
+    return self._discount_rate
+
+  def get_metric_target(self):
+    return self._metric_target
+
+  def get_tax(self):
+    return self._tax
+
+  def get_inflation(self):
+    return self._inflation
 
 
 
@@ -117,24 +149,31 @@ class Component:
       @ Out, input_specs, InputData, specs
     """
     comp = InputData.parameterInputFactory('Component')
-    comp.addParam('name', param_type=InputData.StringType)
+    comp.addParam('name', param_type=InputData.StringType, required=True)
     comp.addSub(InputData.parameterInputFactory('Life_time', contentType=InputData.IntegerType))
     comp.addSub(InputData.parameterInputFactory('StartTime', contentType=InputData.FloatType))
     comp.addSub(InputData.parameterInputFactory('Repetitions', contentType=InputData.IntegerType))
+    comp.addSub(InputData.parameterInputFactory('tax', contentType=InputData.FloatType))
+    comp.addSub(InputData.parameterInputFactory('inflation', contentType=InputData.FloatType))
     cf = CashFlow.get_input_specs()
     comp.addSub(cf)
     return comp
 
-  def __init__(self, owner):
+  def __init__(self, verbosity=100, **kwargs):
     """
       Constructor.
-      @ In, owner, CashFlowUser instance, object to which this group belongs
+      @ In, kwargs, dict, general keyword arguments: verbosity
       @ Out, None
     """
-    self._owner = owner # cash flow user that uses this group
+    #self._owner = owner # cash flow user that uses this group
+    self._verbosity = verbosity
     self._lifetime = None # lifetime of the component
-    self._name = None
+    self.name = None
     self._cash_flows = []
+    self._start_time = None
+    self._repetitions = None
+    self._specific_tax = None
+    self._specific_inflation = None
 
   def read_input(self, source):
     """
@@ -150,35 +189,57 @@ class Component:
       specs.parseNode(source)
     else:
       specs = source
+    self.name = specs.parameterValues['name']
     # read in specs
+    ## since all of these are simple value setters, make a mapping
+    node_var_map = {'Life_time': '_lifetime',
+                    'StartTime': '_start_time',
+                    'Repetitions': '_repetitions',
+                    'tax': '_specific_tax',
+                    'inflation': '_specific_inflation',
+                   }
     for item in specs.subparts:
-      if item.getName() == 'Life_time':
-        self._lifetime = item.value
-      elif item.getName() == 'CashFlow':
-        new = CashFlow(self._owner)
+      name = item.getName()
+      if name == 'CashFlow':
+        new = CashFlow(self.name, verbosity=self._verbosity)
         new.read_input(item)
         self._cash_flows.append(new)
+      else:
+        attr = node_var_map.get(name, None)
+        if attr is not None:
+          setattr(self, attr, item.value)
+        else:
+          raise IOError('Unknown input node to "Component": {}'.format(name))
+    self.check_initialization()
 
-  def get_crossrefs(self):
+  def check_initialization(self):
     """
-      Provides a dictionary of the entities needed by this cashflow group to be evaluated
+      Checks that the reading in of inputs resulted in a sensible
+      set of data. Should be checked whenever a new Component is created
+      and initialized.
       @ In, None
-      @ Out, crossreffs, dict, dictionary of crossreferences needed (see ValuedParams)
-    """
-    crossrefs = dict((cf, cf.get_crossrefs()) for cf in self._cash_flows)
-    return crossrefs
-
-  def set_crossrefs(self, refs):
-    """
-      Provides links to entities needed to evaluate this cash flow group.
-      @ In, refs, dict, reference entities
       @ Out, None
     """
-    for cf in list(refs.keys()):
-      for try_match in self._cash_flows:
-        if try_match == cf:
-          try_match.set_crossrefs(refs.pop(try_match))
-          break
+    missing = 'Component "{comp}" is missing the <{node}> node!'
+    if self._lifetime is None:
+      raise IOError(missing.format(comp=self.name, node='Life_time'))
+    # check cashflows
+    for cf in self._cash_flows:
+      if len(cf.get_param('alpha')) != self._lifetime + 1:
+        raise IOError(('Component "{comp}" cashflow "{cf}" node <alpha> should have {correct} '+\
+                       'entries (1 + lifetime), but only found {found}!')
+                       .format(comp=self.name,
+                               cf=cf.name,
+                               correct=self._lifetime+1,
+                               found=len(cf.getParam('alpha'))))
+    # TODO this isn't a check, this is setting defaults. Should this be a different method?
+    if self._start_time is None:
+      self._start_time = 0
+    if self._repetitions is None:
+      self._repetitions = 0 # NOTE that 0 means infinite repetitions!
+
+  def count_multitargets(self):
+    return sum(cf._mult_target is not None for cf in self._cash_flows)
 
   #######
   # API #
@@ -198,13 +259,13 @@ class Component:
     cost = dict((cf.name, cf.evaluate_cost(activity, info)) for cf in self._cash_flows)
     return cost
 
-  def get_component(self):
-    """
-      Return the cash flow user that owns this group
-      @ In, None
-      @ Out, component, CashFlowUser instance, owner
-    """
-    return self._component
+  # def get_component(self):
+  #   """
+  #     Return the cash flow user that owns this group
+  #     @ In, None
+  #     @ Out, component, CashFlowUser instance, owner
+  #   """
+  #   return self._owner
 
   def get_lifetime(self):
     """
@@ -214,29 +275,35 @@ class Component:
     """
     return self._lifetime
 
-  def check_if_finalized(self):
-    return all(k.is_finalized() for k in self._cash_flows)
+  def get_start_time(self):
+    return self._start_time
 
-  def finalize(self, activity, raven_vars, meta, times=None):
-    """
-      Evaluate the parameters for member cash flows, and freeze values so they aren't changed again.
-      @ In, activity, dict, mapping of variables to values (may be np.arrays)
-      @ In,
-    """
-    info = {'raven_vars': raven_vars, 'meta': meta}
+  def get_repetitions(self):
+    return self._repetitions
+
+  def get_cashflow(self, name):
     for cf in self._cash_flows:
-      cf.finalize(activity, info, times=times)
+      if cf.name == name:
+        return cf
 
-  def calculate_lifetime_cashflows(self):
-    for cf in self._cash_flows:
-      cf.calculate_lifetime_cashflow(self._lifetime)
+  def get_cashflows(self):
+    return self._cash_flows
+
+  def get_multipliers(self):
+    return list(cf.get_multiplier() for cf in self._cash_flows)
+
+  def get_tax(self):
+    return self._specific_tax
+
+  def get_inflation(self):
+    return self._specific_inflation
 
 
-## TODO dynamic CashFlows should be somehow distinct from static CashFlows.
-## --> dynamic cash flows have ValuedParam members for parameters, and can
-##     be evaluated fluidly.
-## --> static cash flows have ONLY FLOATS for member values, and are not
-##     capable of being further evaluated.
+
+
+
+
+
 class CashFlow:
   """
     Hold the economics for a single cash flow, C = m * a * (D/D')^x
@@ -258,47 +325,42 @@ class CashFlow:
       @ In, None
       @ Out, input_specs, InputData, specs
     """
-    st = InputData.StringType
-    ft = InputData.FloatType
-    it = InputData.IntegerType
-    bt = InputData.BoolType
-
     cf = InputData.parameterInputFactory('CashFlow')
 
-    cf.addParam('name', param_type=InputData.StringType)
-    cf.addParam('driver', param_type=it)
-    cf.addParam('tax', param_type=bt)
-    cf.addParam('inflation', param_type=st)
-    cf.addParam('mult_target', param_type=bt)
-    cf.addParam('multiply', param_type=st)
+    cf.addParam('name', param_type=InputData.StringType, required=True)
+    cf.addParam('driver', param_type=InputData.StringType, required=True)
+    cf.addParam('tax', param_type=InputData.BoolType, required=True)
+    infl = InputData.makeEnumType('inflation_types', 'inflation_type', ['real', 'nominal', 'none'])
+    cf.addParam('inflation', param_type=infl, required=True)
+    cf.addParam('mult_target', param_type=InputData.BoolType, required=True)
+    cf.addParam('multiply', param_type=InputData.StringType)
 
     cf.addSub(InputData.parameterInputFactory('alpha', contentType=InputData.FloatListType))
-    cf.addSub(InputData.parameterInputFactory('reference', contentType=ft))
-    cf.addSub(InputData.parameterInputFactory('X', contentType=ft))
+    cf.addSub(InputData.parameterInputFactory('reference', contentType=InputData.FloatType))
+    cf.addSub(InputData.parameterInputFactory('X', contentType=InputData.FloatType))
     return cf
 
-  def __init__(self, component):
+  def __init__(self, component=None, verbosity=100, **kwargs):
     """
       Constructor
-      @ In, component, CashFlowUser instance, cash flow user to which this cash flow belongs
+      @ In, component, CashFlowUser instance, optional, cash flow user to which this cash flow belongs
       @ Out, None
     """
     # assert component is not None # TODO is this necessary? What if it's not a component-based cash flow?
     self._component = component # component instance to whom this cashflow belongs, if any
+    self._verbosity = verbosity
     # equation values
-    self._driver = None       # ValuedParam "quantity produced", D
-    self._alpha = None        # ValuedParam "price per produced", a
-    self._reference = None    # ValuedParam "where price is accurate", D'
-    self._scale = None        # ValuedParam "economy of scale", x
+    self._driver = None       # "quantity produced", D
+    self._alpha = None        # "price per produced", a
+    self._reference = None    # "where price is accurate", D'
+    self._scale = None        # "economy of scale", x
     # other params
     self.name = None          # base name of cash flow
     self._type = None         # needed? one-time, yearly, repeating
     self._taxable = None      # apply tax or not
     self._inflation = None    # apply inflation or not
-    self._mult_target = None  # not clear
-    # other members
-    self._signals = set()     # variable values needed for this cash flow
-    self._crossrefs = defaultdict(dict)
+    self._mult_target = None  # true if this cash flow gets multiplied by a global multiplier (e.g. NPV=0 search) (?)
+    self._multiplier = None   # arbitrary scalar multiplier (variable name)
 
   def read_input(self, item):
     """
@@ -308,22 +370,65 @@ class CashFlow:
     """
     self.name = item.parameterValues['name']
     print(' ... ... loading cash flow "{}"'.format(self.name))
-    # handle type directly here momentarily
-    self._taxable = item.parameterValues['taxable']
+    self._driver = item.parameterValues['driver']
+    self._taxable = item.parameterValues['tax']
     self._inflation = item.parameterValues['inflation']
     self._mult_target = item.parameterValues['mult_target']
+    self._multiplier = item.parameterValues.get('multiply', None)
     # the remainder of the entries are ValuedParams, so they'll be evaluated as-needed
     for sub in item.subparts:
-      if sub.getName() == 'driver':
-        self._set_valued_param('_driver', sub)
-      elif sub.getName() == 'reference_price':
-        self._set_valued_param('_alpha', sub)
-      elif sub.getName() == 'reference_driver':
-        self._set_valued_param('_reference', sub)
-      elif sub.getName() == 'scaling_factor_x':
-        self._set_valued_param('_scale', sub)
+      if sub.getName() == 'alpha':
+        self._alpha = np.atleast_1d(sub.value)
+      elif sub.getName() == 'reference':
+        self._reference = sub.value
+      elif sub.getName() == 'X':
+        self._scale = sub.value
       else:
         raise IOError('Unrecognized "CashFlow" node: "{}"'.format(sub.getName()))
+    self.check_initialization()
+
+  def check_initialization(self):
+    """
+      Checks that the reading in of inputs resulted in a sensible
+      set of data. Should be checked whenever a new CashFlow is created
+      and initialized.
+      @ In, None
+      @ Out, None
+    """
+    # required nodes
+    missing = 'Component "{comp}" CashFlow "{cf}" is missing the <{node}> node!'
+    if self._alpha is None:
+      raise IOError(missing.format(comp=self._component, cf=self.name, node='alpha'))
+    if self._reference is None:
+      raise IOError(missing.format(comp=self._component, cf=self.name, node='reference'))
+    if self._scale is None:
+      raise IOError(missing.format(comp=self._component, cf=self.name, node='X'))
+
+
+  def get_param(self, param):
+    param = param.lower()
+    if param in ['alpha', 'reference_price']:
+      return self._alpha
+    elif param in ['driver', 'amount_sold']:
+      return self._driver
+    elif param in ['reference', 'reference_driver']:
+      return self._reference
+    elif param in ['x', 'scale', 'economy of scale', 'scale_factor']:
+      return self._scale
+    else:
+      raise RuntimeError('Unrecognized parameter request:', param)
+
+  def is_mult_target(self):
+    return self._mult_target
+
+  def get_multiplier(self):
+    return self._multiplier
+
+  def is_taxable(self):
+    return self._taxable
+
+  def is_inflated(self):
+    return self._inflation
 
   def _set_valued_param(self, name, spec):
     """

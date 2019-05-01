@@ -76,134 +76,15 @@ class CashFlow(ExternalModelPluginBase):
       @ In, inputFiles, list, not used
       @ Out, None
     """
-    # INPUT CHECKER (check that the values that we need are in the dict cashFlowParameters)
-    # =====================================================================================
-
-    # check if Economics exists
-    # - - - - - - - - - - - - - - - - - - -
-    if 'Economics' not in container.cashFlowParameters.keys():
-      raise IOError("CashFlow ERROR (XML reading): 'Economics' node is required")
-
-    # check if Global and children exist and are of the correct type
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    if 'Global' not in container.cashFlowParameters['Economics'].keys():
-      raise IOError("CashFlow ERROR (XML reading): 'Global' node is required inside 'Economics'")
-
-    for tags in ['DiscountRate', 'tax', 'inflation', 'Indicator']:
-      if tags not in container.cashFlowParameters['Economics']['Global'].keys():
-        raise IOError("CashFlow ERROR (XML reading): '%s' node is required inside 'Global'" %tags)
-      # type check: reals
-      if tags in ['DiscountRate', 'tax', 'inflation']:
-        if isReal(container.cashFlowParameters['Economics']['Global'][tags]['val']):
-          container.cashFlowParameters['Economics']['Global'][tags]['val'] = float(container.cashFlowParameters['Economics']['Global'][tags]['val'])
-        else:
-          raise IOError("CashFlow ERROR (XML reading): '%s' needs to be a real number'" %tags)
-    # check if we use a custom project time or we use the lcm of all components
-    if 'ProjectTime' in container.cashFlowParameters['Economics']['Global'].keys():
-      if container.cashFlowVerbosity < 1:
-        print ("CashFlow INFO (XML reading): Found optional ProjectTime, this will be used over the lcm of all components: %s" %container.cashFlowParameters['Economics']['Global']['ProjectTime']['val'])
-      if isInt(container.cashFlowParameters['Economics']['Global']['ProjectTime']['val']):
-        container.cashFlowParameters['Economics']['Global']['ProjectTime']['val'] = int(container.cashFlowParameters['Economics']['Global']['ProjectTime']['val'])
-      else:
-        raise IOError("CashFlow ERROR (XML reading): 'ProjectTime' needs to be an integer inside 'Global'" )
-      container.customTime = True
-    else:
-      container.customTime = False
-    # check Indicator attributes
-    # check 'name' attribute (it's actual values are checked after the 'CashFlow Nodes' are checked)
-    if 'name' not in container.cashFlowParameters['Economics']['Global']['Indicator']['attr'].keys():
-      raise IOError("CashFlow ERROR (XML reading): 'name' attribute of 'Indicator' is required inside 'Global'")
-    container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['name'] = [x.strip() for x in container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['name'].split(",")]
-    for indicators in container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['name']:
-      if indicators not in ['NPV_search', 'NPV', 'IRR', 'PI']:
-        raise IOError("CashFlow ERROR (XML reading): 'name' attribut  of 'Indicator' inside 'Global' has to be 'NPV_search', 'NPV' or 'IRR' or 'PI'")
-      if indicators == 'NPV_search':
-        # check 'target' attribute if name is NPV_search
-        if 'target' not in container.cashFlowParameters['Economics']['Global']['Indicator']['attr'].keys():
-          raise IOError("CashFlow ERROR (XML reading): 'target' attribute of 'Indicator' is required inside 'Global' if name='NPV_search'")
-        # type check: reals
-        if isReal(container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['target']):
-          container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['target'] = float(container.cashFlowParameters['Economics']['Global']['Indicator']['attr']['target'])
-        else:
-          raise IOError("CashFlow ERROR (XML reading): 'target' attribute of 'Indicator' inside 'Global' needs to be a real number")
+    # construct global settings
+    # construct components
 
     # check if all Components' children and attributes exist and are of the correct type
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    container.cashFlowComponentsList = []
-    container.cashFlowCashFlowsList = []
-    oneMultTargetTrue = False
-    for compo in container.cashFlowParameters['Economics'].keys():
-      if compo != 'attr' and compo != 'val':
-        if container.cashFlowParameters['Economics'][compo]['attr'] == 'Component':
-          if container.cashFlowVerbosity < 2:
-            print ("CashFlow INFO (XML reading): Found component %s" %compo)
-          container.cashFlowComponentsList.append(compo)
-          # Life_time
-          for tags in ['Life_time']:
-            if tags not in container.cashFlowParameters['Economics'][compo].keys():
-              raise IOError("CashFlow ERROR (XML reading): '%s' node is required inside '%s'" %(tags, compo))
-          # type check: integers
-          for tags in ['Life_time']:
-            if isInt(container.cashFlowParameters['Economics'][compo][tags]['val']):
-              container.cashFlowParameters['Economics'][compo][tags]['val'] = int(container.cashFlowParameters['Economics'][compo][tags]['val'])
-            else:
-              raise IOError("CashFlow ERROR (XML reading): '%s' needs to be an integer inside '%s'" %(tags, compo))
-          # type check: optional reals
-          for tags in ['tax', 'inflation']:
-            if tags in container.cashFlowParameters['Economics'][compo].keys():
-              if container.cashFlowVerbosity < 2:
-                print ("CashFlow INFO (XML reading): Found optional tag %s for component %s" %(tags,compo))
-              if isReal(container.cashFlowParameters['Economics'][compo][tags]['val']):
-                container.cashFlowParameters['Economics'][compo][tags]['val'] = float(container.cashFlowParameters['Economics'][compo][tags]['val'])
-              else:
-                raise IOError("CashFlow ERROR (XML reading): '%s' needs to be a real number inside component %s'" %(tags,compo))
-          # type check: optional integers which require customTime=True
-          for tags in ['StartTime', 'Repetitions']:
-            if tags in container.cashFlowParameters['Economics'][compo].keys():
-              if container.cashFlowVerbosity < 2:
-                print ("CashFlow INFO (XML reading): Found optional tag %s for component %s" %(tags,compo))
-              if not container.customTime:
-                raise IOError("CashFlow ERROR (XML reading): <ProjectTime> in <Global> is required if <StartTime> or <Repetitions> are used")
-              if isInt(container.cashFlowParameters['Economics'][compo][tags]['val']):
-                container.cashFlowParameters['Economics'][compo][tags]['val'] = int(container.cashFlowParameters['Economics'][compo][tags]['val'])
-              else:
-                raise IOError("CashFlow ERROR (XML reading): '%s' needs to be a integer number inside component %s'" %(tags,compo))
-            else:
-              #set some defaults (start year = 0 and repetitions = 0 = infinity)
-              container.cashFlowParameters['Economics'][compo][tags] = {}
-              container.cashFlowParameters['Economics'][compo][tags]['val'] = 0
-              container.cashFlowParameters['Economics'][compo][tags]['attr'] = {}
-
           # Check CashFlow Nodes
           # - - - - - - - - - - - - -
           for cashFlow in container.cashFlowParameters['Economics'][compo]:
-            if cashFlow != 'attr' and cashFlow != 'val':
-              if container.cashFlowParameters['Economics'][compo][cashFlow]['attr'] == 'CashFlow':
-                if container.cashFlowVerbosity < 2:
-                  print ("CashFlow INFO (XML reading): Found CashFlow definition %s" %cashFlow)
-                if cashFlow in container.cashFlowCashFlowsList:
-                  raise IOError("CashFlow ERROR (XML reading): Cashflow names need to be unique over all components: '%s" %cashFlow)
-                container.cashFlowCashFlowsList.append(cashFlow)
-                # reference, alpha, X
-                for tags in ['alpha', 'reference', 'X']:
-                  if tags not in container.cashFlowParameters['Economics'][compo][cashFlow].keys():
-                    raise IOError("CashFlow ERROR (XML reading): '%s' node is required inside CashFlow '%s'" %(tags, cashFlow))
-                # type check: reals
-                for tags in ['reference', 'X']:
-                  if isReal(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val']):
-                    container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'] = float(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'])
-                  else:
-                    raise IOError("CashFlow ERROR (XML reading): '%s' needs to be a real number inside '%s'" %(tags, cashFlow))
-                # type check: arrays
-                for tags in ['alpha']:
-                  container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'] = container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'].split()
-                if len(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val']) - 1 != container.cashFlowParameters['Economics'][compo]['Life_time']['val']:
-                  raise IOError("CashFlow ERROR (XML reading): '%s' needs to have the lenght of 'Life_time' (%s) + 1 in '%s'" %(tags, container.cashFlowParameters['Economics'][compo]['Life_time']['val'], cashFlow))
-                for i in range(len(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'])):
-                  if isReal(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'][i]):
-                    container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'][i] = float(container.cashFlowParameters['Economics'][compo][cashFlow][tags]['val'][i])
-                  else:
-                    raise IOError("CashFlow ERROR (XML reading): '%s' needs to be an array of real numbers inside '%s'" %(tags, cashFlow))
+
                 # check CashFlow attributes
                 # - - - - - - - - - - - - -
                 # Existence of 'driver' and 'multiply' in input space are checked during runtime (this check is not possible during initialisation)
