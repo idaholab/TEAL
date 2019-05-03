@@ -80,9 +80,7 @@ class GlobalSettings:
         self._metric_target = node.parameterValues.get('target', None)
         active_cf = val
         self._active_components = defaultdict(list)
-        print('DEBUGG val:', val)
         for request in active_cf:
-          print('DEBUGG request:', request)
           comp, cf = request.split('|')
           self._active_components[comp].append(cf)
     self.check_initialization()
@@ -330,7 +328,7 @@ class CashFlow:
     cf.addParam('name', param_type=InputData.StringType, required=True)
     cf.addParam('driver', param_type=InputData.StringType, required=True)
     cf.addParam('tax', param_type=InputData.BoolType, required=True)
-    infl = InputData.makeEnumType('inflation_types', 'inflation_type', ['real', 'nominal', 'none'])
+    infl = InputData.makeEnumType('inflation_types', 'inflation_type', ['real', 'none']) # "nominal" not yet implemented
     cf.addParam('inflation', param_type=infl, required=True)
     cf.addParam('mult_target', param_type=InputData.BoolType, required=True)
     cf.addParam('multiply', param_type=InputData.StringType)
@@ -428,7 +426,9 @@ class CashFlow:
     return self._taxable
 
   def is_inflated(self):
-    return self._inflation
+    # right now only 'none' and 'real' are options, so this is boolean
+    ## when nominal is implemented, might need to extend this method a bit
+    return self._inflation != 'none'
 
   def _set_valued_param(self, name, spec):
     """
