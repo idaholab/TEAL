@@ -26,7 +26,7 @@
   <Models>
     <ExternalModel name="Cash_Flow" subType="CashFlow">
       <variables> GRO_CashFlow_in, GRO_CashFlow_out</variables>
-      <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_IRR.xml"/>
+      <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_IRR.xml" />
     </ExternalModel>
   </Models>
 
@@ -56,14 +56,14 @@
 
   <Steps>
     <MultiRun name="MCrun" pauseAtEnd="True">
-      <Input          class="DataObjects"   type="PointSet">SET_CashFlow_in</Input>
-      <Model          class="Models"        type="ExternalModel">Cash_Flow</Model>
-      <Sampler        class="Samplers"      type="MonteCarlo">test_MC</Sampler>
-      <Output         class="DataObjects"   type="PointSet">SET_CashFlow_out</Output>
+      <Input class="DataObjects" type="PointSet">SET_CashFlow_in</Input>
+      <Model class="Models" type="ExternalModel">Cash_Flow</Model>
+      <Sampler class="Samplers" type="MonteCarlo">test_MC</Sampler>
+      <Output class="DataObjects" type="PointSet">SET_CashFlow_out</Output>
     </MultiRun>
     <IOStep name="printTOfile">
-     <Input          class="DataObjects"   type="PointSet">SET_CashFlow_out</Input>
-     <Output         class="OutStreams"    type="Print">dumpIRR</Output>
+     <Input class="DataObjects" type="PointSet">SET_CashFlow_out</Input>
+     <Output class="OutStreams" type="Print">dumpIRR</Output>
     </IOStep>
   </Steps>
 

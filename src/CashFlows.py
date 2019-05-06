@@ -12,11 +12,14 @@ import numpy as np
 
 raven_path = '~/projects/raven/framework' # TODO fix with plugin relative path
 sys.path.append(os.path.expanduser(raven_path))
-from utils import InputData, xmlUtils
+from utils import InputData, xmlUtils, TreeStructure
 
 
 
 class GlobalSettings:
+  ##################
+  # INITIALIZATION #
+  ##################
   @classmethod
   def get_input_specs(cls):
     """
@@ -59,12 +62,15 @@ class GlobalSettings:
       @ In, xml, bool, if True then XML is passed in, not input data
       @ Out, None
     """
-    if isinstance(source, ET.Element):
+    if isinstance(source, (ET.Element, TreeStructure.InputNode)):
       specs = self.get_input_specs()()
       specs.parseNode(source)
     else:
       specs = source
+    #print('DEBUGG specs:', type(specs), specs)
     for node in specs.subparts:
+      #print('DEBUGG node:', type(node), node)
+      #print(dir(node))
       name = node.getName()
       val = node.value
       if name == 'DiscountRate':
@@ -109,26 +115,29 @@ class GlobalSettings:
       if ind not in ['NPV_search', 'NPV', 'IRR', 'PI']:
         raise IOError('Unrecognized indicator type: "{}"'.format(ind))
 
+  #######
+  # API #
+  #######
   def get_active_components(self):
     return self._active_components
-
-  def get_project_time(self):
-    return self._project_time
-
-  def get_indicators(self):
-    return self._indicators
 
   def get_discount_rate(self):
     return self._discount_rate
 
+  def get_inflation(self):
+    return self._inflation
+
+  def get_indicators(self):
+    return self._indicators
+
   def get_metric_target(self):
     return self._metric_target
 
+  def get_project_time(self):
+    return self._project_time
+
   def get_tax(self):
     return self._tax
-
-  def get_inflation(self):
-    return self._inflation
 
 
 
@@ -149,7 +158,7 @@ class Component:
     comp = InputData.parameterInputFactory('Component')
     comp.addParam('name', param_type=InputData.StringType, required=True)
     comp.addSub(InputData.parameterInputFactory('Life_time', contentType=InputData.IntegerType))
-    comp.addSub(InputData.parameterInputFactory('StartTime', contentType=InputData.FloatType))
+    comp.addSub(InputData.parameterInputFactory('StartTime', contentType=InputData.IntegerType))
     comp.addSub(InputData.parameterInputFactory('Repetitions', contentType=InputData.IntegerType))
     comp.addSub(InputData.parameterInputFactory('tax', contentType=InputData.FloatType))
     comp.addSub(InputData.parameterInputFactory('inflation', contentType=InputData.FloatType))
@@ -182,7 +191,7 @@ class Component:
     """
     print(' ... loading economics ...')
     # allow read_input argument to be either xml or input specs
-    if isinstance(source, ET.Element):
+    if isinstance(source, (ET.Element, TreeStructure.InputNode)):
       specs = self.get_input_specs()()
       specs.parseNode(source)
     else:
@@ -236,48 +245,11 @@ class Component:
     if self._repetitions is None:
       self._repetitions = 0 # NOTE that 0 means infinite repetitions!
 
-  def count_multitargets(self):
-    return sum(cf._mult_target is not None for cf in self._cash_flows)
-
   #######
   # API #
   #######
-  def incremental_cost(self, activity, raven_vars, meta, t):
-    """
-      Calculates the incremental cost of a particular system configuration.
-      @ In, activity, XArray.DataArray, array of driver-centric variable values
-      @ In, raven_vars, dict, additional inputs from RAVEN call (or similar)
-      @ In, meta, dict, additional user-defined meta
-      @ In, t, int, time of current evaluation (if any) # TODO default?
-      @ Out, cost, float, cash flow evaluation
-    """
-    # combine into a single dict for the evaluation calls
-    info = {'raven_vars': raven_vars, 'meta': meta, 't': t}
-    # combine all cash flows into single cash flow evaluation
-    cost = dict((cf.name, cf.evaluate_cost(activity, info)) for cf in self._cash_flows)
-    return cost
-
-  # def get_component(self):
-  #   """
-  #     Return the cash flow user that owns this group
-  #     @ In, None
-  #     @ Out, component, CashFlowUser instance, owner
-  #   """
-  #   return self._owner
-
-  def get_lifetime(self):
-    """
-      Provides the lifetime of this cash flow user.
-      @ In, None
-      @ Out, lifetime, int, lifetime
-    """
-    return self._lifetime
-
-  def get_start_time(self):
-    return self._start_time
-
-  def get_repetitions(self):
-    return self._repetitions
+  def count_multtargets(self):
+    return sum(cf._mult_target is not None for cf in self._cash_flows)
 
   def get_cashflow(self, name):
     for cf in self._cash_flows:
@@ -287,14 +259,28 @@ class Component:
   def get_cashflows(self):
     return self._cash_flows
 
+  def get_inflation(self):
+    return self._specific_inflation
+
+  def get_lifetime(self):
+    """
+      Provides the lifetime of this cash flow user.
+      @ In, None
+      @ Out, lifetime, int, lifetime
+    """
+    return self._lifetime
+
   def get_multipliers(self):
     return list(cf.get_multiplier() for cf in self._cash_flows)
 
+  def get_repetitions(self):
+    return self._repetitions
+
+  def get_start_time(self):
+    return self._start_time
+
   def get_tax(self):
     return self._specific_tax
-
-  def get_inflation(self):
-    return self._specific_inflation
 
 
 
@@ -402,6 +388,8 @@ class CashFlow:
     if self._scale is None:
       raise IOError(missing.format(comp=self._component, cf=self.name, node='X'))
 
+  def get_multiplier(self):
+    return self._multiplier
 
   def get_param(self, param):
     param = param.lower()
@@ -416,140 +404,14 @@ class CashFlow:
     else:
       raise RuntimeError('Unrecognized parameter request:', param)
 
-  def is_mult_target(self):
-    return self._mult_target
-
-  def get_multiplier(self):
-    return self._multiplier
-
-  def is_taxable(self):
-    return self._taxable
-
   def is_inflated(self):
     # right now only 'none' and 'real' are options, so this is boolean
     ## when nominal is implemented, might need to extend this method a bit
     return self._inflation != 'none'
 
-  def _set_valued_param(self, name, spec):
-    """
-      Utilitly method to set ValuedParam members via reading input specifications.
-      @ In, name, str, member variable name (e.g. self.<name>)
-      @ In, spec, InputData params, input parameters
-      @ Out, None
-    """
-    vp = ValuedParam(name)
-    signal = vp.read('CashFlow \'{}\''.format(self.name), spec, None) # TODO what "mode" to use?
-    self._signals.update(signal)
-    self._crossrefs[name] = vp
-    # alias: redirect "capacity" variable
-    if vp.type == 'variable' and vp._sub_name == 'capacity':
-      vp = self._component.get_capacity_param()
-    setattr(self, name, vp)
+  def is_mult_target(self):
+    return self._mult_target
 
-  def get_crossrefs(self):
-    """
-      Accessor for cross-referenced entities needed by this cashflow.
-      @ In, None
-      @ Out, crossrefs, dict, cross-referenced requirements dictionary
-    """
-    return self._crossrefs
-
-  def set_crossrefs(self, refs):
-    """
-      Setter for cross-referenced entities needed by this cashflow.
-      @ In, refs, dict, cross referenced entities
-      @ Out, None
-    """
-    for attr, obj in refs.items():
-      valued_param = self._crossrefs[attr]
-      valued_param.set_object(obj)
-
-  def evaluate_cost(self, activity, values_dict):
-    """
-      Evaluates cost of a particular scenario provided by "activity".
-      @ In, activity, pandas.Series, multi-indexed array of scenario activities
-      @ In, values_dict, dict, additional values that may be needed to evaluate cost
-      @ Out, cost, float, cost of activity
-    """
-    # note this method gets called a LOT, so speedups here are quite effective
-    # "activity" is a pandas series with production levels -> example from EGRET case
-    # build aliases
-    aliases = {} # currently unused, but mechanism left in place
-    #aliases['capacity'] = '{}_capacity'.format(self._component.name)
-    # for now, add the activity to the dictionary # TODO slow, speed this up
-    res_vals = activity.to_dict()
-    values_dict['raven_vars'].update(res_vals)
-    params = self.calculates_params(values_dict, aliases=aliases)
-    return params['cost']
-
-  def is_finalized(self):
-    """
-      Checks if this CashFlow is finalized (i.e. no entries are ValuedParams)
-      @ In, None
-      @ Out, is_finalized, bool, True if finalized
-    """
-    return all(not isinstance(x, ValuedParam) for x in [self._driver, self._alpha, self._reference, self._scale])
-
-  def finalize(self, params):
-    """
-      Finalize the economic parameters for this cash flow, replacing ValuedParams with evaluated values.
-      @ In, params, dict, each parameter evaluated either once or at each time step
-      @ Out, None
-    """
-    # alpha is an averaged quantity
-    self._alpha = np.atleast_1d(params['alpha']).average()
-    # driver is a total quantity
-    self._driver = np.atleast_1d(params['driver']).sum()
-    # reference, scaling are singular quantities
-    assert len(np.atleast_1d(params['ref_driver'])) == 1
-    self._reference = float(params['ref_driver'])
-    assert len(np.atleast_1d(params['scaling'])) == 1
-    self._scale = float(params['scaling'])
-
-    # ?? mult?
-
-
-  def calculate_params(self, values_dict, aliases=None, aggregate=False):
-    """
-      Calculates the value of the cash flow parameters.
-      @ In, values_dict, dict, mapping from simulation variable names to their values (as floats or numpy arrays)
-      @ In, aliases, dict, optional, means to translate variable names using an alias. Not well-tested!
-      @ In, aggregate, bool, optional, if True then make an effort to collapse array values to floats meaningfully
-      @ Out, params, dict, dictionary of parameters mapped to values including the cost
-    """
-    if aliases is None:
-      aliases = {}
-    a = self._alpha.evaluate(values_dict, target_var='reference_price', aliases=aliases)[0]['reference_price']
-    D = self._driver.evaluate(values_dict, target_var='driver', aliases=aliases)[0]['driver']
-    Dp = self._reference.evaluate(values_dict, target_var='reference_driver', aliases=aliases)[0]['reference_driver']
-    x = self._scale.evaluate(values_dict, target_var='scaling_factor_x', aliases=aliases)[0]['scaling_factor_x']
-    if aggregate:
-      # parameters might be time-dependent, so aggregate them appropriately
-      ## "alpha" should be the average price
-      if len(np.atleast_1d(a)) > 1:
-        a = float(a.average())
-      ## "D" should be the total amount produced
-      if len(np.atleast_1d(D)) > 1:
-        D = float(a.sum())
-      ## neither "x" nor "Dp" should have time dependence, # TODO assumption for now.
-    cost = a * (D / Dp) ** x
-    return {'alpha': a, 'driver': D, 'ref_driver': Dp, 'scaling': x, 'cost': float(cost)}
-
-  def calculate_lifetime_cashflow(self, lifetime, params=None, values_dict=None):
-    if params is None and values_dict is None:
-      raise RuntimeError('Need either "params" or "values_dict" to evaluate "calculate_lifetime_cashflow"!')
-    if params is not None and values_dict is not None:
-      raise RuntimeError('Need ONLY ONE of "params" or "values_dict" to evaluate "calculate_lifetime_cashflow", not both!')
-    # If we need to calculate the params ourselves, do that now
-    if values_dict:
-      params = self.calculate_params(values_dict, aggregate=True)
-    # expand to lifetime if not already
-    if lifetime > 1:
-      # set how to expand values
-      if self._type == 'one-time':
-        expansion = np.zeros(lifetime)
-      for par in ['alpha', 'driver', 'ref_driver', 'scaling']:
-        val = params[par]
-        if len(np.atleast_1d(val)) == 1:
-          params[par] = ones * val
+  def is_taxable(self):
+    return self._taxable
 
