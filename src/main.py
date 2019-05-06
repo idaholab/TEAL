@@ -276,6 +276,7 @@ def project_single_cashflow(cf, start, end, life, life_cf, tax_mult, infl_rate, 
   # before the project starts, after it ends are zero; we want the working part
   operating_mask = np.logical_and(years >= start, years <= end)
   operating_years = years[operating_mask]
+  print('DEBUGG op years:', operating_years)
   start_shift = operating_years - start # y_shift
   # what year realative to production is this component in, for each operating year?
   relative_operation = start_shift % life # yReal

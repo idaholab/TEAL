@@ -80,7 +80,7 @@ class GlobalSettings:
       elif name == 'inflation':
         self._inflation = val
       elif name == 'ProjectTime':
-        self._project_time = val
+        self._project_time = val + 1 # one for the construction year!
       elif name == 'Indicator':
         self._indicators = node.parameterValues['name']
         self._metric_target = node.parameterValues.get('target', None)
