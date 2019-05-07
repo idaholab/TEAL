@@ -87,7 +87,10 @@ class GlobalSettings:
         active_cf = val
         self._active_components = defaultdict(list)
         for request in active_cf:
-          comp, cf = request.split('|')
+          try:
+            comp, cf = request.split('|')
+          except ValueError:
+            raise IOError('Expected active components in <Indicators> to be formatted as Component|Cashflow, but got {}'.format(request))
           self._active_components[comp].append(cf)
     self.check_initialization()
 
