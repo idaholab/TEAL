@@ -15,14 +15,14 @@ before_script:
     - export PATH=$HOME/miniconda2/bin:$PATH
     - if which conda 2> /dev/null; then
         echo "Conda found!";
-        conda update conda; 
+        conda update conda;
       else
         echo "ERROR Conda not found!";
         exit 404;
       fi
       # create libraries or create them
     - ./scripts/establish_conda_env.sh --install --conda-defs $HOME/miniconda2/etc/profile.d/conda.sh
-    - make
+    - ./build_raven
       # Install CashFlow branch ...
     - cd scripts
     - python install_plugins.py -s ../../ -f
