@@ -10,6 +10,7 @@ from . import CashFlows
 
 sys.path.append('~/projects/raven/framework') # TODO generic RAVEN location
 from utils.graphStructure import graphObject
+from utils import utils
 
 #=====================
 # UTILITIES
@@ -74,16 +75,15 @@ def check_drivers(settings, components, variables, v=100):
     checks if all drivers needed are present in variables
   """
   m = 'check_drivers'
+  #active = _get_active_drivers(settings, components)
   active = list(comp for comp in components if comp.name in settings.get_active_components())
   vprint(v, 0, m, '... creating evaluation sequence ...')
   ordered = _create_eval_process(active, variables)
   vprint(v, 0, m, '... evaluation sequence:', ordered)
   return ordered
 
-
-
-
 def _create_eval_process(components, variables):
+  # TODO does this work with float drivers (e.g. already-evaluated drivers)?
   # storage for creating graph sequence
   driver_graph = defaultdict(list)
   driver_graph['EndNode'] = []
@@ -116,7 +116,6 @@ def _create_eval_process(components, variables):
                                      el=lifetime))
       else:
         # driver should be in cash flows if not in variables
-        print('DEBUGG driver:', driver)
         driver_comp, driver_cf = driver.split('|')
         for match_comp in components:
           if match_comp.name == driver_comp:
@@ -151,49 +150,30 @@ def component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=100):
   vprint(v, 1, m, "-"*75)
   vprint(v, 1, m, 'Computing LIFETIME cash flow for Component "{}" CashFlow "{}" ...'.format(comp.name, cf.name))
   param_text = '... {:^10.10s}: {: 1.9e}'
-  # driver
-  driver_name = cf.get_param('driver')
-  driver = variables.get(driver_name, None)
-  if driver is None:
-    # driver should be in a cash flow!
-    driver_comp, driver_cf = driver_name.split('|')
-    driver = lifetime_cashflows[driver_comp][driver_cf][:] # TODO should be a copy? Or follow reference changes?
-  else:
-    driver = np.atleast_1d(driver)
-    # if single-valued, expand to fill the space
-    if len(driver) == 1:
-      driver = np.ones(comp.get_lifetime()+1) * driver
-  vprint(v, 1, m, '... {:^10.10s}: {}'.format('driver', driver_name))
-  vprint(v, 1, m, '...           mean: {: 1.9e}'.format(driver.mean()))
-  vprint(v, 1, m, '...           std : {: 1.9e}'.format(driver.std()))
-  vprint(v, 1, m, '...           min : {: 1.9e}'.format(driver.min()))
-  vprint(v, 1, m, '...           max : {: 1.9e}'.format(driver.max()))
-  vprint(v, 1, m, '...           nonz: {:d}'.format(np.count_nonzero(driver)))
-  # alpha
-  alpha = cf.get_param('alpha')
-  if len(alpha) == 1:
-    alpha = np.ones(comp.get_lifetime()+1) * alpha
-  vprint(v, 1, m, '... {:^10.10s}: {}'.format('alpha', ''))
-  vprint(v, 1, m, '...           mean: {: 1.9e}'.format(alpha.mean()))
-  vprint(v, 1, m, '...           std : {: 1.9e}'.format(alpha.std()))
-  vprint(v, 1, m, '...           min : {: 1.9e}'.format(alpha.min()))
-  vprint(v, 1, m, '...           max : {: 1.9e}'.format(alpha.max()))
-  vprint(v, 1, m, '...           nonz: {:d}'.format(np.count_nonzero(alpha)))
-  # others
-  reference = cf.get_param('reference')
-  vprint(v, 1, m, param_text.format('reference', reference))
-  scale = cf.get_param('scale')
-  vprint(v, 1, m, param_text.format('scale', scale))
-  mult = cf.get_multiplier()
-  if mult is None:
-    mult = 1.0
-  else:
-    mult = float(variables[mult])
-  vprint(v, 1, m, param_text.format('mult', mult))
-  # calculation
-  life_cashflow = mult * alpha * (driver/reference)**scale
-  # yearly print
+  # do cashflow
+  results = cf.calculate_cashflow(variables, lifetime_cashflows, comp.get_lifetime()+1, v)
+  life_cashflow = results['result']
+
   if v < 1:
+    # print out all of the parts of the cashflow calc
+    for item, value in results.items():
+      if item == 'result':
+        continue
+      if utils.isAFloatOrInt(value):
+        vprint(v, 1, m, param_text.format(item, value))
+      else:
+        orig = cf.get_param(item)
+        if utils.isSingleValued(orig):
+          name = orig
+        else:
+          name = '(from input)'
+        vprint(v, 1, m, '... {:^10.10s}: {}'.format(item, name))
+        vprint(v, 1, m, '...           mean: {: 1.9e}'.format(value.mean()))
+        vprint(v, 1, m, '...           std : {: 1.9e}'.format(value.std()))
+        vprint(v, 1, m, '...           min : {: 1.9e}'.format(value.min()))
+        vprint(v, 1, m, '...           max : {: 1.9e}'.format(value.max()))
+        vprint(v, 1, m, '...           nonz: {:d}'.format(np.count_nonzero(value)))
+
     yx = max(len(str(len(life_cashflow))),4)
     vprint(v, 0, m, 'LIFETIME cash flow summary by year:')
     vprint(v, 0, m, '    {y:^{yx}.{yx}s}, {a:^10.10s}, {d:^10.10s}, {c:^15.15s}'.format(y='year',
@@ -203,10 +183,10 @@ def component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=100):
                                                                                         c='cashflow'))
     for y, cash in enumerate(life_cashflow):
       vprint(v, 1, m, '    {y:^{yx}d}, {a: 1.3e}, {d: 1.3e}, {c: 1.9e}'.format(y=y,
-                                                                              yx=yx,
-                                                                              a=alpha[y],
-                                                                              d=driver[y],
-                                                                              c=cash))
+                                                                               yx=yx,
+                                                                               a=results['alpha'][y],
+                                                                               d=results['driver'][y],
+                                                                               c=cash))
   return life_cashflow
 
 def get_project_length(settings, components, v=100):
@@ -276,7 +256,6 @@ def project_single_cashflow(cf, start, end, life, life_cf, tax_mult, infl_rate, 
   # before the project starts, after it ends are zero; we want the working part
   operating_mask = np.logical_and(years >= start, years <= end)
   operating_years = years[operating_mask]
-  print('DEBUGG op years:', operating_years)
   start_shift = operating_years - start # y_shift
   # what year realative to production is this component in, for each operating year?
   relative_operation = start_shift % life # yReal
@@ -390,10 +369,13 @@ def lcmm(*args):
 # MAIN METHOD
 #=====================
 def run(settings, components, variables):
+  # make a dictionary mapping component names to components
   comps_by_name = dict((c.name, c) for c in components)
   v = settings._verbosity
   m = 'run'
   vprint(v, 0, m, 'Starting CashFlow Run ...')
+
+  # check mapping of drivers and determine order in which they should be evaluated
   vprint(v, 0, m, '... Checking if all drivers present ...')
   ordered = check_drivers(settings, components, variables, v=v)
 

@@ -22,6 +22,9 @@ before_script:
       fi
       # create libraries or create them
     - ./scripts/establish_conda_env.sh --install --conda-defs $HOME/miniconda2/etc/profile.d/conda.sh
+      # check python installation
+    - which python
+    - python -V
     - ./build_raven
       # Install CashFlow branch ...
     - cd scripts

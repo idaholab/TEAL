@@ -97,7 +97,7 @@ if __name__ == "__main__":
   inp_par.add_argument('-iXML', nargs=1, required=True, help='XML CashFlow input file name', metavar='inp_file')
   inp_par.add_argument('-iINP', nargs=1, required=True, help='CashFlow input file name with the input variable list', metavar='inp_file')
   inp_par.add_argument('-o', nargs=1, required=True, help='Output file name', metavar='out_file')
-  inp_opt  = inp_par.parse_args()
+  inp_opt = inp_par.parse_args()
 
   # check if files exist
   print ("CashFlow INFO (Run as Code): XML input file: %s" %inp_opt.iXML[0])
