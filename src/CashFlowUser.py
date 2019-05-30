@@ -3,7 +3,7 @@ import os
 import sys
 #from collections import defaultdict
 #import numpy as np
-from CashFlows import Component
+from .CashFlows import Component
 
 raven_path = '~/projects/raven/framework' # TODO plugin path
 sys.path.append(os.path.expanduser(raven_path))

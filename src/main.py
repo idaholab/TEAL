@@ -6,7 +6,7 @@ import sys
 import numpy as np
 import functools
 from collections import defaultdict
-import CashFlows
+from . import CashFlows
 
 sys.path.append('~/projects/raven/framework') # TODO generic RAVEN location
 from utils.graphStructure import graphObject
@@ -210,7 +210,7 @@ def component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=100):
   return life_cashflow
 
 def get_project_length(settings, components, v=100):
-  m = 'run'
+  m = 'get_project_length'
   project_length = settings.get_project_time()
   if not project_length:
     vprint(v, 0, m, 'Because project length was not specified, using least common multiple of component lifetimes.')
@@ -437,34 +437,6 @@ def run(settings, components, variables):
     metric = PI(components, project_cashflows, project_length, settings.get_discount_rate(), v=v)
     results['PI'] = metric
   return results
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #=====================
