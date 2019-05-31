@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-import Amortization
+#import Amortization
 
 raven_path = '~/projects/raven/framework' # TODO fix with plugin relative path
 sys.path.append(os.path.expanduser(raven_path))

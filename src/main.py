@@ -196,7 +196,7 @@ def get_project_length(settings, components, v=100):
     vprint(v, 0, m, 'Because project length was not specified, using least common multiple of component lifetimes.')
     lifetimes = list(c.get_lifetime() for c in components)
     project_length = lcmm(*lifetimes) + 1
-  return project_length
+  return int(project_length)
 
 def project_life_cashflows(settings, components, lifetime_cashflows, project_length, v=100):
   """ does all cashflows for life of project, for all components """
