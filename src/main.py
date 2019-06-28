@@ -201,7 +201,6 @@ def get_project_length(settings, components, v=100):
 def project_life_cashflows(settings, components, lifetime_cashflows, project_length, v=100):
   """ does all cashflows for life of project, for all components """
   m = 'proj_life'
-  project_cashflows = {}
   # apply tax, inflation
   project_cashflows = {} # same keys as lifetime_cashflows
   for comp in components:
