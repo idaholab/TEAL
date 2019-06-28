@@ -10,7 +10,13 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-#import Amortization
+print('DEBUGG path:')
+for i in sys.path:
+  print(i)
+try:
+  import Amortization
+except ModuleNotFoundError:
+  from CashFlow.src import Amortization
 
 raven_path = '~/projects/raven/framework' # TODO fix with plugin relative path
 sys.path.append(os.path.expanduser(raven_path))
@@ -177,11 +183,11 @@ class Component:
   # Just a holder for multiple cash flows, and methods for doing stuff with them
   # Note the class can be constructed by reading from the XML (read_input) or directly TODO
   node_var_map = {'Life_time': '_lifetime',
-                    'StartTime': '_start_time',
-                    'Repetitions': '_repetitions',
-                    'tax': '_specific_tax',
-                    'inflation': '_specific_inflation',
-                   }
+                  'StartTime': '_start_time',
+                  'Repetitions': '_repetitions',
+                  'tax': '_specific_tax',
+                  'inflation': '_specific_inflation',
+                  }
   ##################
   # INITIALIZATION #
   ##################
@@ -248,17 +254,15 @@ class Component:
     if cfs is not None:
       for sub in cfs.subparts:
         new_cfs = self._cash_flow_factory(sub) #CashFlow(self.name, verbosity=self._verbosity)
-        self._cash_flows.extend(new_cfs)
+        self.add_cashflows(new_cfs)
     self.check_initialization()
 
   def set_params(self, param_dict):
     for name, value in param_dict.items():
       if name == 'name':
         self.name = value
-        continue
       elif name == 'cash_flows':
         self._cash_flows = value
-        continue
       else:
         # remainder are mapped
         attr_name = self.node_var_map.get(name, None)
@@ -296,6 +300,9 @@ class Component:
   #######
   # API #
   #######
+  def add_cashflows(self, cf):
+    self._cash_flows.extend(cf)
+
   def count_multtargets(self):
     return sum(cf._mult_target is not None for cf in self._cash_flows)
 
@@ -363,15 +370,16 @@ class Component:
   def _create_depreciation(self, ocf):
     """ creates amortization cash flows depending on the originating capex cash flow """
     # use the reference plant price
-    ref = ocf.get_param('alpha') * -1.0 #start weth a positive value
     amort = ocf.get_amortization()
     if amort is None:
       return []
+    print('DEBUGG amortizing', ocf.name)
+    ref = ocf.get_param('alpha') * -1.0 #start with a positive value
     scheme, plan = amort
     alpha = Amortization.amortize(scheme, plan, ref, self._lifetime)
     # first cash flow is POSITIVE on the balance sheet, is not taxed, and is a percent of the target
     pos = Amortizor(component=self.name, verbosity=self._verbosity)
-    params = {'name': '{}_{}'.format(self.name, 'amortize'),
+    params = {'name': '{}_{}_'.format(self.name, 'amortize', ocf.name),
               'driver': '{}|{}'.format(self.name, ocf.name),
               'tax': 'false',
               'inflation': 'real',
@@ -445,6 +453,8 @@ class CashFlow:
     # equation values
     self._driver = None       # "quantity produced", D
     self._alpha = None        # "price per produced", a
+    self._reference = None
+    self._scale = None
 
     # other params
     self.name = None          # base name of cash flow
@@ -453,8 +463,7 @@ class CashFlow:
     self._inflation = None    # apply inflation or not
     self._mult_target = None  # true if this cash flow gets multiplied by a global multiplier (e.g. NPV=0 search) (?)
     self._multiplier = None   # arbitrary scalar multiplier (variable name)
-    self._reference = None
-    self._scale = None
+    self._depreciate = None
 
   def read_input(self, item):
     """
@@ -507,6 +516,8 @@ class CashFlow:
         self._reference = val
       elif name == 'X':
         self._scale = val
+      elif name == 'depreciate':
+        self._depreciate = val
     self.check_initialization()
 
   def check_initialization(self):
@@ -635,8 +646,16 @@ class Capex(CashFlow):
     if self._alpha is None:
       raise IOError(self.missing_node_template.format(comp=self._component, cf=self.name, node='alpha'))
 
+  def init_params(self, lifetime):
+    self._alpha = np.zeros(1 + lifetime)
+    self._driver = np.zeros(1 + lifetime)
+
   def get_amortization(self):
     return self._amort_scheme, self._amort_plan
+
+  def set_amortiziation(self, scheme, plan):
+    self._amort_scheme = scheme
+    self._amort_plan = plan
 
   def extend_parameters(self, to_extend, t):
     # for capex, both the Driver and Alpha are nonzero in year 1 and zero thereafter
@@ -649,6 +668,8 @@ class Capex(CashFlow):
     return to_extend
 
   def calculate_cashflow(self, variables, lifetime_cashflows, lifetime, verbosity):
+    """ sets up the COMPONENT LIFETIME cashflows, and calculates yearly for the comp life """
+    ## FIXME what if I have set the values already?
     # get variable values, if needed
     need = {'alpha': self._alpha, 'driver': self._driver}
     # load alpha, driver from variables if need be
@@ -716,52 +737,37 @@ class Recurring(CashFlow):
     self.type = 'Recurring'
     self._taxable = True
     self._inflation = True
+    self._yearly_cashflow = None
 
   def extend_parameters(self, to_extend, t):
     # for recurring, both the Driver and Alpha are zero in year 1 and nonzero thereafter
     # we're going to integrate alpha * D over time (not year time, intrayear time), so no changes
-    #for name, value in to_extend.items():
-    #  if name.lower() in ['alpha', 'driver']:
-    #    if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
-    #      new = np.ones(t) * float(value)
-    #      new[0] = 0.0
-    #      to_extend[name] = new
     return to_extend
 
-  def calculate_cashflow(self, variables, lifetime_cashflows, lifetime, verbosity):
-    # get variable values, if needed
-    need = {'alpha': self._alpha, 'driver': self._driver}
-    # load alpha, driver from variables if need be
-    need = self.load_from_variables(need, variables, lifetime_cashflows, lifetime)
-    # for Recurring, use m * sum_t(alpha_t * D_t) for each year
-    alpha = need['alpha']
-    driver = need['driver']
+  def init_params(self, lifetime):
+    # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
+    self._yearly_cashflow = np.zeros(lifetime+1)
+
+  def compute_yearly_cashflow(self, year, alpha, driver):
+    """
+      Computes the yearly summary of recurring interactions, and sets them to self._yearly_cashflow
+      @ In, year, int, the index of the project year for this summary
+      @ In, alpha, np.array, array of "prices"
+      @ In, driver, np.array, array of "quantities sold"
+      @ Out, None
+    """
     mult = self.get_multiplier()
     if mult is None:
       mult = 1.0
     elif utils.isAString(mult):
-      mult = float(variables[mult])
-    # FIXME shape: is the user giving the time-dependent value intra-year, then all years are the same?
-    ## OR is the user giving each year individually, possibly pre-integrated? (that's the old way)
-    ## this goes along with the multiyear approach; how are we going to handle multiyear simulation inputs?
-    result = mult * (alpha * driver).sum()
-    # broadcast this to the other years
-    result = np.ones(lifetime) * result
-    # no recurring in construction year
-    result[0] = 0.0
-    ## TODO growth factor?
-    if verbosity > 1:
-      ret = {'result': result}
-    else:
-      show_alpha = np.ones(lifetime)
-      show_driver = np.ones(lifetime) * result[1]
-      show_alpha[0] = 0.0
-      show_driver[0] = 0.0
-      ret = {'result': result,
-             'alpha': show_alpha,
-             'driver': show_driver,
-             'mult': mult}
-    return ret
+      raise NotImplementedError
+    self._yearly_cashflow[year] = mult * (alpha * driver).sum()
+
+  def calculate_cashflow(self, variables, lifetime_cashflows, lifetime, verbosity):
+    # by now, self._yearly_cashflow should have been filled with appropriate values
+    # TODO reference, scale? we've already used mult (I think)
+    assert self._yearly_cashflow is not None
+    return {'result': self._yearly_cashflow}
 
   def check_param_lengths(self, lifetime, comp_name=None):
     pass # nothing to do here, we don't check lengths since they'll be integrated intrayear
@@ -784,3 +790,5 @@ class Amortizor(Capex):
           new[1:] = float(value)
           to_extend[name] = new
     return to_extend
+
+

@@ -379,6 +379,14 @@ def run(settings, components, variables):
   vprint(v, 0, m, '... Checking if all drivers present ...')
   ordered = check_drivers(settings, components, variables, v=v)
 
+  # compute project cashflows
+  ## this comes in multiple styles!
+  ## -> for the "capex/amortization" cashflows, as follows:
+  ##    - compute the COMPONENT LIFE cashflow for the component
+  ##    - loop the COMPONENT LIFE cashflow until it's as long as the PROJECT LIFE cashflow
+  ## -> for the "recurring" sales-type cashflow, as follows:
+  ##    - there should already be enough information for the entire PROJECT LIFE
+  ##    - if not, and there's only one entry, repeat that entry for the entire project life
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Component Lifetime Cashflow Calculations')
   vprint(v, 0, m, '='*90)
@@ -389,6 +397,9 @@ def run(settings, components, variables):
     comp_name, cf_name = ocf.split('|')
     comp = comps_by_name[comp_name]
     cf = comp.get_cashflow(cf_name)
+    # if this component is a "recurring" type, then we don't need to do the lifetime cashflow bit
+    if cf.type == 'Recurring':
+      raise NotImplementedError # FIXME how to do this right?
     # calculate cash flow for component's lifetime for this cash flow
     life_cf = component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=v)
     lifetime_cashflows[comp_name][cf_name] = life_cf
