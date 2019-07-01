@@ -373,13 +373,13 @@ class Component:
     amort = ocf.get_amortization()
     if amort is None:
       return []
-    print('DEBUGG amortizing', ocf.name)
+    print('DEBUGG amortizing cf:', ocf.name)
     ref = ocf.get_param('alpha') * -1.0 #start with a positive value
     scheme, plan = amort
     alpha = Amortization.amortize(scheme, plan, ref, self._lifetime)
     # first cash flow is POSITIVE on the balance sheet, is not taxed, and is a percent of the target
     pos = Amortizor(component=self.name, verbosity=self._verbosity)
-    params = {'name': '{}_{}_'.format(self.name, 'amortize', ocf.name),
+    params = {'name': '{}_{}_{}'.format(self.name, 'amortize', ocf.name),
               'driver': '{}|{}'.format(self.name, ocf.name),
               'tax': 'false',
               'inflation': 'real',
@@ -391,7 +391,9 @@ class Component:
     neg = Amortizor(component=self.name, verbosity=self._verbosity)
     n_alpha = np.zeros(len(alpha))
     n_alpha[alpha != 0] = -1
-    params = {'name': '{}_{}'.format(self.name, 'depreciate'),
+    print('DEBUGG amort alpha:', alpha)
+    print('DEBUGG depre alpha:', n_alpha)
+    params = {'name': '{}_{}_{}'.format(self.name, 'depreciate', ocf.name),
               'driver': '{}|{}'.format(self.name, pos.name),
               'tax': 'true',
               'inflation': 'real',
@@ -653,9 +655,9 @@ class Capex(CashFlow):
   def get_amortization(self):
     return self._amort_scheme, self._amort_plan
 
-  def set_amortiziation(self, scheme, plan):
+  def set_amortization(self, scheme, plan):
     self._amort_scheme = scheme
-    self._amort_plan = plan
+    self._amort_plan = np.atleast_1d(plan)
 
   def extend_parameters(self, to_extend, t):
     # for capex, both the Driver and Alpha are nonzero in year 1 and zero thereafter
@@ -761,7 +763,7 @@ class Recurring(CashFlow):
       mult = 1.0
     elif utils.isAString(mult):
       raise NotImplementedError
-    self._yearly_cashflow[year] = mult * (alpha * driver).sum()
+    self._yearly_cashflow[year+1] = mult * (alpha * driver).sum() # +1 is for initial construct year
 
   def calculate_cashflow(self, variables, lifetime_cashflows, lifetime, verbosity):
     # by now, self._yearly_cashflow should have been filled with appropriate values
@@ -780,15 +782,18 @@ class Amortizor(Capex):
     # unlike normal capex, for amortization we expand the driver to all nonzero entries and keep alpha as is
     # TODO forced driver values for now
     driver = to_extend['driver']
-    if not utils.isAString(driver):
-      to_extend['driver'] = np.ones(t) * driver[0] * -1.0
-      to_extend['driver'][0] = 0.0
-    for name, value in to_extend.items():
-      if name.lower() in ['driver']:
-        if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
-          new = np.zeros(t)
-          new[1:] = float(value)
-          to_extend[name] = new
+    # how we treat the driver depends on if this is the amortizer or the depreciator
+    if self.name.split('_')[-2] == 'amortize':
+      if not utils.isAString(driver):
+        to_extend['driver'] = np.ones(t) * driver[0] * -1.0
+        to_extend['driver'][0] = 0.0
+      for name, value in to_extend.items():
+        if name.lower() in ['driver']:
+          if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
+            aaaaaaa
+            new = np.zeros(t)
+            new[1:] = float(value)
+            to_extend[name] = new
     return to_extend
 
 

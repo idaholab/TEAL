@@ -87,6 +87,7 @@ def _create_eval_process(components, variables):
   # storage for creating graph sequence
   driver_graph = defaultdict(list)
   driver_graph['EndNode'] = []
+  evaluated = [] # for cashflows that have already been evaluated and don't need more treatment
   for comp in components:
     lifetime = comp.get_lifetime()
     # find multiplier variables
@@ -100,9 +101,15 @@ def _create_eval_process(components, variables):
     for c, cf in enumerate(comp.get_cashflows()):
       # keys for graph are drivers, cash flow names
       driver = cf.get_param('driver')
-      # does the driver come from the variable list, or from another cashflow?
+      # does the driver come from the variable list, or from another cashflow, or is it already evaluated?
+      cfn = '{}|{}'.format(comp.name, cf.name)
       found = False
-      if driver in variables:
+      if driver is None or utils.isAFloatOrInt(driver):
+        found = True
+        # TODO assert it's already filled?
+        evaluated.append(cfn)
+        continue
+      elif driver in variables:
         found = True
         # check length of driver
         n = len(np.atleast_1d(variables[driver]))
@@ -138,12 +145,12 @@ def _create_eval_process(components, variables):
                            .format(c=comp.name,
                                    cf=cf.name,
                                    d=driver))
-      cfn = '{}|{}'.format(comp.name, cf.name)
+
       # assure each cashflow is in the mix, and has an EndNode to rely on (helps graph construct accurately)
       driver_graph[cfn].append('EndNode')
       # each driver depends on its cashflow
       driver_graph[driver].append(cfn)
-  return graphObject(driver_graph).createSingleListOfVertices()
+  return evaluated + graphObject(driver_graph).createSingleListOfVertices()
 
 def component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=100):
   m = 'comp_life'
@@ -182,11 +189,16 @@ def component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=100):
                                                                                         d='driver',
                                                                                         c='cashflow'))
     for y, cash in enumerate(life_cashflow):
-      vprint(v, 1, m, '    {y:^{yx}d}, {a: 1.3e}, {d: 1.3e}, {c: 1.9e}'.format(y=y,
-                                                                               yx=yx,
-                                                                               a=results['alpha'][y],
-                                                                               d=results['driver'][y],
-                                                                               c=cash))
+      if cf.type in ['Capex']:
+        vprint(v, 1, m, '    {y:^{yx}d}, {a: 1.3e}, {d: 1.3e}, {c: 1.9e}'.format(y=y,
+                                                                                 yx=yx,
+                                                                                 a=results['alpha'][y],
+                                                                                 d=results['driver'][y],
+                                                                                 c=cash))
+      elif cf.type == 'Recurring':
+        vprint(v, 1, m, '    {y:^{yx}d}, -- N/A -- , -- N/A -- , {c: 1.9e}'.format(y=y,
+                                                           yx=yx,
+                                                           c=cash))
   return life_cashflow
 
 def get_project_length(settings, components, v=100):
@@ -224,6 +236,8 @@ def project_component_cashflows(comp, tax, inflation, life_cashflows, project_le
   ## TODO will this work properly if start time is negative? Initial tests say yes ...
   ## note that we use project_length as the default END of the component's cashflow life, NOT a decomission year!
   comp_end = project_length if comp.get_repetitions() == 0 else comp_start + comp_life * comp.get_repetitions()
+  vprint(v, 1, m, ' ... component start: {}'.format(comp_start))
+  vprint(v, 1, m, ' ... component end:   {}'.format(comp_end))
   for cf in comp.get_cashflows():
     if cf.is_taxable():
       tax_mult = 1.0 - tax
@@ -236,7 +250,11 @@ def project_component_cashflows(comp, tax, inflation, life_cashflows, project_le
     vprint(v, 1, m, ' ... inflation rate: {}'.format(infl_rate))
     vprint(v, 1, m, ' ... tax rate: {}'.format(tax_mult))
     life_cf = life_cashflows[cf.name]
-    single_cashflow = project_single_cashflow(cf, comp_start, comp_end, comp_life, life_cf, tax_mult, infl_rate, project_length, v=v)
+    if cf.type=='Recurring':
+      life = len(life_cf) # is this also true for capex? Did I break recurring with single entries?
+    else:
+      life = comp_life
+    single_cashflow = project_single_cashflow(cf, comp_start, comp_end, life, life_cf, tax_mult, infl_rate, project_length, v=v)
     vprint(v, 0, m, 'Project Cashflow for Component "{}" CashFlow "{}":'.format(comp.name, cf.name))
     if v < 1:
       vprint(v, 0, m, 'Year, Time-Adjusted Value')
@@ -247,7 +265,7 @@ def project_component_cashflows(comp, tax, inflation, life_cashflows, project_le
 
 def project_single_cashflow(cf, start, end, life, life_cf, tax_mult, infl_rate, project_length, v=100):
   """ does a single cashflow for the life of the project """
-  m = 'proj cf'
+  m = 'proj c_fl'
   vprint(v, 1, m, "-"*50)
   vprint(v, 1, m, 'Computing PROJECT cash flow for CashFlow "{}" ...'.format(cf.name))
   proj_cf = np.zeros(project_length)
@@ -397,8 +415,8 @@ def run(settings, components, variables):
     comp = comps_by_name[comp_name]
     cf = comp.get_cashflow(cf_name)
     # if this component is a "recurring" type, then we don't need to do the lifetime cashflow bit
-    if cf.type == 'Recurring':
-      raise NotImplementedError # FIXME how to do this right?
+    #if cf.type == 'Recurring':
+    #  raise NotImplementedError # FIXME how to do this right?
     # calculate cash flow for component's lifetime for this cash flow
     life_cf = component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=v)
     lifetime_cashflows[comp_name][cf_name] = life_cf
