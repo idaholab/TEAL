@@ -155,6 +155,7 @@ def _create_eval_process(components, variables):
 def component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=100):
   m = 'comp_life'
   vprint(v, 1, m, "-"*75)
+  print('DEBUGG comp:', comp.name, cf)
   vprint(v, 1, m, 'Computing LIFETIME cash flow for Component "{}" CashFlow "{}" ...'.format(comp.name, cf.name))
   param_text = '... {:^10.10s}: {: 1.9e}'
   # do cashflow
@@ -413,6 +414,7 @@ def run(settings, components, variables):
       continue
     comp_name, cf_name = ocf.split('|')
     comp = comps_by_name[comp_name]
+    print('DEBUGG getting', cf_name)
     cf = comp.get_cashflow(cf_name)
     # if this component is a "recurring" type, then we don't need to do the lifetime cashflow bit
     #if cf.type == 'Recurring':

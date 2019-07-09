@@ -10,9 +10,6 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-print('DEBUGG path:')
-for i in sys.path:
-  print(i)
 try:
   import Amortization
 except ModuleNotFoundError:
@@ -450,6 +447,7 @@ class CashFlow:
       @ Out, None
     """
     # assert component is not None # TODO is this necessary? What if it's not a component-based cash flow?
+    self.type = 'generic'
     self._component = component # component instance to whom this cashflow belongs, if any
     self._verbosity = verbosity
     # equation values
@@ -623,6 +621,7 @@ class Capex(CashFlow):
   def __init__(self, **kwargs):
     CashFlow.__init__(self, **kwargs)
     # new variables
+    self.type = 'Capex'
     self._amort_scheme = None # amortization scheme for depreciating this capex
     self._amort_plan = None   # if scheme is MACRS, this is the years to recovery. Otherwise, vector percentages.
     # set defaults different from base class
