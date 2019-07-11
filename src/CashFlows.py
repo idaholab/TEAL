@@ -496,7 +496,6 @@ class CashFlow:
     self.check_initialization()
 
   def set_params(self, param_dict):
-    print('')
     for name, val in param_dict.items():
       if name == 'name':
         self.name = val
