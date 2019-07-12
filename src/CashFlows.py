@@ -761,7 +761,11 @@ class Recurring(CashFlow):
       mult = 1.0
     elif utils.isAString(mult):
       raise NotImplementedError
-    self._yearly_cashflow[year+1] = mult * (alpha * driver).sum() # +1 is for initial construct year
+    try:
+      self._yearly_cashflow[year+1] = mult * (alpha * driver).sum() # +1 is for initial construct year
+    except ValueError as e:
+      print('Error while computing yearly cash flow! Check alpha shape ({}) and driver shape ({})'.format(alpha.shape, driver.shape))
+      raise e
 
   def calculate_cashflow(self, variables, lifetime_cashflows, lifetime, verbosity):
     # by now, self._yearly_cashflow should have been filled with appropriate values
