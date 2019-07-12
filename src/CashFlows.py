@@ -371,9 +371,9 @@ class Component:
     if amort is None:
       return []
     print('DEBUGG amortizing cf:', ocf.name)
-    ref = ocf.get_param('alpha') * -1.0 #start with a positive value
+    original_value = ocf.get_param('alpha') * -1.0 #start with a positive value
     scheme, plan = amort
-    alpha = Amortization.amortize(scheme, plan, ref, self._lifetime)
+    alpha = Amortization.amortize(scheme, plan, 1.0, self._lifetime)
     # first cash flow is POSITIVE on the balance sheet, is not taxed, and is a percent of the target
     pos = Amortizor(component=self.name, verbosity=self._verbosity)
     params = {'name': '{}_{}_{}'.format(self.name, 'amortize', ocf.name),
@@ -381,8 +381,10 @@ class Component:
               'tax': 'false',
               'inflation': 'real',
               'alpha': alpha,
-              'reference': ocf.get_param('reference'),
-              'X': ocf.get_param('scale')}
+              # TODO is this reference and X right????
+              'reference': 1.0, #ocf.get_param('reference'),
+              'X': 1.0, #ocf.get_param('scale')
+              }
     pos.set_params(params)
     # second cash flow is as the first, except negative and taxed
     neg = Amortizor(component=self.name, verbosity=self._verbosity)
