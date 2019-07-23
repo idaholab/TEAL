@@ -4,7 +4,8 @@ import numpy as np
 
 
 MACRS = {15: 0.01 * np.array([5.0, 9.5, 8.55, 7.7, 6.93, 6.23, 5.9, 5.9, 5.91, 5.9, 5.91, 5.9, 5.91, 5.9, 5.91, 2.95]),
-          7: 0.01 * np.array([14.29, 24.49, 17.49, 12.49, 8.93, 8.92, 8.93, 4.46])}
+          7: 0.01 * np.array([14.29, 24.49, 17.49, 12.49, 8.93, 8.92, 8.93, 4.46]),
+          5: 0.01 * np.array([20.00, 32.00, 19.20, 11.52, 11.52, 5.76])}
 
 def amortize(scheme, plan, start_value, component_life):
   alpha = np.zeros(component_life + 1, dtype=float)
