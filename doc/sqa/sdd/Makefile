@@ -12,7 +12,6 @@ cash_flow_software_design_description.pdf : cash_flow_software_design_descriptio
 	git log -1 --format="%H %an %aD" .. > ../../version.tex
 
 default: *.tex
-	python ../../../scripts/TestHarness/testers/cash_flowUtils.py --manual-list > dependencies.tex
 
 .PHONY: clean
 
