@@ -10,6 +10,7 @@
     <classesTested>Models.ExternalModel.CashFlow</classesTested>
     <revisions>
         <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
+        <revision author="alfoa" date="2019-07-30">Added requirements</revision>
     </revisions>
     <requirements>CF-F-1 CF-F-2 CF-EA-1</requirements>
   </TestInfo>
