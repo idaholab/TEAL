@@ -14,11 +14,13 @@
     <revisions>
         <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
     </revisions>
+     <requirements>CF-IS-1</requirements>
   </TestInfo>
 
   <RunInfo>
     <WorkingDir>.</WorkingDir>
     <Sequence>MCrun,printTOfile</Sequence>
+    <batchSize>2</batchSize>
   </RunInfo>
 
   <VariableGroups>

@@ -11,6 +11,7 @@
     <revisions>
         <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
     </revisions>
+    <requirements>CF-EA-4</requirements>
   </TestInfo>
 
   <RunInfo>
