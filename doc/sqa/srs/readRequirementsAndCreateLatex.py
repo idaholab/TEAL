@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
- NOTE: THIS SCRIP HAS BEEN COPIED FROM THE RAVEN CODE (raven.inl.gov)
+ NOTE: THIS SCRIPT HAS BEEN COPIED FROM THE RAVEN CODE (raven.inl.gov)
  Created on Sept 20, 2018
 
  @author: alfoa

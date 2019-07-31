@@ -1,7 +1,7 @@
 #!/bin/bash
 # Local variable definition ----------------------------------------------------
 # list of files to run.
-declare -a files=(cash_flow_software_requirements_specifications)
+declare -a files=(cash_flow_software_design_description)
 # extension to be removed.
 declare -a exts=(txt ps ds)
 
@@ -13,7 +13,7 @@ clean_files () {
 	do
 		for file in `ls *.$ext 2> /dev/null`
 		do
-			rm -rf *.aux *.bbl *.blg *.log *.out *.toc *.lot *.lof cash_flow*.pdf
+			rm -rf *.aux *.bbl *.blg *.log *.out *.toc *.lot *.lof cash_flow_*.pdf
 		done
 	done
 }
@@ -21,7 +21,6 @@ clean_files () {
 # Subroutine to generate files.
 gen_files () { 
         git log -1 --format="%H %an %aD" .. > ../../version.tex
-	python readRequirementsAndCreateLatex.py -i requirements_list.xml -o requirements.tex 
 	for file in "${files[@]}"
 	do
 		# Generate files.
