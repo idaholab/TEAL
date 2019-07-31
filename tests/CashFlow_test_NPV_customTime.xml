@@ -15,7 +15,7 @@
         <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
         <revision author="alfoa" date="2019-07-30">Added requirements</revision>
     </revisions>
-    <requirements>CF-SI-1</requirements>
+    <requirements>CF-EA-1 CF-SI-1</requirements>
   </TestInfo>
 
   <RunInfo>

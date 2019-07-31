@@ -51,12 +51,6 @@
           <requirement id_code="CF-EA-4">
               <description>The CashFlow plug-in shall support the computation of a multiplicative factor so that the Net Present Value (NPV) has a desired value.</description>
           </requirement>
-          <requirement id_code="CF-EA-5">
-              <description>The CashFlow plug-in shall support the computation of a multiplicative factor so that the Internal Rate of Return (IRR) has a desired value.</description>
-          </requirement>
-          <requirement id_code="CF-EA-6">
-              <description>The CashFlow plug-in shall support the computation of a multiplicative factor so that the Profitability Index (PI)  has a desired value.</description>
-          </requirement>
       </requirement_set>
 
     </requirement_group>
