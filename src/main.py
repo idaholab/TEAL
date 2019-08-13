@@ -104,7 +104,7 @@ def _create_eval_process(components, variables):
       # does the driver come from the variable list, or from another cashflow, or is it already evaluated?
       cfn = '{}|{}'.format(comp.name, cf.name)
       found = False
-      if driver is None or utils.isAFloatOrInt(driver):
+      if driver is None or utils.isAFloatOrInt(driver) or isinstance(driver, np.ndarray):
         found = True
         # TODO assert it's already filled?
         evaluated.append(cfn)
