@@ -14,7 +14,9 @@ import numpy as np
 
 #Internal Modules---------------------------------------------------------------
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file needs to be in the propoer plugin directory.
-from . import main
+# TODO this is an import conundrum that needs to be fixed.
+#from . import main
+import main
 
 import os, sys
 dir_path = os.path.dirname(os.path.realpath(__file__))
