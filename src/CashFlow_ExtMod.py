@@ -15,8 +15,8 @@ import numpy as np
 #Internal Modules---------------------------------------------------------------
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file needs to be in the propoer plugin directory.
 # TODO this is an import conundrum that needs to be fixed.
-#from . import main
-import main
+from . import main
+#import main
 
 import os, sys
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -75,6 +75,8 @@ class CashFlow(ExternalModelPluginBase):
     """
     global_settings = container._global_settings
     components = container._components
+    for c in components:
+      c.initialize_cashflows(global_settings.get_project_life())
     metrics = main.run(global_settings, components, Inputs)
     for k, v in metrics.items():
       setattr(container, k, v)
