@@ -393,7 +393,6 @@ def run(settings, components, variables):
   v = settings._verbosity
   m = 'run'
   vprint(v, 0, m, 'Starting CashFlow Run ...')
-
   # check mapping of drivers and determine order in which they should be evaluated
   vprint(v, 0, m, '... Checking if all drivers present ...')
   ordered = check_drivers(settings, components, variables, v=v)
@@ -421,7 +420,11 @@ def run(settings, components, variables):
     #if cf.type == 'Recurring':
     #  raise NotImplementedError # FIXME how to do this right?
     # calculate cash flow for component's lifetime for this cash flow
-    life_cf = component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=v)
+    print('jz is comp_name',comp_name)
+    print('jz is cf_name',cf_name)
+    life_cf = component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=0)
+
+    print('jz is lifecf',life_cf)
     lifetime_cashflows[comp_name][cf_name] = life_cf
 
   vprint(v, 0, m, '='*90)

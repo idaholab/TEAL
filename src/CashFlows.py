@@ -678,6 +678,7 @@ class Capex(CashFlow):
     need = self.load_from_variables(need, variables, lifetime_cashflows, lifetime)
     # for Capex, use m * alpha * (D/D')^X
     alpha = need['alpha']
+
     driver = need['driver']
     reference = self.get_param('reference')
     if reference is None:
@@ -764,7 +765,27 @@ class Recurring(CashFlow):
     elif utils.isAString(mult):
       raise NotImplementedError
     try:
-      self._yearly_cashflow[year+1] = mult * (alpha * driver).sum() # +1 is for initial construct year
+      self._yearly_cashflow[year] = mult * (alpha * driver).sum() # +1 is for initial construct year
+    except ValueError as e:
+      print('Error while computing yearly cash flow! Check alpha shape ({}) and driver shape ({})'.format(alpha.shape, driver.shape))
+      raise e
+
+  def compute_yearly_cashflowzj(self, year, alpha, driver):
+    """
+      Computes the yearly summary of recurring interactions, and sets them to self._yearly_cashflow
+      @ In, year, int, the index of the project year for this summary
+      @ In, alpha, np.array, array of "prices"
+      @ In, driver, np.array, array of "quantities sold"
+      @ Out, None
+    """
+    mult = self.get_multiplier()
+
+    if mult is None:
+      mult = 1.0
+    elif utils.isAString(mult):
+      raise NotImplementedError
+    try:
+      self._yearly_cashflow = mult * (alpha * driver)
     except ValueError as e:
       print('Error while computing yearly cash flow! Check alpha shape ({}) and driver shape ({})'.format(alpha.shape, driver.shape))
       raise e
@@ -772,7 +793,10 @@ class Recurring(CashFlow):
   def calculate_cashflow(self, variables, lifetime_cashflows, lifetime, verbosity):
     # by now, self._yearly_cashflow should have been filled with appropriate values
     # TODO reference, scale? we've already used mult (I think)
-    assert self._yearly_cashflow is not None
+    self.init_params(lifetime-1)
+    y = lifetime - 1
+    self.compute_yearly_cashflowzj(y, self._alpha, variables[self._driver])
+    #assert self._yearly_cashflow is not None
     return {'result': self._yearly_cashflow}
 
   def check_param_lengths(self, lifetime, comp_name=None):
