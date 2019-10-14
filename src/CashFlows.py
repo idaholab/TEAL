@@ -15,7 +15,7 @@ try:
 except ModuleNotFoundError:
   from CashFlow.src import Amortization
 
-raven_path = '~/projects/raven/framework' # TODO fix with plugin relative path
+raven_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'../../../framework'))#'~/projects/raven/framework' # TODO fix with plugin relative path
 sys.path.append(os.path.expanduser(raven_path))
 from utils import utils, InputData, xmlUtils, TreeStructure
 

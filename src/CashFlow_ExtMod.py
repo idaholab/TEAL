@@ -14,14 +14,13 @@ import numpy as np
 
 #Internal Modules---------------------------------------------------------------
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file needs to be in the propoer plugin directory.
-# TODO this is an import conundrum that needs to be fixed.
-from . import main
-#import main
-
+#from . import main
+import main
 import os, sys
 dir_path = os.path.dirname(os.path.realpath(__file__))
 #sys.path.append(os.path.abspath(os.path.join(dir_path,'..','..','..','framework')))
-sys.path.append(os.path.expanduser('~/projects/raven/framework'))
+raven_path=os.path.abspath(os.path.join(os.path.dirname(__file__),'../../../framework'))
+sys.path.append(os.path.expanduser(raven_path))
 try:
   from utils.graphStructure import graphObject
   from PluginsBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase

@@ -6,10 +6,10 @@ import sys
 import numpy as np
 import functools
 from collections import defaultdict
-import CashFlows
-#from . import CashFlows
-
-sys.path.append('~/projects/raven/framework') # TODO generic RAVEN location
+from . import CashFlows
+import os
+raven_path=os.path.abspath(os.path.join(os.path.dirname(__file__),'../../../framework'))
+sys.path.append(raven_path)#'~/projects/raven/framework') # TODO generic RAVEN location
 from utils.graphStructure import graphObject
 from utils import utils
 

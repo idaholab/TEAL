@@ -4,9 +4,12 @@
 from __future__ import unicode_literals, print_function
 import os
 import sys
+import time 
 
-raven_path = '~/projects/raven/framework' # TODO plugin RAVEN path
+raven_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'../../../framework'))#'~/projects/raven/framework' # TODO plugin RAVEN path
 sys.path.append(os.path.expanduser(raven_path))
+print(raven_path)
+#time.sleep(2000)
 from utils import InputData
 
 # class for potentially dynamically-evaluated quantities
