@@ -3,12 +3,13 @@ import os
 import sys
 #from collections import defaultdict
 #import numpy as np
-from CashFlows import Component
-#from .CashFlows import Component
+#from CashFlows import Component
+from .CashFlows import Component
 
-raven_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'../../../framework'))#'~/projects/raven/framework' # TODO plugin path
+raven_path = ((os.path.dirname(__file__)))#'~/projects/raven/framework' # TODO fix with plugin relative path
+raven_path=raven_path+'/../../raven/framework'#'~/projects/raven/framework' # TODO plugin path
 sys.path.append(os.path.expanduser(raven_path))
-from utils import InputData
+from. utils import InputData
 
 class CashFlowUser:
   """

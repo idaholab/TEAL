@@ -8,7 +8,8 @@ import functools
 from collections import defaultdict
 from . import CashFlows
 import os
-raven_path=os.path.abspath(os.path.join(os.path.dirname(__file__),'../../../framework'))
+raven_path = ((os.path.dirname(__file__)))#'~/projects/raven/framework' # TODO fix with plugin relative path
+raven_path=raven_path+'/../../raven/framework'
 sys.path.append(raven_path)#'~/projects/raven/framework') # TODO generic RAVEN location
 from utils.graphStructure import graphObject
 from utils import utils

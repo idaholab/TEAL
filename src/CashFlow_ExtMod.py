@@ -19,7 +19,8 @@ import main
 import os, sys
 dir_path = os.path.dirname(os.path.realpath(__file__))
 #sys.path.append(os.path.abspath(os.path.join(dir_path,'..','..','..','framework')))
-raven_path=os.path.abspath(os.path.join(os.path.dirname(__file__),'../../../framework'))
+raven_path = ((os.path.dirname(__file__)))#'~/projects/raven/framework' # TODO fix with plugin relative path
+raven_path=raven_path+'/../../raven/framework'
 sys.path.append(os.path.expanduser(raven_path))
 try:
   from utils.graphStructure import graphObject
