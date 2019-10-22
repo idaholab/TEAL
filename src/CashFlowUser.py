@@ -3,8 +3,12 @@ import os
 import sys
 #from collections import defaultdict
 #import numpy as np
-from . import CashFlows
-from .CashFlows import Component
+try:
+  from .CashFlows import Component
+# NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
+# In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
+except ImportError:
+  from CashFlows import Component
 
 raven_path = os.path.dirname(__file__) + '/../../raven/framework'
 sys.path.append(os.path.expanduser(raven_path))

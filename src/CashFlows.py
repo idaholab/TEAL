@@ -13,9 +13,12 @@ import time
 
 #try:
 #import CashFlow.Amortization
-from . import Amortization
-#except ModuleNotFoundError:
-#from CashFlow import Amortization
+try:
+  from . import Amortization
+# NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
+# In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
+except ImportError:
+  import Amortization
 
 raven_path = ((os.path.dirname(__file__)))#'~/projects/raven/framework' # TODO fix with plugin relative path
 raven_path=raven_path+'/../../raven/framework'

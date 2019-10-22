@@ -16,7 +16,12 @@ import numpy as np
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file needs to be in the propoer plugin directory.
 
 # TODO this is an import conundrum that needs to be fixed.
-from . import main
+try:
+  from . import main
+# NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
+# In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
+except ImportError:
+  import main
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 #sys.path.append(os.path.abspath(os.path.join(dir_path,'..','..','..','framework')))
