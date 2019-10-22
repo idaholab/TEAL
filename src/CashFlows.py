@@ -24,15 +24,15 @@ raven_path=raven_path+'/../../raven/framework'
 #time.sleep(300)
 #print(os.path.expanduser(raven_path))
 #time.sleep(300)
-print(os.path.expanduser(raven_path))
+#print(os.path.expanduser(raven_path))
 #time.sleep(300)
 sys.path.append(os.path.expanduser(raven_path))
-print (os.getcwd())
-print (os.path.abspath(os.path.dirname(__file__)))
-time.sleep(300)
+#print (os.getcwd())
+#print (os.path.abspath(os.path.dirname(__file__)))
+#time.sleep(300)
 
 ## Import error from utils need to be fixed for this file to work
-from. utils import utils, InputData, xmlUtils, TreeStructure
+from utils import utils, InputData, xmlUtils, TreeStructure
 
 
 
