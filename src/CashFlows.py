@@ -10,10 +10,11 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-try:
-  import Amortization
-except ModuleNotFoundError:
-  from CashFlow.src import Amortization
+#try:
+#import CashFlow.Amortization
+from . import Amortization
+#except ModuleNotFoundError:
+#from CashFlow import Amortization
 
 raven_path = '~/projects/raven/framework' # TODO fix with plugin relative path
 sys.path.append(os.path.expanduser(raven_path))

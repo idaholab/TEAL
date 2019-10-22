@@ -6,7 +6,7 @@ import sys
 import numpy as np
 import functools
 from collections import defaultdict
-import CashFlows
+from CashFlow import CashFlows
 #from . import CashFlows
 
 sys.path.append('~/projects/raven/framework') # TODO generic RAVEN location
