@@ -1,15 +1,17 @@
 """
   Execution for CashFlow
 """
-#import os
+import os
 import sys
-import numpy as np
 import functools
 from collections import defaultdict
-from CashFlow import CashFlows
-#from . import CashFlows
 
-sys.path.append('~/projects/raven/framework') # TODO generic RAVEN location
+import numpy as np
+from . import CashFlows
+
+raven_path= os.path.abspath(os.path.dirname(__file__)) + '/../../raven/framework'
+sys.path.append(raven_path) #'~/projects/raven/framework') # TODO generic RAVEN location
+
 from utils.graphStructure import graphObject
 from utils import utils
 

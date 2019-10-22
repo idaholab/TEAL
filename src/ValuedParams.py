@@ -4,10 +4,14 @@
 from __future__ import unicode_literals, print_function
 import os
 import sys
+import time 
 
-raven_path = '~/projects/raven/framework' # TODO plugin RAVEN path
+raven_path = ((os.path.dirname(__file__)))#'~/projects/raven/framework' # TODO fix with plugin relative path
+raven_path=raven_path+'/../../raven/framework'#'~/projects/raven/framework' # TODO plugin RAVEN path
 sys.path.append(os.path.expanduser(raven_path))
-from utils import InputData
+#print(raven_path)
+#time.sleep(2000)
+from. utils import InputData
 
 # class for potentially dynamically-evaluated quantities
 class ValuedParam:

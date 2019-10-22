@@ -9,6 +9,7 @@ from collections import defaultdict
 import xml.etree.ElementTree as ET
 
 import numpy as np
+import time
 
 #try:
 #import CashFlow.Amortization
@@ -16,9 +17,22 @@ from . import Amortization
 #except ModuleNotFoundError:
 #from CashFlow import Amortization
 
-raven_path = '~/projects/raven/framework' # TODO fix with plugin relative path
+raven_path = ((os.path.dirname(__file__)))#'~/projects/raven/framework' # TODO fix with plugin relative path
+raven_path=raven_path+'/../../raven/framework'
+#print(raven_path,type(raven_path))
+#print(os.path.dirname(__file__),raven_path)
+#time.sleep(300)
+#print(os.path.expanduser(raven_path))
+#time.sleep(300)
+print(os.path.expanduser(raven_path))
+#time.sleep(300)
 sys.path.append(os.path.expanduser(raven_path))
-from utils import utils, InputData, xmlUtils, TreeStructure
+print (os.getcwd())
+print (os.path.abspath(os.path.dirname(__file__)))
+time.sleep(300)
+
+## Import error from utils need to be fixed for this file to work
+from. utils import utils, InputData, xmlUtils, TreeStructure
 
 
 

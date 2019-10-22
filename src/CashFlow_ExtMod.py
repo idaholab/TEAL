@@ -5,23 +5,24 @@
 
 #Imports
 from __future__ import division, print_function, unicode_literals, absolute_import
+import os
+import sys
 import warnings
 warnings.simplefilter('default', DeprecationWarning)
 
-#External Modules---------------------------------------------------------------
 import numpy as np
-#External Modules End-----------------------------------------------------------
 
 #Internal Modules---------------------------------------------------------------
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file needs to be in the propoer plugin directory.
+
 # TODO this is an import conundrum that needs to be fixed.
 from . import main
-#import CashFlow.CashFlow as main
 
-import os, sys
 dir_path = os.path.dirname(os.path.realpath(__file__))
 #sys.path.append(os.path.abspath(os.path.join(dir_path,'..','..','..','framework')))
-sys.path.append(os.path.expanduser('~/projects/raven/framework'))
+raven_path = os.path.dirname(__file__) + '/../../raven/framework'  #'~/projects/raven/framework' # TODO fix with plugin relative path
+sys.path.append(os.path.expanduser(raven_path))
+
 try:
   from utils.graphStructure import graphObject
   from PluginsBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase

@@ -4,9 +4,8 @@ import sys
 #from collections import defaultdict
 #import numpy as np
 from . import Component
-#from .CashFlows import Component
 
-raven_path = '~/projects/raven/framework' # TODO plugin path
+raven_path = os.path.dirname(__file__) + '/../../raven/framework'
 sys.path.append(os.path.expanduser(raven_path))
 from utils import InputData
 
