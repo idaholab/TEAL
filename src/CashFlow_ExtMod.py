@@ -17,7 +17,7 @@ import numpy as np
 
 # TODO this is an import conundrum that needs to be fixed.
 try:
-  from . import main
+  from CashFlow.src import main
 # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
 # In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
 except ImportError:

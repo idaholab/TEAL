@@ -11,10 +11,8 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import time
 
-#try:
-#import CashFlow.Amortization
 try:
-  from . import Amortization
+  from CashFlow.src import Amortization
 # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
 # In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
 except ImportError:
@@ -841,5 +839,3 @@ class Amortizor(Capex):
             new[1:] = float(value)
             to_extend[name] = new
     return to_extend
-
-
