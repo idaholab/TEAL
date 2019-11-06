@@ -277,40 +277,52 @@ def project_single_cashflow(cf, start, end, life, life_cf, tax_mult, infl_rate, 
   m = 'proj c_fl'
   vprint(v, 1, m, "-"*50)
   vprint(v, 1, m, 'Computing PROJECT cash flow for CashFlow "{}" ...'.format(cf.name))
-  proj_cf = np.zeros(project_length)
-  years = np.arange(project_length) # years in project time, year 0 is first year # TODO just indices, pandas?
-  # before the project starts, after it ends are zero; we want the working part
-  operating_mask = np.logical_and(years >= start, years <= end)
-  operating_years = years[operating_mask]
-  start_shift = operating_years - start # y_shift
-  # what year realative to production is this component in, for each operating year?
-  relative_operation = start_shift % life # yReal
-  # handle new builds
-  ## three types of new builds:
-  ### 1) first ever build (only construction cost)
-  ### 2) decomission after last year ever running (assuming said decomission is inside the operational years)
-  ### 3) years with both a decomissioning and a construction
-  ## this is all years in which construction will occur (covers 1 and half of 3)
-  new_build_mask = [a[relative_operation==0] for a in np.where(operating_mask)]
-  # NOTE make the decomission_mask BEFORE removing the last-year-rebuild, if present.
-  ## This lets us do smoother numpy operations.
-  decomission_mask = [new_build_mask[0][1:]]
-  # if the last year is a rebuild year, don't rebuild, as it won't be operated.
-  if new_build_mask[0][-1] == years[-1]:
-    new_build_mask[0] = new_build_mask[0][:-1]
-  ## add construction costs for all of these new build years
-  proj_cf[new_build_mask] = life_cf[0] * tax_mult * np.power(infl_rate, -1*years[new_build_mask])
-  #print(proj_cf)
-  ## this is all the years in which decomissioning happens
-  ### note that the [0] index is sort of a dummy dimension to help the numpy handshakes
-  ### if last decomission is within project life, include that too
-  if operating_years[-1] < years[-1]:
-    decomission_mask[0] = np.hstack((decomission_mask[0],np.atleast_1d(operating_years[-1]+1)))
-  proj_cf[decomission_mask] += life_cf[-1] * tax_mult * np.power(infl_rate, -1*years[decomission_mask])
-  #print(proj_cf)
-  ## handle the non-build operational years
-  non_build_mask = [a[relative_operation!=0] for a in np.where(operating_mask)]
-  proj_cf[non_build_mask] += life_cf[relative_operation[relative_operation!=0]] * tax_mult * np.power(infl_rate, -1*years[non_build_mask])
+  if cf.type == 'Recurring':
+    if len(life_cf) == 1:
+      recurring_cf = np.ones(project_length) * life_cf[0]
+    elif len(life_cf) == project_length:
+      recurring_cf = life_cf
+    else:
+      raise RuntimeError('Recurring cashflow should have the same dimension as project length!')
+    recurring_cf[0] = 0.
+    proj_cf = np.zeros(project_length)
+    for i, cf_val in enumerate(recurring_cf):
+      proj_cf[i] = cf_val * tax_mult * np.power(infl_rate, -1*i)
+  else:
+    proj_cf = np.zeros(project_length)
+    years = np.arange(project_length) # years in project time, year 0 is first year # TODO just indices, pandas?
+    # before the project starts, after it ends are zero; we want the working part
+    operating_mask = np.logical_and(years >= start, years <= end)
+    operating_years = years[operating_mask]
+    start_shift = operating_years - start # y_shift
+    # what year realative to production is this component in, for each operating year?
+    relative_operation = start_shift % life # yReal
+    # handle new builds
+    ## three types of new builds:
+    ### 1) first ever build (only construction cost)
+    ### 2) decomission after last year ever running (assuming said decomission is inside the operational years)
+    ### 3) years with both a decomissioning and a construction
+    ## this is all years in which construction will occur (covers 1 and half of 3)
+    new_build_mask = [a[relative_operation==0] for a in np.where(operating_mask)]
+    # NOTE make the decomission_mask BEFORE removing the last-year-rebuild, if present.
+    ## This lets us do smoother numpy operations.
+    decomission_mask = [new_build_mask[0][1:]]
+    # if the last year is a rebuild year, don't rebuild, as it won't be operated.
+    if new_build_mask[0][-1] == years[-1]:
+      new_build_mask[0] = new_build_mask[0][:-1]
+    ## add construction costs for all of these new build years
+    proj_cf[new_build_mask] = life_cf[0] * tax_mult * np.power(infl_rate, -1*years[new_build_mask])
+    #print(proj_cf)
+    ## this is all the years in which decomissioning happens
+    ### note that the [0] index is sort of a dummy dimension to help the numpy handshakes
+    ### if last decomission is within project life, include that too
+    if operating_years[-1] < years[-1]:
+      decomission_mask[0] = np.hstack((decomission_mask[0],np.atleast_1d(operating_years[-1]+1)))
+    proj_cf[decomission_mask] += life_cf[-1] * tax_mult * np.power(infl_rate, -1*years[decomission_mask])
+    #print(proj_cf)
+    ## handle the non-build operational years
+    non_build_mask = [a[relative_operation!=0] for a in np.where(operating_mask)]
+    proj_cf[non_build_mask] += life_cf[relative_operation[relative_operation!=0]] * tax_mult * np.power(infl_rate, -1*years[non_build_mask])
   return proj_cf
 
 def npv_search(settings, components, cash_flows, project_length, v=100):

@@ -394,7 +394,7 @@ class Component:
     pos = Amortizor(component=self.name, verbosity=self._verbosity)
     params = {'name': '{}_{}_{}'.format(self.name, 'amortize', ocf.name),
               'driver': '{}|{}'.format(self.name, ocf.name),
-              'tax': 'false',
+              'tax': False,
               'inflation': 'real',
               'alpha': alpha,
               # TODO is this reference and X right????
@@ -410,7 +410,7 @@ class Component:
     print('DEBUGG depre alpha:', n_alpha)
     params = {'name': '{}_{}_{}'.format(self.name, 'depreciate', ocf.name),
               'driver': '{}|{}'.format(self.name, pos.name),
-              'tax': 'true',
+              'tax': True,
               'inflation': 'real',
               'alpha': n_alpha,
               'reference': 1.0,
@@ -669,7 +669,10 @@ class Capex(CashFlow):
     self._driver = np.zeros(1 + lifetime)
 
   def get_amortization(self):
-    return self._amort_scheme, self._amort_plan
+    if self._amort_scheme is None:
+      return None
+    else:
+      return self._amort_scheme, self._amort_plan
 
   def set_amortization(self, scheme, plan):
     self._amort_scheme = scheme
