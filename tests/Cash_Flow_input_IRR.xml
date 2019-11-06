@@ -6,8 +6,6 @@
     <Indicator name="IRR" target="0">
       BOP|CA
       BOP|RE
-      BOP|DA1
-      BOP|DA2
       IP|CA
       IP|RE
     </Indicator>
@@ -29,47 +27,6 @@
         <driver>BOP_TOT_revenueEL</driver>
         <alpha>1.0</alpha>
       </Recurring>
-      <!-- Amortisation/Depreciation -->
-      <!-- <CashFlow inflation="real" mult_target="false" name="DA1" tax="false">
-        <driver>BOP_capacity</driver>
-        <alpha> 0.0
-          225500000
-          405900000
-          385605000
-          347270000
-          312543000
-          280973000
-          266090000
-          266090000
-          266541000
-          266090000
-          266541000
-          266090000
-          266541000
-          266090000
-          266541000
-          133045000
-          0.0 0.0 0.0 0.0
-          0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-          0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-          0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-          0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-        </alpha>
-        <reference>1100000000</reference>
-        <X>0.64</X>
-      </CashFlow> -->
-      <!-- <CashFlow inflation="real" mult_target="false" name="DA2" tax="true">
-        <driver>BOP|DA1</driver>
-        <alpha> 0.0
-          -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-          -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-          -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-          -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-          -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-          -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 </alpha>
-        <reference>1.0</reference>
-        <X>1.0</X>
-      </CashFlow> -->
     </CashFlows>
   </Component>
 
@@ -82,7 +39,6 @@
         <alpha>-153000000</alpha>
         <reference>231000000</reference>
         <X>1.0</X>
-        <depreciation scheme='MACRS'>15</depreciation>
       </Capex>
       <!-- Non electric Revenue -->
       <Recurring inflation="none" mult_target="true" name="RE" tax="true">
