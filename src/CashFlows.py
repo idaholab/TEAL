@@ -19,7 +19,8 @@ except ImportError:
   import Amortization
 
 raven_path = ((os.path.dirname(__file__)))#'~/projects/raven/framework' # TODO fix with plugin relative path
-raven_path=raven_path+'/../../raven/framework'
+raven_path=raven_path+'/../../../framework'
+print(raven_path)
 #print(raven_path,type(raven_path))
 #print(os.path.dirname(__file__),raven_path)
 #time.sleep(300)

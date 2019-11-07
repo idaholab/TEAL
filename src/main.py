@@ -8,9 +8,9 @@ from collections import defaultdict
 
 import numpy as np
 try:
-  from . import CashFlows
-# NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
-# In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
+  from CashFlow.src import CashFlows
+  # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
+  # In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
 except ImportError:
   import CashFlows
 
@@ -63,8 +63,6 @@ def check_run_settings(settings, components):
     if find not in comp_by_name:
       raise IOError('Requested active component "{}" but not found! Options are: {}'.format(find, list(comp_by_name.keys())))
     # check cash flow is in comp
-
-
   # check that StartTime/Repetitions triggers a ProjectTime node
   ## if projecttime is not given, then error if start time/repetitions given (otherwise answer is misleading)
   if settings.get_project_time() is None:
@@ -263,8 +261,8 @@ def project_component_cashflows(comp, tax, inflation, life_cashflows, project_le
       if len(life_cf) == 1:
         life_cf = np.ones(comp_life)*life_cf[0]
         life_cf[0] = 0.
-      elif len(life_cf) != len(comp_life):
-        raise RuntimeError('Recurring cashflow should have the same dimension as project length!')
+      elif len(life_cf) != comp_life + 1:
+        raise RuntimeError('Recurring cashflow should have the same dimension as component length!')
     single_cashflow = project_single_cashflow(cf, comp_start, comp_end, comp_life, life_cf, tax_mult, infl_rate, project_length, v=v)
     vprint(v, 0, m, 'Project Cashflow for Component "{}" CashFlow "{}":'.format(comp.name, cf.name))
     if v < 1:
