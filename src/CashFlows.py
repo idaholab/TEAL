@@ -499,9 +499,8 @@ class CashFlow:
         self._inflation = value
       elif key == 'mult_target':
         self._mult_target = value
-      elif key == 'multiplier':
+      elif key == 'multiply':
         self._multiplier = value
-
     for sub in item.subparts:
       if sub.getName() == 'alpha':
         self._alpha = self.set_variable_or_floats(sub.value)
