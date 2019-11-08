@@ -5,14 +5,12 @@ import sys
 os.system('python ../../../plugins/CashFlow/src/CashFlow_ExtMod.py -iXML Cash_Flow_input_NPV.xml -iINP VarInp.txt -o out.out')
 
 # read out.out and compare with gold
-
 with open("out.out") as out:
   for l in out:
     pass
 
 gold = float(l)
-print(gold)
-if (gold - 630614140.519) < 0.01 :
+if (gold - 630614140.519) < 0.01:
   sys.exit(0)
 else:
   sys.exit(1)
