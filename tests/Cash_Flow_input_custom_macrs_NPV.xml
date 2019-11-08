@@ -26,7 +26,6 @@
           5.90 5.91 5.90 5.91 5.90 5.91 5.90 5.91 2.95
         </depreciation>
       </Capex>
-
       <!-- Electric Revenue -->
       <!-- alpha is 1.0 -->
       <Recurring name="RE" tax="true" inflation="none" mult_target="true">
@@ -47,7 +46,6 @@
         <reference>231000000</reference>
         <X>1.0</X>
       </Capex>
-
       <!-- Non electric Revenue -->
       <!-- alpha is 1.0  -->
       <Recurring name="RE" tax="true" inflation="none" mult_target="true">

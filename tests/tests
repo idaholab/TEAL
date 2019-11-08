@@ -66,6 +66,11 @@
   max_time = 500
   rel_err = 0.001
  [../]
+ [./CashFlow_NPV_custom_MACRS]
+  type = 'RavenFramework'
+  input = 'CashFlow_test_NPV_custom_MACRS.xml'
+  UnorderedCsv = 'dumpNPV_custom_macrs.csv'
+  max_time = 500
+  rel_err = 0.001
+ [../]
 []
-
-
