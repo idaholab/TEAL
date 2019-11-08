@@ -3,29 +3,24 @@
   Date  :  02/23/2017
 """
 
-#Imports
 from __future__ import division, print_function, unicode_literals, absolute_import
 import os
 import sys
+import numpy as np
 import warnings
 warnings.simplefilter('default', DeprecationWarning)
 
-import numpy as np
-
-#Internal Modules---------------------------------------------------------------
-# This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file needs to be in the propoer plugin directory.
-
-# TODO this is an import conundrum that needs to be fixed.
+# NOTE this import exception is ONLY to allow RAVEN to directly import this module.
 try:
   from CashFlow.src import main
-  # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
-  # In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
 except ImportError:
   import main
 
+# This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
+# needs to be in the propoer plugin directory.
 dir_path = os.path.dirname(os.path.realpath(__file__))
-#sys.path.append(os.path.abspath(os.path.join(dir_path,'..','..','..','framework')))
-raven_path = os.path.dirname(__file__) + '/../../raven/framework'  #'~/projects/raven/framework' # TODO fix with plugin relative path
+# TODO fix with plugin relative path
+raven_path = os.path.dirname(__file__) + '/../../raven/framework'
 sys.path.append(os.path.expanduser(raven_path))
 
 try:
@@ -33,7 +28,7 @@ try:
   from PluginsBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase
 except:
   raise IOError("CashFlow ERROR (Initialisation): RAVEN needs to be installed and CashFlow needs to be in its plugin directory for the plugin to work!'")
-#Internal Modules End-----------------------------------------------------------
+
 
 class CashFlow(ExternalModelPluginBase):
   """
