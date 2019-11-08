@@ -1,16 +1,16 @@
 
 import os
 import sys
-#from collections import defaultdict
-#import numpy as np
+
+# NOTE this import exception is ONLY to allow RAVEN to directly import this module.
 try:
-  from .CashFlows import Component
-  # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
-  # In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
+  from CashFlow.src.CashFlows import Component
 except ImportError:
   from CashFlows import Component
 
-raven_path = os.path.dirname(__file__) + '/../../raven/framework'
+# This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
+# needs to be in the propoer plugin directory.
+raven_path = os.path.dirname(__file__) + '/../../../framework'
 sys.path.append(os.path.expanduser(raven_path))
 from utils import InputData
 

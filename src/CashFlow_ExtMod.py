@@ -20,7 +20,7 @@ except ImportError:
 # needs to be in the propoer plugin directory.
 dir_path = os.path.dirname(os.path.realpath(__file__))
 # TODO fix with plugin relative path
-raven_path = os.path.dirname(__file__) + '/../../raven/framework'
+raven_path = os.path.dirname(__file__) + '/../../../framework'
 sys.path.append(os.path.expanduser(raven_path))
 
 try:
