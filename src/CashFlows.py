@@ -11,31 +11,18 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import time
 
+# NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
+# In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod
+# instead of importing CashFlow_ExtMod directly, implicitly.
 try:
   from CashFlow.src import Amortization
-# NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
-# In general, this should not exist, and RAVEN should import CashFlow.CashFlow_ExtMod instead of importing CashFlow_ExtMod directly, implicitly.
 except ImportError:
   import Amortization
-
-raven_path = ((os.path.dirname(__file__)))#'~/projects/raven/framework' # TODO fix with plugin relative path
+# TODO fix with plugin relative path
+raven_path = ((os.path.dirname(__file__)))
 raven_path=raven_path+'/../../../framework'
-print(raven_path)
-#print(raven_path,type(raven_path))
-#print(os.path.dirname(__file__),raven_path)
-#time.sleep(300)
-#print(os.path.expanduser(raven_path))
-#time.sleep(300)
-#print(os.path.expanduser(raven_path))
-#time.sleep(300)
 sys.path.append(os.path.expanduser(raven_path))
-#print (os.getcwd())
-#print (os.path.abspath(os.path.dirname(__file__)))
-#time.sleep(300)
-
-## Import error from utils need to be fixed for this file to work
 from utils import utils, InputData, xmlUtils, TreeStructure
-
 
 
 class GlobalSettings:
@@ -64,6 +51,7 @@ class GlobalSettings:
     """
       Constructor.
       @ In, kwargs, dict, general keyword arguments: verbosity
+      @ In, verbosity, int, used to control the output information
       @ Out, None
     """
     self._verbosity = verbosity
@@ -81,7 +69,6 @@ class GlobalSettings:
     """
       Sets settings from input file
       @ In, source, InputData.ParameterInput, input from user
-      @ In, xml, bool, if True then XML is passed in, not input data
       @ Out, None
     """
     # TODO make read_input call set_params so there's a uniform place to change things!
@@ -170,27 +157,60 @@ class GlobalSettings:
   # API #
   #######
   def get_active_components(self):
+    """
+      Get the active components for the whole project
+      @ In, None
+      @ Out, self._active_components, dict, {componentName: listOfCashFlows}, the dict of active components
+    """
     return self._active_components
 
   def get_discount_rate(self):
+    """
+      Get the global discount rate
+      @ In, None
+      @ Out, self._discount_rate, float, discount rate
+    """
     return self._discount_rate
 
   def get_inflation(self):
+    """
+      Get the global inflation
+      @ In, None
+      @ Out, self._inflation, None or float, the inflation for the whole project
+    """
     return self._inflation
 
   def get_indicators(self):
+    """
+      Get the indicators
+      @ In, None
+      @ Out, self._indicators, string, string list of indicators, such as NPV, IRR.
+    """
     return self._indicators
 
   def get_metric_target(self):
+    """
+      Get the metric target
+      @ In, None
+      @ Out, self._metric_target, float, the target metric
+    """
     return self._metric_target
 
   def get_project_time(self):
+    """
+      Get whole project time
+      @ In, None
+      @ Out, self._project_time, int, the project time
+    """
     return self._project_time
 
   def get_tax(self):
+    """
+      Get the global tax rate
+      @ In, None
+      @ Out, self._tax, float, tax rate
+    """
     return self._tax
-
-
 
 
 class Component:
@@ -231,6 +251,7 @@ class Component:
     """
       Constructor.
       @ In, kwargs, dict, general keyword arguments: verbosity
+      @ In, verbosity, int, used to control the output information
       @ Out, None
     """
     #self._owner = owner # cash flow user that uses this group
@@ -247,7 +268,6 @@ class Component:
     """
       Sets settings from input file
       @ In, source, InputData.ParameterInput, input from user
-      @ In, xml, bool, if True then XML is passed in, not input data
       @ Out, None
     """
     print(' ... loading economics ...')
@@ -272,6 +292,11 @@ class Component:
     self.check_initialization()
 
   def set_params(self, param_dict):
+    """
+      Sets the settings from a dictionary, instead of via an input file.
+      @ In, param_dict, dict, settings
+      @ Out, None
+    """
     for name, value in param_dict.items():
       if name == 'name':
         self.name = value
@@ -315,20 +340,45 @@ class Component:
   # API #
   #######
   def add_cashflows(self, cf):
+    """
+      Add the cashflows for this component
+      @ In, cf, list, list of CashFlow objects
+      @ Out, None
+    """
     self._cash_flows.extend(cf)
 
   def count_multtargets(self):
+    """
+      Get the number of targets this component
+      @ In, None
+      @ Out, count_multtargets, int, the number of cash flows
+    """
     return sum(cf._mult_target is not None for cf in self._cash_flows)
 
   def get_cashflow(self, name):
+    """
+      Get the cash flow with provided name for this component
+      @ In, name, string, the name of cash flow object
+      @ Out, cf, CashFlow Object, the cash flow object
+    """
     for cf in self._cash_flows:
       if cf.name == name:
         return cf
 
   def get_cashflows(self):
+    """
+      Get the  for this component
+      @ In, None
+      @ Out, self._cash_flows, list, list of cash flow objects
+    """
     return self._cash_flows
 
   def get_inflation(self):
+    """
+      Get the inflation for this component
+      @ In, None
+      @ Out, self._specific_inflation, None or float, the inflation of this component
+    """
     return self._specific_inflation
 
   def get_lifetime(self):
@@ -340,22 +390,46 @@ class Component:
     return self._lifetime
 
   def get_multipliers(self):
+    """
+      Get the multipliers for this component
+      @ In, None
+      @ Out, multipliers, list, list of multipliers
+    """
     return list(cf.get_multiplier() for cf in self._cash_flows)
 
   def get_repetitions(self):
+    """
+      Get the repetitions for this component
+      @ In, None
+      @ Out, repetitions, int, the number of repetitions
+    """
     return self._repetitions
 
   def get_start_time(self):
+    """
+      Get the start_time for this component
+      @ In, None
+      @ Out, start_time, int, the start time of this component
+    """
     return self._start_time
 
   def get_tax(self):
+    """
+      Get the tax rate for this component
+      @ In, None
+      @ Out, self._tax, float, tax rate
+    """
     return self._specific_tax
 
   #############
   # UTILITIES #
   #############
   def _cash_flow_factory(self, specs):
-    """ based on the InputData specs provided, returns the appropriate CashFlow """
+    """
+      based on the InputData specs provided, returns the appropriate CashFlow
+      @ In, specs, instant of InputData.ParameterInput, specs of provided InputData
+      @ Out, created, list, list of cash flow objects
+    """
     created = []
     # get the type of this node, whether we're talking XML or RAVEN.InputData
     if not isinstance(specs, InputData.ParameterInput):
@@ -382,7 +456,11 @@ class Component:
     return created
 
   def _create_depreciation(self, ocf):
-    """ creates amortization cash flows depending on the originating capex cash flow """
+    """
+      creates amortization cash flows depending on the originating capex cash flow
+      @ In, ocf, instant of CashFlow, instant of CashFlow object
+      @ Out, depreciation, list, [pos, neg], list amortization and depreciation objects
+    """
     # use the reference plant price
     amort = ocf.get_amortization()
     if amort is None:
@@ -418,8 +496,6 @@ class Component:
               'X': 1.0}
     neg.set_params(params)
     return [pos, neg]
-
-
 
 
 class CashFlow:
@@ -514,6 +590,11 @@ class CashFlow:
     self.check_initialization()
 
   def set_params(self, param_dict):
+    """
+      Sets the settings from a dictionary, instead of via an input file.
+      @ In, param_dict, dict, settings
+      @ Out, None
+    """
     for name, val in param_dict.items():
       if name == 'name':
         self.name = val
@@ -548,9 +629,19 @@ class CashFlow:
     pass # nothing specific to check in base
 
   def get_multiplier(self):
+    """
+      Get the multiplier
+      @ In, None
+      @ Out, multiplier, string or float, the multiplier of this cash flow
+    """
     return self._multiplier
 
   def get_param(self, param):
+    """
+      Get the parameter value
+      @ In, param, string, the name of requested parameter
+      @ Out, get_param, float or list, the value of param
+    """
     param = param.lower()
     if param in ['alpha', 'reference_price']:
       return self._alpha
@@ -564,20 +655,45 @@ class CashFlow:
       raise RuntimeError('Unrecognized parameter request:', param)
 
   def get_amortization(self):
+    """
+      Get amortization
+      @ In, None
+      @ Out, None
+    """
     return None
 
   def is_inflated(self):
+    """
+      Check inflation
+      @ In, None
+      @ Out, is_inflated, Bool, True if inflated otherwise False
+    """
     # right now only 'none' and 'real' are options, so this is boolean
     ## when nominal is implemented, might need to extend this method a bit
     return self._inflation != 'none'
 
   def is_mult_target(self):
+    """
+      Check if multiple targets
+      @ In, None
+      @ Out, is_mult_target, Bool, True if multiple targets else False
+    """
     return self._mult_target
 
   def is_taxable(self):
+    """
+      Check is taxable
+      @ In, None
+      @ Out, is_taxable, Bool, True if taxable otherwise False
+    """
     return self._taxable
 
   def set_variable_or_floats(self, value):
+    """
+      Set variable
+      @ In, value, str or float or list, the value of given variable
+      @ Out, ret, str or float or numpy.array, the recasted value
+    """
     ret = None
     # multi-entry or single-entry?
     if len(value) == 1:
@@ -595,6 +711,14 @@ class CashFlow:
     return ret
 
   def load_from_variables(self, need, variables, cashflows, lifetime):
+    """
+      Load the values of parameters from variables
+      @ In, need, dict, the dict of parameters
+      @ In, variables, dict, the dict of parameters that is provided from other sources
+      @ In, cashflows, dict, dict of cashflows
+      @ In, lifetime, int, the given life time
+      @ Out, need, dict, the dict of parameters updated with variables
+    """
     # load variable values from variables or other cash flows, as needed (ha!)
     for name, source in need.items():
       if utils.isAString(source):
@@ -614,16 +738,24 @@ class CashFlow:
     return need
 
   def extend_parameters(self, need, lifetime):
+    """
+      Extend values of parameters to the length of lifetime
+      @ In, need, dict, the dict of parameters that need to extend
+      @ In, lifetime, int, the given life time
+      @ Out, None
+    """
     # should be overwritten in the inheriting classes!
     raise NotImplementedError
-
-
-
 
 
 class Capex(CashFlow):
   @classmethod
   def get_input_specs(cls):
+    """
+      Collects input specifications for this class.
+      @ In, specs, InputData, specs
+      @ Out, specs, InputData, specs
+    """
     specs = InputData.parameterInputFactory('Capex')
     specs = CashFlow.get_input_specs(specs)
     specs.addSub(InputData.parameterInputFactory('reference', contentType=InputData.FloatType))
@@ -632,10 +764,14 @@ class Capex(CashFlow):
     deprec_schemes = InputData.makeEnumType('deprec_types', 'deprec_types', ['MACRS', 'custom'])
     deprec.addParam('scheme', param_type=deprec_schemes, required=True)
     specs.addSub(deprec)
-    #print(specs.subs)
     return specs
 
   def __init__(self, **kwargs):
+    """
+      Constructor
+      @ In, kwargs, dict, general keyword arguments
+      @ Out, None
+    """
     CashFlow.__init__(self, **kwargs)
     # new variables
     self.type = 'Capex'
@@ -647,6 +783,11 @@ class Capex(CashFlow):
     self._inflation = False
 
   def read_input(self, item):
+    """
+      Sets settings from input file
+      @ In, item, InputData.ParameterInput, input from user
+      @ Out, None
+    """
     for sub in item.subparts:
       if sub.getName() == 'depreciation':
         self._amort_scheme = sub.parameterValues['scheme']
@@ -654,6 +795,12 @@ class Capex(CashFlow):
     CashFlow.read_input(self, item)
 
   def check_initialization(self):
+    """
+      Checks that the reading in of inputs resulted in a sensible
+      set of data.
+      @ In, None
+      @ Out, None
+    """
     CashFlow.check_initialization(self)
     if self._reference is None:
       raise IOError(self.missing_node_template.format(comp=self._component, cf=self.name, node='reference'))
@@ -665,20 +812,42 @@ class Capex(CashFlow):
       raise IOError(self.missing_node_template.format(comp=self._component, cf=self.name, node='alpha'))
 
   def init_params(self, lifetime):
+    """
+      Initialize some parameters
+      @ In, lifetime, int, the given life time
+      @ Out, None
+    """
     self._alpha = np.zeros(1 + lifetime)
     self._driver = np.zeros(1 + lifetime)
 
   def get_amortization(self):
+    """
+      Get amortization
+      @ In, None
+      @ Out, amortization, None or tuple, (amortizationScheme, amortizationPlan)
+    """
     if self._amort_scheme is None:
       return None
     else:
       return self._amort_scheme, self._amort_plan
 
   def set_amortization(self, scheme, plan):
+    """
+      Set amortization
+      @ In, scheme, str, 'MACRS' or 'custom'
+      @ In, plan, list, list of amortization values
+      @ Out, None
+    """
     self._amort_scheme = scheme
     self._amort_plan = np.atleast_1d(plan)
 
   def extend_parameters(self, to_extend, t):
+    """
+      Extend values of parameters to the length of lifetime t
+      @ In, to_extend, dict, the dict of parameters that need to extend
+      @ In, t, int, the given life time
+      @ Out, None
+    """
     # for capex, both the Driver and Alpha are nonzero in year 1 and zero thereafter
     for name, value in to_extend.items():
       if name.lower() in ['alpha', 'driver']:
@@ -689,7 +858,14 @@ class Capex(CashFlow):
     return to_extend
 
   def calculate_cashflow(self, variables, lifetime_cashflows, lifetime, verbosity):
-    """ sets up the COMPONENT LIFETIME cashflows, and calculates yearly for the comp life """
+    """
+      sets up the COMPONENT LIFETIME cashflows, and calculates yearly for the comp life
+      @ In, variables, dict, the dict of parameters that is provided from other sources
+      @ In, lifetime_cashflows, dict, dict of cashflows
+      @ In, lifetime, int, the given life time
+      @ In, verbosity, int, used to control the output information
+      @ Out, ret, dict, the dict of caculated cashflow
+    """
     ## FIXME what if I have set the values already?
     # get variable values, if needed
     need = {'alpha': self._alpha, 'driver': self._driver}
@@ -697,7 +873,6 @@ class Capex(CashFlow):
     need = self.load_from_variables(need, variables, lifetime_cashflows, lifetime)
     # for Capex, use m * alpha * (D/D')^X
     alpha = need['alpha']
-
     driver = need['driver']
     reference = self.get_param('reference')
     if reference is None:
@@ -723,6 +898,12 @@ class Capex(CashFlow):
     return ret
 
   def check_param_lengths(self, lifetime, comp_name=None):
+    """
+      Check the length of some parameters
+      @ In, lifetime, int, the given life time
+      @ In, comp_name, str, name of component
+      @ Out, None
+    """
     for param in ['alpha', 'driver']:
       val = self.get_param(param)
       # if a string, then it's probably a variable, so don't check it now
@@ -739,21 +920,26 @@ class Capex(CashFlow):
                                found=len(val)))
 
 
-
-
-
-
-
-
 class Recurring(CashFlow):
+
   @classmethod
   def get_input_specs(cls):
+    """
+      Collects input specifications for this class.
+      @ In, specs, InputData, specs
+      @ Out, specs, InputData, specs
+    """
     specs = InputData.parameterInputFactory('Recurring')
     specs = CashFlow.get_input_specs(specs)
     # nothing new to add
     return specs
 
   def __init__(self, **kwargs):
+    """
+      Constructor
+      @ In, kwargs, dict, general keyword arguments
+      @ Out, None
+    """
     CashFlow.__init__(self, **kwargs)
     # set defaults different from base class
     self.type = 'Recurring'
@@ -761,12 +947,12 @@ class Recurring(CashFlow):
     self._inflation = True
     self._yearly_cashflow = None
 
-  def extend_parameters(self, to_extend, t):
-    # for recurring, both the Driver and Alpha are zero in year 1 and nonzero thereafter
-    # we're going to integrate alpha * D over time (not year time, intrayear time), so no changes
-    return to_extend
-
   def init_params(self, lifetime):
+    """
+      Initialize some parameters
+      @ In, lifetime, int, the given life time
+      @ Out, None
+    """
     # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
     self._yearly_cashflow = np.zeros(lifetime+1)
 
@@ -810,6 +996,14 @@ class Recurring(CashFlow):
       raise e
 
   def calculate_cashflow(self, variables, lifetime_cashflows, lifetime, verbosity):
+    """
+      sets up the COMPONENT LIFETIME cashflows, and calculates yearly for the comp life
+      @ In, variables, dict, the dict of parameters that is provided from other sources
+      @ In, lifetime_cashflows, dict, dict of cashflows
+      @ In, lifetime, int, the given life time
+      @ In, verbosity, int, used to control the output information
+      @ Out, calculate_cashflow, dict, the dict of caculated cashflow
+    """
     # by now, self._yearly_cashflow should have been filled with appropriate values
     # TODO reference, scale? we've already used mult (I think)
     self.init_params(lifetime-1)
@@ -819,10 +1013,23 @@ class Recurring(CashFlow):
     return {'result': self._yearly_cashflow}
 
   def check_param_lengths(self, lifetime, comp_name=None):
+    """
+      Check the length of some parameters
+      @ In, lifetime, int, the given life time
+      @ In, comp_name, str, name of component
+      @ Out, None
+    """
     pass # nothing to do here, we don't check lengths since they'll be integrated intrayear
 
   def extend_parameters(self, to_extend, t):
-    # for recurring, Alpha is zero in year 1 and given value thereafter
+    """
+      Extend values of parameters to the length of lifetime t
+      @ In, to_extend, dict, the dict of parameters that need to extend
+      @ In, t, int, the given life time
+      @ Out, None
+    """
+    # for recurring, both the Driver and Alpha are zero in year 1 and nonzero thereafter
+    # FIXME: we're going to integrate alpha * D over time (not year time, intrayear time)
     for name, value in to_extend.items():
       if name.lower() in ['alpha']:
         if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
@@ -834,6 +1041,12 @@ class Recurring(CashFlow):
 
 class Amortizor(Capex):
   def extend_parameters(self, to_extend, t):
+    """
+      Extend values of parameters to the length of lifetime t
+      @ In, to_extend, dict, the dict of parameters that need to extend
+      @ In, t, int, the given life time
+      @ Out, None
+    """
     # unlike normal capex, for amortization we expand the driver to all nonzero entries and keep alpha as is
     # TODO forced driver values for now
     driver = to_extend['driver']
@@ -845,7 +1058,6 @@ class Amortizor(Capex):
       for name, value in to_extend.items():
         if name.lower() in ['driver']:
           if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
-            aaaaaaa
             new = np.zeros(t)
             new[1:] = float(value)
             to_extend[name] = new
