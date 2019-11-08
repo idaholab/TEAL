@@ -821,7 +821,15 @@ class Recurring(CashFlow):
   def check_param_lengths(self, lifetime, comp_name=None):
     pass # nothing to do here, we don't check lengths since they'll be integrated intrayear
 
-
+  def extend_parameters(self, to_extend, t):
+    # for recurring, Alpha is zero in year 1 and given value thereafter
+    for name, value in to_extend.items():
+      if name.lower() in ['alpha']:
+        if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
+          new = np.ones(t) * float(value)
+          new[0] = 0
+          to_extend[name] = new
+    return to_extend
 
 
 class Amortizor(Capex):

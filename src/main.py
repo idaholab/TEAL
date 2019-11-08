@@ -257,12 +257,6 @@ def project_component_cashflows(comp, tax, inflation, life_cashflows, project_le
     vprint(v, 1, m, ' ... inflation rate: {}'.format(infl_rate))
     vprint(v, 1, m, ' ... tax rate: {}'.format(tax_mult))
     life_cf = life_cashflows[cf.name]
-    if cf.type == 'Recurring':
-      if len(life_cf) == 1:
-        life_cf = np.ones(comp_life)*life_cf[0]
-        life_cf[0] = 0.
-      elif len(life_cf) != comp_life + 1:
-        raise RuntimeError('Recurring cashflow should have the same dimension as component length!')
     single_cashflow = project_single_cashflow(cf, comp_start, comp_end, comp_life, life_cf, tax_mult, infl_rate, project_length, v=v)
     vprint(v, 0, m, 'Project Cashflow for Component "{}" CashFlow "{}":'.format(comp.name, cf.name))
     if v < 1:

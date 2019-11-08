@@ -11,7 +11,8 @@ with open("out.out") as out:
     pass
 
 gold = float(l)
-if (gold - 627370309.759) < 0.01 :
+print(gold)
+if (gold - 630614140.519) < 0.01 :
   sys.exit(0)
 else:
   sys.exit(1)
