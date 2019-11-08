@@ -184,19 +184,46 @@ Each \xmlNode{Component} has to have one \xmlNode{Life\_time} block and as many 
     \end{equation}
 
   The \xmlNode{CashFlows} currently can accept the following subnodes:
+  \begin{enumerate}
+    \item[\xmlNode{Capex}] The cash flow for capital expenditures, and this node will accept the following child nodes:
+      \begin{enumerate}
+        \item[\xmlNode{driver}] The $driver$ in Eq. \ref{eq:CF} of the cash flow. This can be any variable passed in from RAVEN or the name
+          of another cash flow. If it is passed in from RAVEN, it has to be either a scalar or a vector with length \xmlNode{Life\_time} + 1.
+          If its a scalar, all $driver_{y}$ in Eq. \ref{eq:CF}  are the same for all years of the project life. If it is a vector instead, each
+          year of the project \xmlNode{Life\_time} will have its corresponding value for the driver. If the driver is another
+          cash flow, the project \xmlNode{Life\_time} of the component to which the driving cash flow belongs has to be the same than the project
+          \xmlNode{Life\_time} of the component to which this
+          cash flow belongs. No loops of cash flows are allowed. The code will error out if there are loops of cash flows, i.e. A is the driver
+          of B and B the driver of A.
+        \item[\xmlNode{alpha}] $\alpha_{y}$ multiplier of the cash flow (see Eq. \ref{eq:CF}). Similar to \xmlNode{driver}, can be
+          either scalar or vector. If a vector, exactly \xmlNode{Life\_time}$ + 1$
+          values are expected. One for $y=0$ to $y=$\xmlNode{Life\_time}. If a scalar, we assume alpha is zero for all years of the lifetime
+          of the component except the year zero (the provided scalar value will be used for year zero), which is the construction year.
+        \item[\xmlNode{reference}] The $ref$ value of the cash flow (see Eq. \ref{eq:CF}).
+        \item[\xmlNode{X}] The $X$ exponent (economy of scale factor) of the cash flow (see Eq. \ref{eq:CF}).
+      \end{enumerate}
+    \item[\xmlNode{Recurring}] The cash flow for recurring cost, such as operation and maintenance cost.
+      \begin{enumerate}
+        \item[\xmlNode{driver}] The $driver$ in Eq. \ref{eq:CF} of the cash flow. This can be any variable passed in from RAVEN or the name
+          of another cash flow. If it is passed in from RAVEN, it has to be either a scalar or a vector with length \xmlNode{Life\_time} + 1.
+          If its a scalar, all $driver_{y}$ in Eq. \ref{eq:CF}  are the same for all years of the project life. If it is a vector instead, each
+          year of the project \xmlNode{Life\_time} will have its corresponding value for the driver. If the driver is another
+          cash flow, the project \xmlNode{Life\_time} of the component to which the driving cash flow belongs has to be the same than the project
+          \xmlNode{Life\_time} of the component to which this
+          cash flow belongs. No loops of cash flows are allowed. The code will error out if there are loops of cash flows, i.e. A is the driver
+          of B and B the driver of A.
+          \item[\xmlNode{alpha}] $\alpha_{y}$ multiplier of the cash flow (see Eq. \ref{eq:CF}). Similar to \xmlNode{driver}, can be
+            either scalar or vector. If a vector, exactly \xmlNode{Life\_time}$ + 1$
+            values are expected. One for $y=0$ to $y=$\xmlNode{Life\_time}.
+            If a scalar, we assume alpha is nonzero, i.e. the provided scalar value, for all years of the lifetime
+            of the component except the year zero.
+      \end{enumerate}
+  \end{enumerate}
 
-
+  These subnodes, such as \xmlNode{Capex} and \xmlNode{Recurring} will accept the following attributes:
   \begin{enumerate}
     \item[\xmlAttr{name}] The name of the Cash flow. Has to be unique across all components. This is the name that can be listed in the
       \xmlNode{Indicator} node of the \xmlNode{Global} block.
-    \item[\xmlAttr{driver}] The $driver$ in Eq. \ref{eq:CF} of the cash flow. This can be any variable passed in from RAVEN or the name
-      of another cash flow. If it is passed in from RAVEN, it has to be either a scalar or a vector with length \xmlNode{Life\_time} + 1.
-      If its a scalar, all $driver_{y}$ in Eq. \ref{eq:CF}  are the same for all years of the project life. If it is a vecor instead, each
-      year of the project \xmlNode{Life\_time} will have its corresponding value for the driver. If the driver is another
-      cash flow, the project \xmlNode{Life\_time} of the component to which the driving cash flow belongs has to be the same than the project
-      \xmlNode{Life\_time} of the component to which this
-      cash flow belongs. No loops of cash flows are allowed. The code will error out if there are loops of cash flows, i.e. A is the driver
-      of B and B the driver of A.
     \item[\xmlAttr{tax}] Can be \textbf{true} or \textbf{false}. If it is \textbf{true}, the cash flow is multiplied by $(1-tax)$, where tax
       is the tax rate given in \xmlNode{tax} in the \xmlNode{Global}
       block. As an example, the cash flow of \textit{comp2} for year 119 in Listing \ref{lst:InputExample} would become $CF^{comp2}_{39}(1-tax)$.
@@ -217,11 +244,11 @@ Each \xmlNode{Component} has to have one \xmlNode{Life\_time} block and as many 
     \item[\xmlAttr{mult\_target}] Can be \textbf{true} or \textbf{false}. If \textbf{true}, it means that this cash flow multiplies
       the search variable '$x$' as explained in the NPV\_search option above.
       If the NPV\_search option is used, al least one cash flow has to have \xmlAttr{mult\_target}$=$\textbf{true}.
-    \item[\xmlNode{alpha}] $\alpha_{y}$ multiplier of the cash flow (see Eq. \ref{eq:CF}). Exactly \xmlNode{Life\_time}$ + 1$
-      values are expected. One for $y=0$ to $y=$\xmlNode{Life\_time}.
-    \item[\xmlNode{reference}] The $ref$ value of the cash flow (see Eq. \ref{eq:CF}).
-    \item[\xmlNode{X}] The $X$ exponent (economy of scale factor) of the cash flow (see Eq. \ref{eq:CF}).
   \end{enumerate}
+
+
+
+
 \end{enumerate}
 
 An example of a cash flow is shown in Listing \ref{lst:CashFlowExample}. In the example, a cash flow called CAPEX is defined.
