@@ -1,17 +1,13 @@
 <Simulation verbosity="debug">
   <TestInfo>
-    <name>CashFlow_test_IRR</name>
-    <author>A. Epiney</author>
-    <created>2017-10-25</created>
+    <name>CashFlow_test_NPV_custom_MACRS</name>
+    <author>wangc</author>
+    <created>2019-11-08</created>
     <description>
       This input tests the RAVEN plugin CashFlow.
-      The tested functionality is called IRR.
+      The tested functionality is called NPV with custom macrs.
     </description>
     <classesTested>Models.ExternalModel.CashFlow</classesTested>
-    <revisions>
-      <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
-      <revision author="wangc" date="2019-11-08">update ExternalXML with new structure cash flow input</revision>
-    </revisions>
   </TestInfo>
 
   <RunInfo>
@@ -21,13 +17,13 @@
 
   <VariableGroups>
     <Group name="GRO_CashFlow_in">BOP_capacity, BOP_TOT_revenueEL, IP_capacity, IP_TOT_revenueBY, Multiplier</Group>
-    <Group name="GRO_CashFlow_out">IRR</Group>
+    <Group name="GRO_CashFlow_out">NPV</Group>
   </VariableGroups>
 
   <Models>
     <ExternalModel name="Cash_Flow" subType="CashFlow">
       <variables> GRO_CashFlow_in, GRO_CashFlow_out</variables>
-      <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_IRR.xml" />
+      <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_custom_macrs_NPV.xml"/>
     </ExternalModel>
   </Models>
 
@@ -57,19 +53,19 @@
 
   <Steps>
     <MultiRun name="MCrun" pauseAtEnd="True">
-      <Input class="DataObjects" type="PointSet">SET_CashFlow_in</Input>
-      <Model class="Models" type="ExternalModel">Cash_Flow</Model>
-      <Sampler class="Samplers" type="MonteCarlo">test_MC</Sampler>
-      <Output class="DataObjects" type="PointSet">SET_CashFlow_out</Output>
+      <Input          class="DataObjects"   type="PointSet">SET_CashFlow_in</Input>
+      <Model          class="Models"        type="ExternalModel">Cash_Flow</Model>
+      <Sampler        class="Samplers"      type="MonteCarlo">test_MC</Sampler>
+      <Output         class="DataObjects"   type="PointSet">SET_CashFlow_out</Output>
     </MultiRun>
     <IOStep name="printTOfile">
-     <Input class="DataObjects" type="PointSet">SET_CashFlow_out</Input>
-     <Output class="OutStreams" type="Print">dumpIRR</Output>
+     <Input          class="DataObjects"   type="PointSet">SET_CashFlow_out</Input>
+     <Output         class="OutStreams"    type="Print">dumpNPV_custom_macrs</Output>
     </IOStep>
   </Steps>
 
   <OutStreams>
-    <Print name="dumpIRR">
+    <Print name="dumpNPV_custom_macrs">
       <type>csv</type>
       <source>SET_CashFlow_out</source>
       <what>input,output</what>

@@ -6,8 +6,6 @@
     <Indicator name="NPV" target="0">
       BOP|CA
       BOP|RE
-      BOP|DA1
-      BOP|DA2
       IP|CA
       IP|RE
     </Indicator>
@@ -17,92 +15,36 @@
     <Life_time>60</Life_time>
     <tax>0.3</tax>
     <inflation>0.07</inflation>
-
-    <CashFlow driver="BOP_capacity" inflation="none" mult_target="false" multiply="Multiplier" name="CA" tax="false">
-      <alpha> -4510000000
-        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-        0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0</alpha>
+    <CashFlows>
+      <Capex inflation="none" mult_target="false" multiply="Multiplier" name="CA" tax="false">
+        <driver>BOP_capacity</driver>
+        <alpha>-4510000000</alpha>
         <reference>1100000000</reference>
         <X>0.64</X>
-      </CashFlow>
+        <depreciation scheme='MACRS'>15</depreciation>
+      </Capex>
 
-      <CashFlow driver="BOP_TOT_revenueEL" inflation="none" mult_target="true" name="RE" tax="true">
-        <alpha> 0.0
-          1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-          1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-          1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-          1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-          1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-          1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0</alpha>
-          <reference>1.0</reference>
-          <X>1.0</X>
-        </CashFlow>
+      <Recurring inflation="none" mult_target="true" name="RE" tax="true">
+        <alpha>1.0</alpha>
+        <driver>BOP_TOT_revenueEL</driver>
+      </Recurring>
+    </CashFlows>
+  </Component>
 
-        <CashFlow driver="BOP_capacity" inflation="real" mult_target="false" name="DA1" tax="false">
-          <alpha> 0.0
-            225500000
-            405900000
-            385605000
-            347270000
-            312543000
-            280973000
-            266090000
-            266090000
-            266541000
-            266090000
-            266541000
-            266090000
-            266541000
-            266090000
-            266541000
-            133045000
-            0.0 0.0 0.0 0.0
-            0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-            0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-            0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-            0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-          </alpha>
-          <reference>1100000000</reference>
-          <X>0.64</X>
-        </CashFlow>
-        <CashFlow driver="BOP|DA1" inflation="real" mult_target="false" name="DA2" tax="true">
-          <alpha> 0.0
-            -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-            -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-            -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-            -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-            -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0
-            -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 </alpha>
-            <reference>1.0</reference>
-            <X>1.0</X>
-          </CashFlow>
-        </Component>
+  <Component name="IP">
+    <Life_time>40</Life_time>
+    <CashFlows>
+      <Capex inflation="none" mult_target="false" name="CA" tax="false">
+        <driver>IP_capacity</driver>
+        <alpha>-153000000</alpha>
+        <reference>231000000</reference>
+        <X>1.0</X>
+      </Capex>
 
-        <Component name="IP">
-          <Life_time>40</Life_time>
-
-          <CashFlow driver="IP_capacity" inflation="none" mult_target="false" name="CA" tax="false">
-            <alpha> -153000000
-              0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-              0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-              0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
-              0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 </alpha>
-              <reference>231000000</reference>
-              <X>1.0</X>
-            </CashFlow>
-
-            <CashFlow driver="IP_TOT_revenueBY" inflation="none" mult_target="true" name="RE" tax="true">
-              <alpha> 0.0
-                1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-                1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-                1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
-                1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 </alpha>
-                <reference>1.0</reference>
-                <X>1.0</X>
-              </CashFlow>
-            </Component>
-          </Economics>
+      <Recurring inflation="none" mult_target="true" name="RE" tax="true">
+        <driver>IP_TOT_revenueBY</driver>
+        <alpha>1.0</alpha>
+      </Recurring>
+    </CashFlows>
+  </Component>
+</Economics>
