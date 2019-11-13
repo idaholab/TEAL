@@ -21,9 +21,11 @@
         <alpha>-4510000000</alpha>
         <reference>1100000000</reference>
         <X>0.64</X>
-        <depreciation scheme='MACRS'>15</depreciation>
+        <depreciation scheme='custom'>
+          5.0 9.5 8.55 7.7 6.93 6.23 5.9
+          5.90 5.91 5.90 5.91 5.90 5.91 5.90 5.91 2.95
+        </depreciation>
       </Capex>
-
       <!-- Electric Revenue -->
       <!-- alpha is 1.0 -->
       <Recurring name="RE" tax="true" inflation="none" mult_target="true">
@@ -44,7 +46,6 @@
         <reference>231000000</reference>
         <X>1.0</X>
       </Capex>
-
       <!-- Non electric Revenue -->
       <!-- alpha is 1.0  -->
       <Recurring name="RE" tax="true" inflation="none" mult_target="true">
