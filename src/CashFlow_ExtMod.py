@@ -1,5 +1,5 @@
 """
-  Author:  A. S. Epiney
+  Author:  A. S. Epiney, P. Talbot, C. Wang
   Date  :  02/23/2017
 """
 
@@ -76,8 +76,6 @@ class CashFlow(ExternalModelPluginBase):
     """
     global_settings = container._global_settings
     components = container._components
-   # for c in components:
-    #  c.initialize_cashflows(global_settings.get_project_life())
     metrics = main.run(global_settings, components, Inputs)
     for k, v in metrics.items():
       setattr(container, k, v)

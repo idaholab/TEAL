@@ -12,8 +12,8 @@ The input of CashFlow is an XML file. An example of the input structure is given
 <Economics verbosity='0'>
     <Global>
         <Indicator name='IRR,NPV_search,NPV' target='0'>
-            Cfname1
-            Cfname2
+            Component1|Cfname1
+            Component1|Cfname2
             ...
         </Indicator>
         <DiscountRate>0.08</DiscountRate>
@@ -259,7 +259,7 @@ less than double the money ($X=0.64$). The example assums an overnight building 
 all years of the lifetime of the reactor except year zero, which is the construction year.
 
 \begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=CashFlow input example., label=lst:CashFlowExample]
-<Capex name='CAPEX' driver='Plant_capacity' tax='false' inflation='none'>
+<Capex name='CAPEX' tax='false' inflation='none'>
     <driver>Plant_capacity</driver>
     <alpha>-4000000000</alpha>
     <reference>1000000000</reference>
