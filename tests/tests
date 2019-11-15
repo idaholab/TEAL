@@ -6,6 +6,7 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
  [./CashFlow_NPV]
   type = 'RavenFramework'
   input = 'CashFlow_test_NPV.xml'
@@ -13,6 +14,7 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
  [./CashFlow_NPVsearch]
   type = 'RavenFramework'
   input = 'CashFlow_test_NPVsearch.xml'
@@ -20,6 +22,7 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
  [./CashFlow_IRR]
   type = 'RavenFramework'
   input = 'CashFlow_test_IRR.xml'
@@ -27,6 +30,7 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
  [./CashFlow_NPV_multiplier ]
   type = 'RavenFramework'
   input = 'CashFlow_test_NPV_multiplier.xml'
@@ -34,6 +38,7 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
  [./CashFlow_NPV_expandedDriver ]
   type = 'RavenFramework'
   input = 'CashFlow_test_NPV_expandedDriver.xml'
@@ -41,6 +46,7 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
  [./CashFlow_NPV_componentTax ]
   type = 'RavenFramework'
   input = 'CashFlow_test_NPV_componentTax.xml'
@@ -48,10 +54,12 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
  [./CashFlow_NPV_RunAsCode]
   type = 'RavenPython'
   input = 'CashFlow_test_NPV_RunAsCode.py'
  [../]
+
  [./CashFlow_NPV_customTime]
   type = 'RavenFramework'
   input = 'CashFlow_test_NPV_customTime.xml'
@@ -59,6 +67,7 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
  [./CashFlow_NPV_customTime2]
   type = 'RavenFramework'
   input = 'CashFlow_test_NPV_customTime2.xml'
@@ -66,6 +75,12 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
+ [./CashFlow_NPV_custom_MACRS]
+  type = 'RavenFramework'
+  input = 'CashFlow_test_NPV_custom_MACRS.xml'
+  UnorderedCsv = 'dumpNPV_custom_macrs.csv'
+  max_time = 500
+  rel_err = 0.001
+ [../]
 []
-
-

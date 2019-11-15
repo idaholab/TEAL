@@ -20,13 +20,13 @@ The plugin can be accessed as a special subtype of the External model. The synta
 
 \subsection{Running the plugin as a stand-alone python code}
 
-I addition to accessing the plug-in from within RAVEN, it can also be run as a stand-alone python program. This is useful for example for testing. However, since CashFlow is still a RAVEN plugin, RAVEN needs to be installed and the plugin needs to be in the plugin-folder for that to work.
+In addition to accessing the plug-in from within RAVEN, it can also be run as a stand-alone python program. This is useful for example for testing. However, since CashFlow is still a RAVEN plugin, RAVEN needs to be installed and the plugin needs to be in the plugin-folder for that to work.
 
 Assuming RAVEN is installed and the plugin is in the proper directory (execution will generate an error if its not), one can run it using the command shown in Listing \ref{lst:CashFlowAsCode}.
 
 \small
 \begin{lstlisting}[caption=CashFlow run as stand-alone python code, label=lst:CashFlowAsCode]
-~/raven --> python plugins/CashFlow/src/Cash_Flow.py -h
+~/raven --> python plugins/CashFlow/src/CashFlow_ExtMode.py -h
 usage: Cash_Flow.py [-h] -iXML inp_file -iINP inp_file -o out_file
 
 Run RAVEN CashFlow plugin as stand-alone code
