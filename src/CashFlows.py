@@ -24,6 +24,9 @@ from utils import utils, InputData, xmlUtils, TreeStructure
 
 
 class GlobalSettings:
+  """
+    Stores general settings for a CashFlow calculation.
+  """
   ##################
   # INITIALIZATION #
   ##################
@@ -212,8 +215,10 @@ class GlobalSettings:
 
 
 class Component:
-  # Just a holder for multiple cash flows, and methods for doing stuff with them
-  # Note the class can be constructed by reading from the XML (read_input) or directly TODO
+  """
+    Just a holder for multiple cash flows, and methods for doing stuff with them
+    Note the class can be constructed by reading from the XML (read_input) or directly TODO consistency
+  """
   node_var_map = {'Life_time': '_lifetime',
                   'StartTime': '_start_time',
                   'Repetitions': '_repetitions',
@@ -747,6 +752,9 @@ class CashFlow:
 
 
 class Capex(CashFlow):
+  """
+    Particular cashflow for infrequent large single expenditures
+  """
   @classmethod
   def get_input_specs(cls):
     """
@@ -919,6 +927,9 @@ class Capex(CashFlow):
 
 
 class Recurring(CashFlow):
+  """
+    Particular cashflow for yearly-consistent repeating expenditures
+  """
 
   @classmethod
   def get_input_specs(cls):
@@ -1038,6 +1049,9 @@ class Recurring(CashFlow):
 
 
 class Amortizor(Capex):
+  """
+    Particular cashflow for depreciation of capital expenditures
+  """
   def extend_parameters(self, to_extend, t):
     """
       Extend values of parameters to the length of lifetime t

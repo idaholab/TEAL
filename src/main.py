@@ -79,6 +79,11 @@ def check_run_settings(settings, components):
 def check_drivers(settings, components, variables, v=100):
   """
     checks if all drivers needed are present in variables
+    @ In, settings, CashFlows.GlobalSettings, global settings
+    @ In, components, list, list of CashFlows.Component instances
+    @ In, variables, dict, variable-value map from RAVEN
+    @ In, v, int, verbosity level
+    @ Out, ordered, list, list of ordered cashflows to evaluate (in order)
   """
   m = 'check_drivers'
   #active = _get_active_drivers(settings, components)
@@ -89,6 +94,12 @@ def check_drivers(settings, components, variables, v=100):
   return ordered
 
 def _create_eval_process(components, variables):
+  """
+    Sorts the cashflow evaluation process so sensible evaluation order is used
+    @ In, components, list, list of CashFlows.Component instances
+    @ In, variables, dict, variable-value map from RAVEN
+    @ Out, ordered, list, list of ordered cashflows to evaluate (in order)
+  """
   # TODO does this work with float drivers (e.g. already-evaluated drivers)?
   # storage for creating graph sequence
   driver_graph = defaultdict(list)
@@ -159,6 +170,14 @@ def _create_eval_process(components, variables):
   return evaluated + graphObject(driver_graph).createSingleListOfVertices()
 
 def component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=100):
+  """
+    Calcualtes the annual lifetime-based cashflow for a cashflow of a component
+    @ In, comp, CashFlows.Component, component whose cashflow is being analyzed
+    @ In, cf, CashFlows.CashFlow, cashflow who is being analyzed
+    @ In, variables, dict, RAVEN variables as name: value
+    @ In, v, int, verbosity
+    @ Out, life_cashflow, np.array, array of cashflow values with length of component life
+  """
   m = 'comp_life'
   vprint(v, 1, m, "-"*75)
   print('DEBUGG comp:', comp.name, cf)
@@ -209,6 +228,13 @@ def component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=100):
   return life_cashflow
 
 def get_project_length(settings, components, v=100):
+  """
+    checks if all drivers needed are present in variables
+    @ In, settings, CashFlows.GlobalSettings, global settings
+    @ In, components, list, list of CashFlows.Component instances
+    @ In, v, int, verbosity level
+    @ Out, project_length, int, length of project (explicit or implicit)
+  """
   m = 'get_project_length'
   project_length = settings.get_project_time()
   if not project_length:
@@ -218,7 +244,15 @@ def get_project_length(settings, components, v=100):
   return int(project_length)
 
 def project_life_cashflows(settings, components, lifetime_cashflows, project_length, v=100):
-  """ does all cashflows for life of project, for all components """
+  """
+    creates all cashflows for life of project, for all components
+    @ In, settings, CashFlows.GlobalSettings, global settings
+    @ In, components, list, list of CashFlows.Component instances
+    @ In, lifetime_cashflows, dict, component: cashflow: np.array of annual economic values
+    @ In, project_length, int, project years
+    @ In, v, int, verbosity level
+    @ Out, project_cashflows, dict, dictionary of project-length cashflows (same structure as lifetime dict)
+  """
   m = 'proj_life'
   # apply tax, inflation
   project_cashflows = {} # same keys as lifetime_cashflows
@@ -230,7 +264,16 @@ def project_life_cashflows(settings, components, lifetime_cashflows, project_len
   return project_cashflows
 
 def project_component_cashflows(comp, tax, inflation, life_cashflows, project_length, v=100):
-  """ does all the cashflows for a SINGLE COMPONENT for the life of the project """
+  """
+    does all the cashflows for a SINGLE COMPONENT for the life of the project
+    @ In, comp, CashFlows.Component, component to run numbers for
+    @ In, tax, float, tax rate for component as decimal
+    @ In, inflation, float, inflation rate as decimal
+    @ In, life_cashflows, dict, dictionary of component lifetime cash flows
+    @ In, project_length, int, project years
+    @ In, v, int, verbosity level
+    @ Out, cashflows, dict, dictionary of cashflows for this component, taken to project life
+  """
   m = 'proj comp'
   vprint(v, 1, m, "-"*75)
   vprint(v, 1, m, 'Computing PROJECT cash flow for Component "{}" ...'.format(comp.name))
@@ -267,7 +310,19 @@ def project_component_cashflows(comp, tax, inflation, life_cashflows, project_le
   return cashflows
 
 def project_single_cashflow(cf, start, end, life, life_cf, tax_mult, infl_rate, project_length, v=100):
-  """ does a single cashflow for the life of the project """
+  """
+    does a single cashflow for the life of the project
+    @ In, cf, CashFlows.CashFlow, cash flow to extend to full project life
+    @ In, start, int, project year in which component begins operating
+    @ In, end, int, project year in which component ends operating
+    @ In, life, int, lifetime of component
+    @ In, life_cf, np.array, cashflow for lifetime of component
+    @ In, tax_mult, float, tax rate multiplyer (1 - tax)
+    @ In, infl_rate, float, inflation rate multiplier (1 - inflation)
+    @ In, project_length, int, total years of analysis
+    @ In, v, int, verbosity
+    @ Out, proj_cf, np.array, cashflow for project life of component
+  """
   m = 'proj c_fl'
   vprint(v, 1, m, "-"*50)
   vprint(v, 1, m, 'Computing PROJECT cash flow for CashFlow "{}" ...'.format(cf.name))
@@ -308,6 +363,16 @@ def project_single_cashflow(cf, start, end, life, life_cf, tax_mult, infl_rate, 
   return proj_cf
 
 def npv_search(settings, components, cash_flows, project_length, v=100):
+  """
+    Performs NPV matching search
+    TODO is the target value required to be 0?
+    @ In, settings, CashFlows.GlobalSettings, global settings
+    @ In, components, list, list of CashFlows.Component instances
+    @ In, cash_flows, dict, component: cashflow: np.array of annual economic values
+    @ In, project_length, int, project years
+    @ In, v, int, verbosity level
+    @ Out, mult, float, multiplier that causes the NPV to match the target value
+  """
   m = 'npv search'
   multiplied = 0.0 # cash flows that are meant to include the multiplier
   others = 0.0 # cash flows without the multiplier
@@ -332,6 +397,15 @@ def npv_search(settings, components, cash_flows, project_length, v=100):
   return mult
 
 def FCFF(components, cash_flows, project_length, mult=None, v=100):
+  """
+    Calculates "free cash flow to the firm" (FCFF)
+    @ In, settings, CashFlows.GlobalSettings, global settings
+    @ In, cash_flows, dict, component: cashflow: np.array of annual economic values
+    @ In, project_length, int, project years
+    @ In, mult, float, optional, if provided then scale target cash flow by value
+    @ In, v, int, verbosity level
+    @ Out, fcff, float, free cash flow to the firm
+  """
   m = 'FCFF'
   # FCFF_R for each year
   fcff = np.zeros(project_length)
@@ -346,6 +420,18 @@ def FCFF(components, cash_flows, project_length, mult=None, v=100):
   return fcff
 
 def NPV(components, cash_flows, project_length, discount_rate, mult=None, v=100, return_fcff=False):
+  """
+    Calculates net present value of cash flows
+    @ In, components, list, list of CashFlows.Component instances
+    @ In, cash_flows, dict, component: cashflow: np.array of annual economic values
+    @ In, project_length, int, project years
+    @ In, discount_rate, float, firm discount rate to use in discounting future dollars value
+    @ In, mult, float, optional, if provided then scale target cash flow by value
+    @ In, return_fcff, bool, optional, if True then provide calculated FCFF as well
+    @ In, v, int, verbosity level
+    @ Out, npv, float, net-present value of system
+    @ Out, fcff, float, optional, free cash flow to the firm for same system
+  """
   m = 'NPV'
   fcff = FCFF(components, cash_flows, project_length, mult=mult, v=v)
   npv = np.npv(discount_rate, fcff)
@@ -356,6 +442,14 @@ def NPV(components, cash_flows, project_length, discount_rate, mult=None, v=100,
     return npv, fcff
 
 def IRR(components, cash_flows, project_length, v=100):
+  """
+    Calculates internal rate of return for system of cash flows
+    @ In, components, list, list of CashFlows.Component instances
+    @ In, cash_flows, dict, component: cashflow: np.array of annual economic values
+    @ In, project_length, int, project years
+    @ In, v, int, verbosity level
+    @ Out, irr, float, internal rate of return
+  """
   m = 'IRR'
   fcff = FCFF(components, cash_flows, project_length, mult=None, v=v) # TODO mult is none always?
   # this method can crash if no solution exists!
@@ -368,6 +462,16 @@ def IRR(components, cash_flows, project_length, v=100):
   return irr
 
 def PI(components, cash_flows, project_length, discount_rate, mult=None, v=100):
+  """
+    Calculates the profitability index for system
+    @ In, components, list, list of CashFlows.Component instances
+    @ In, cash_flows, dict, component: cashflow: np.array of annual economic values
+    @ In, project_length, int, project years
+    @ In, discount_rate, float, firm discount rate to use in discounting future dollars value
+    @ In, mult, float, optional, if provided then scale target cash flow by value
+    @ In, v, int, verbosity level
+    @ Out, pi, float, profitability index
+  """
   m = 'PI'
   npv, fcff = NPV(components, cash_flows, project_length, discount_rate, mult=mult, v=v, return_fcff=True)
   pi = -1.0 * npv / fcff[0] # yes, really! This seems strange, but it also seems to be right.
@@ -375,20 +479,43 @@ def PI(components, cash_flows, project_length, discount_rate, mult=None, v=100):
   return pi
 
 def gcd(a, b):
+  """
+    Find greatest common denominator
+    @ In, a, int, first value
+    @ In, b, int, sescond value
+    @ Out, gcd, int, greatest common denominator
+  """
   while b:
     a, b = b, a % b
   return a
 
 def lcm(a, b):
+  """
+    Find least common multiple
+    @ In, a, int, first value
+    @ In, b, int, sescond value
+    @ Out, lcm, int, least common multiple
+  """
   return a * b // gcd(a, b)
 
 def lcmm(*args):
+  """
+    Find the least common multiple of many values
+    @ In, args, list, list of integers to find lcm for
+    @ Out, lcmm, int, least common multiple of collection
+  """
   return functools.reduce(lcm, args)
 
 #=====================
 # MAIN METHOD
 #=====================
 def run(settings, components, variables):
+  """
+    @ In, settings, CashFlows.GlobalSettings, global settings
+    @ In, components, list, list of CashFlows.Component instances
+    @ In, variables, dict, variables from RAVEN
+    @ Out, results, dict, economic metric results
+  """
   # make a dictionary mapping component names to components
   comps_by_name = dict((c.name, c) for c in components)
   v = settings._verbosity
@@ -460,5 +587,13 @@ def run(settings, components, variables):
 # PRINTING STUFF
 #=====================
 def vprint(threshold, desired, method, *msg):
+  """
+    Light wrapper for printing that considers verbosity levels
+    @ In, threshold, int, cutoff verbosity
+    @ In, desired, int, requested message verbosity level
+    @ In, method, str, name of method raising print
+    @ In, msg, list(str), messages to print
+    @ Out, None
+  """
   if desired >= threshold:
     print('CashFlow INFO ({}):'.format(method), *msg)

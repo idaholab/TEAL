@@ -89,7 +89,15 @@ class CashFlow(ExternalModelPluginBase):
 if __name__ == "__main__":
   # emulate RAVEN container
   class FakeSelf:
+    """
+      Mimics RAVEN variable holder
+    """
     def __init__(self):
+      """
+        Constructor.
+        @ In, None
+        @ Out, None
+      """
       pass
   import xml.etree.ElementTree as ET
   import argparse
