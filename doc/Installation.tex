@@ -12,7 +12,7 @@ For more information, please refere to the RAVEN manual.
 The plugin can be accessed as a special subtype of the External model. The syntax is given in Listing \ref{lst:CashFlowfromRAVEN}.
 
 \begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Call CashFlow from RAVEN input., label=lst:CashFlowfromRAVEN]
-<ExternalModel name="Cash_Flow" subType="CashFlow">
+<ExternalModel name="Cash_Flow" subType="CashFlow.CashFlow">
   <variables> Input and output variables needed by CashFlow  </variables>
   <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input.xml"/>
 </ExternalModel>
