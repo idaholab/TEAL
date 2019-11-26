@@ -8,6 +8,9 @@
       The tested functionality is called NPV with custom macrs.
     </description>
     <classesTested>Models.ExternalModel.CashFlow</classesTested>
+    <revisions>
+      <revision author="alfoa" date="2019-11-25">Added Plugin name extension</revision>
+    </revisions>
   </TestInfo>
 
   <RunInfo>
