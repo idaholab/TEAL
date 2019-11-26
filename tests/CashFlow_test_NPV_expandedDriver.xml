@@ -33,7 +33,7 @@
     <ExternalModel ModuleToLoad="RevenueData" name="RevenueData" subType="">
       <variables>GRO_RevenueData_in_scalar, GRO_RevenueData_out_year, year</variables>
     </ExternalModel>
-    <ExternalModel name="Cash_Flow" subType="CashFlow">
+    <ExternalModel name="Cash_Flow" subType="CashFlow.CashFlow">
       <variables> GRO_CashFlow_in_scalar, GRO_CashFlow_in_year,  GRO_CashFlow_out_scalar</variables>
       <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_NPV.xml"/>
     </ExternalModel>

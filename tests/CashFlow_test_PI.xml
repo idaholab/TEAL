@@ -25,7 +25,7 @@
   </VariableGroups>
 
   <Models>
-    <ExternalModel name="Cash_Flow" subType="CashFlow">
+    <ExternalModel name="Cash_Flow" subType="CashFlow.CashFlow">
       <variables> GRO_CashFlow_in, GRO_CashFlow_out</variables>
       <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_PI.xml"/>
     </ExternalModel>
