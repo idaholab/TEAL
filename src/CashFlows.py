@@ -20,7 +20,8 @@ except ImportError:
 raven_path = ((os.path.dirname(__file__)))
 raven_path=raven_path+'/../../../framework'
 sys.path.append(os.path.expanduser(raven_path))
-from utils import utils, InputData, xmlUtils, TreeStructure
+from utils import mathUtils as utils
+from utils import InputData, xmlUtils, TreeStructure
 
 
 class GlobalSettings:

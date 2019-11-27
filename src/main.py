@@ -18,7 +18,7 @@ raven_path= os.path.abspath(os.path.dirname(__file__)) + '/../../raven/framework
 sys.path.append(raven_path) #'~/projects/raven/framework') # TODO generic RAVEN location
 
 from utils.graphStructure import graphObject
-from utils import utils
+from utils import mathUtils as utils
 
 #=====================
 # UTILITIES
