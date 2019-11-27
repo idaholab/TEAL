@@ -8,6 +8,9 @@
       The tested functionality is called NPV with custom macrs.
     </description>
     <classesTested>Models.ExternalModel.CashFlow</classesTested>
+    <revisions>
+      <revision author="alfoa" date="2019-11-25">Added Plugin name extension</revision>
+    </revisions>
   </TestInfo>
 
   <RunInfo>
@@ -21,7 +24,7 @@
   </VariableGroups>
 
   <Models>
-    <ExternalModel name="Cash_Flow" subType="CashFlow">
+    <ExternalModel name="Cash_Flow" subType="CashFlow.CashFlow">
       <variables> GRO_CashFlow_in, GRO_CashFlow_out</variables>
       <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_custom_macrs_NPV.xml"/>
     </ExternalModel>
