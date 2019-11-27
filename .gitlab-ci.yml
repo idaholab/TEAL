@@ -27,7 +27,7 @@ before_script:
     - python -V
     - ./build_raven
       # Install CashFlow branch ...
-    - python ./scripts/install_plugins.py -a
+    - python ./scripts/install_plugins.py -s ../ 
       # return to project path main dir
     - cd ..
 
