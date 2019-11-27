@@ -17,9 +17,12 @@ try:
 except ImportError:
   import Amortization
 # TODO fix with plugin relative path
-raven_path = ((os.path.dirname(__file__)))
-raven_path=raven_path+'/../../../framework'
-sys.path.append(os.path.expanduser(raven_path))
+path1 = os.path.dirname(__file__)
+path2 = '/../raven/framework'
+path3=os.path.abspath(os.path.expanduser(path1+'/..'+path2))
+path4=os.path.abspath(os.path.expanduser(path1+path2))
+sys.path.extend([path3,path4])
+
 from utils import mathUtils as utils
 from utils import InputData, xmlUtils, TreeStructure
 

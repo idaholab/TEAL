@@ -2,7 +2,7 @@
 import os
 import sys
 # run the Cash Flow plugin as stand alone code
-os.system('python ../../../plugins/CashFlow/src/CashFlow_ExtMod.py -iXML Cash_Flow_input_NPV.xml -iINP VarInp.txt -o out.out')
+os.system('python  ../src/CashFlow_ExtMod.py -iXML Cash_Flow_input_NPV.xml -iINP VarInp.txt -o out.out')
 
 # read out.out and compare with gold
 with open("out.out") as out:
