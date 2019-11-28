@@ -9,8 +9,10 @@
     </description>
     <classesTested>Models.ExternalModel.CashFlow</classesTested>
     <revisions>
-        <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
-        <revision author="alfoa" date="2019-07-30">Added requirements</revision>
+      <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
+      <revision author="alfoa" date="2019-07-30">Added requirements</revision>
+      <revision author="wangc" date="2019-11-08">update ExternalXML with new structure cash flow input</revision>
+      <revision author="alfoa" date="2019-11-25">Added Plugin name extension</revision>
     </revisions>
     <requirements>CF-F-1 CF-F-2 CF-EA-2</requirements>
   </TestInfo>
@@ -26,9 +28,9 @@
   </VariableGroups>
 
   <Models>
-    <ExternalModel name="Cash_Flow" subType="CashFlow">
+    <ExternalModel name="Cash_Flow" subType="CashFlow.CashFlow">
       <variables> GRO_CashFlow_in, GRO_CashFlow_out</variables>
-      <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_IRR.xml"/>
+      <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_IRR.xml" />
     </ExternalModel>
   </Models>
 
@@ -58,14 +60,14 @@
 
   <Steps>
     <MultiRun name="MCrun" pauseAtEnd="True">
-      <Input          class="DataObjects"   type="PointSet">SET_CashFlow_in</Input>
-      <Model          class="Models"        type="ExternalModel">Cash_Flow</Model>
-      <Sampler        class="Samplers"      type="MonteCarlo">test_MC</Sampler>
-      <Output         class="DataObjects"   type="PointSet">SET_CashFlow_out</Output>
+      <Input class="DataObjects" type="PointSet">SET_CashFlow_in</Input>
+      <Model class="Models" type="ExternalModel">Cash_Flow</Model>
+      <Sampler class="Samplers" type="MonteCarlo">test_MC</Sampler>
+      <Output class="DataObjects" type="PointSet">SET_CashFlow_out</Output>
     </MultiRun>
     <IOStep name="printTOfile">
-     <Input          class="DataObjects"   type="PointSet">SET_CashFlow_out</Input>
-     <Output         class="OutStreams"    type="Print">dumpIRR</Output>
+     <Input class="DataObjects" type="PointSet">SET_CashFlow_out</Input>
+     <Output class="OutStreams" type="Print">dumpIRR</Output>
     </IOStep>
   </Steps>
 

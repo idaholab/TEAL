@@ -2,18 +2,29 @@
 import os
 import sys
 # run the Cash Flow plugin as stand alone code
-os.system('python ../../../plugins/CashFlow/src/Cash_Flow.py -iXML Cash_Flow_input_NPV.xml -iINP VarInp.txt -o out.out')
+os.system('python  ../src/CashFlow_ExtMod.py -iXML Cash_Flow_input_NPV.xml -iINP VarInp.txt -o out.out')
 
 # read out.out and compare with gold
-
 with open("out.out") as out:
   for l in out:
     pass
 
 gold = float(l)
-if (gold - 627370309.759) < 0.01 :
+if (gold - 630614140.519) < 0.01:
   sys.exit(0)
 else:
   sys.exit(1)
 
-
+#  <TestInfo>
+#    <name>CashFlow_test_PI</name>
+#    <author>A. Epiney</author>
+#    <created>2017-10-25</created>
+#    <description>
+#      This input tests the RAVEN plugin CashFlow in standalone mode.
+#    </description>
+#    <classesTested>Models.ExternalModel.CashFlow</classesTested>
+#    <revisions>
+#      <revision author="alfoa" date="2019-11-25">Added classTested node</revision>
+#    </revisions>
+#    <requirements>CF-EA-5</requirements>
+#  </TestInfo>
