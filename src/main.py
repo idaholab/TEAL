@@ -542,17 +542,10 @@ def run(settings, components, variables):
       continue
     comp_name, cf_name = ocf.split('|')
     comp = comps_by_name[comp_name]
-    print('DEBUGG getting', cf_name)
     cf = comp.get_cashflow(cf_name)
-    # if this component is a "recurring" type, then we don't need to do the lifetime cashflow bit
-    #if cf.type == 'Recurring':
-    #  raise NotImplementedError # FIXME how to do this right?
+    # TODO and FIXME: if this component is a "recurring" type, then we don't need to do the lifetime cashflow bit
     # calculate cash flow for component's lifetime for this cash flow
-    print('jz is comp_name',comp_name)
-    print('jz is cf_name',cf_name)
     life_cf = component_life_cashflow(comp, cf, variables, lifetime_cashflows, v=0)
-
-    print('jz is lifecf',life_cf)
     lifetime_cashflows[comp_name][cf_name] = life_cf
 
   vprint(v, 0, m, '='*90)

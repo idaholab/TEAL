@@ -970,35 +970,14 @@ class Recurring(CashFlow):
     # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
     self._yearly_cashflow = np.zeros(lifetime+1)
 
-  def compute_yearly_cashflow(self, year, alpha, driver):
+  def compute_yearly_cashflow(self, alpha, driver):
     """
       Computes the yearly summary of recurring interactions, and sets them to self._yearly_cashflow
-      @ In, year, int, the index of the project year for this summary
       @ In, alpha, np.array, array of "prices"
       @ In, driver, np.array, array of "quantities sold"
       @ Out, None
     """
     mult = self.get_multiplier()
-    if mult is None:
-      mult = 1.0
-    elif utils.isAString(mult):
-      raise NotImplementedError
-    try:
-      self._yearly_cashflow[year] = mult * (alpha * driver).sum() # +1 is for initial construct year
-    except ValueError as e:
-      print('Error while computing yearly cash flow! Check alpha shape ({}) and driver shape ({})'.format(alpha.shape, driver.shape))
-      raise e
-
-  def compute_yearly_cashflowzj(self, year, alpha, driver):
-    """
-      Computes the yearly summary of recurring interactions, and sets them to self._yearly_cashflow
-      @ In, year, int, the index of the project year for this summary
-      @ In, alpha, np.array, array of "prices"
-      @ In, driver, np.array, array of "quantities sold"
-      @ Out, None
-    """
-    mult = self.get_multiplier()
-
     if mult is None:
       mult = 1.0
     elif utils.isAString(mult):
@@ -1020,9 +999,13 @@ class Recurring(CashFlow):
     """
     # by now, self._yearly_cashflow should have been filled with appropriate values
     # TODO reference, scale? we've already used mult (I think)
-    self.init_params(lifetime-1)
-    y = lifetime - 1
-    self.compute_yearly_cashflowzj(y, self._alpha, variables[self._driver])
+    # get variable values, if needed
+    need = {'alpha': self._alpha, 'driver': self._driver}
+    # load alpha, driver from variables if need be
+    need = self.load_from_variables(need, variables, lifetime_cashflows, lifetime)
+    alpha = need['alpha']
+    driver = need['driver']
+    self.compute_yearly_cashflow(alpha, driver)
     #assert self._yearly_cashflow is not None
     return {'result': self._yearly_cashflow}
 
