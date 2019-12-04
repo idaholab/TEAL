@@ -83,4 +83,10 @@
   max_time = 500
   rel_err = 0.001
  [../]
+
+ [./CashFlow_ObjectOriented]
+  type = 'RavenPython'
+  input = 'HourlyObjectOrientedTest.py'
+ [../]
+
 []
