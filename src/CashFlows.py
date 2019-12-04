@@ -970,12 +970,14 @@ class Recurring(CashFlow):
     # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
     self._yearly_cashflow = np.zeros(lifetime+1)
 
-  def compute_yearly_cashflow(self, year, alpha, driver):
+  def compute_intrayear_cashflow(self, year, alpha, driver):
     """
       Computes the yearly summary of recurring interactions, and sets them to self._yearly_cashflow
+      Use this when you need to collapse a year's worth of activity to a single year point
+      Note this is more for intrayear (e.g. hourly) cash flows
       @ In, year, int, the index of the project year for this summary
-      @ In, alpha, np.array, array of "prices"
-      @ In, driver, np.array, array of "quantities sold"
+      @ In, alpha, np.array, array of "prices" (all entries WITHIN one year [e.g. hourly])
+      @ In, driver, np.array, array of "quantities sold" (all entries WITHIN one year [e.g. hourly])
       @ Out, None
     """
     mult = self.get_multiplier()
@@ -989,16 +991,17 @@ class Recurring(CashFlow):
       print('Error while computing yearly cash flow! Check alpha shape ({}) and driver shape ({})'.format(alpha.shape, driver.shape))
       raise e
 
-  def compute_yearly_cashflowzj(self, year, alpha, driver):
+  def compute_yearly_cashflow(self, alpha, driver):
     """
       Computes the yearly summary of recurring interactions, and sets them to self._yearly_cashflow
-      @ In, year, int, the index of the project year for this summary
-      @ In, alpha, np.array, array of "prices"
-      @ In, driver, np.array, array of "quantities sold"
+      Use this when you need to collapse one-point-per-year alpha and one-point-per-year driver
+      into one-point-per-year summaries
+      Note this is more for once-per-year recurring cashflows
+      @ In, alpha, np.array, array of "prices" (one entry per YEAR)
+      @ In, driver, np.array, array of "quantities sold" (one entry per YEAR)
       @ Out, None
     """
     mult = self.get_multiplier()
-
     if mult is None:
       mult = 1.0
     elif utils.isAString(mult):
@@ -1016,13 +1019,16 @@ class Recurring(CashFlow):
       @ In, lifetime_cashflows, dict, dict of cashflows
       @ In, lifetime, int, the given life time
       @ In, verbosity, int, used to control the output information
-      @ Out, calculate_cashflow, dict, the dict of caculated cashflow
+      @ Out, calculate_cashflow, dict, the dict of calculated cashflow
     """
     # by now, self._yearly_cashflow should have been filled with appropriate values
-    # TODO reference, scale? we've already used mult (I think)
-    self.init_params(lifetime-1)
-    y = lifetime - 1
-    self.compute_yearly_cashflowzj(y, self._alpha, variables[self._driver])
+    ## if not, then they're being provided directly through array data/variables
+    if self._yearly_cashflow is None:
+      # get variable values, if needed
+      need = {'alpha': self.get_param('alpha'), 'driver': self.get_param('driver')}
+      # load needed variables from variables as needed
+      need = self.load_from_variables(need, variables, lifetime_cashflows, lifetime)
+      self.compute_yearly_cashflow(need['alpha'], need['driver'])
     #assert self._yearly_cashflow is not None
     return {'result': self._yearly_cashflow}
 
