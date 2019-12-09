@@ -14,3 +14,17 @@ if (gold - 630614140.519) < 0.01:
   sys.exit(0)
 else:
   sys.exit(1)
+
+#  <TestInfo>
+#    <name>CashFlow_test_PI</name>
+#    <author>A. Epiney</author>
+#    <created>2017-10-25</created>
+#    <description>
+#      This input tests the RAVEN plugin CashFlow in standalone mode.
+#    </description>
+#    <classesTested>Models.ExternalModel.CashFlow</classesTested>
+#    <revisions>
+#      <revision author="alfoa" date="2019-11-25">Added classTested node</revision>
+#    </revisions>
+#    <requirements>CF-EA-5</requirements>
+#  </TestInfo>

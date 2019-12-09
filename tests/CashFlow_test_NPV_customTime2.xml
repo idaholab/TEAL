@@ -13,14 +13,17 @@
     <classesTested>Models.ExternalModel.CashFlow</classesTested>
     <revisions>
       <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
+      <revision author="alfoa" date="2019-07-30">Added requirements</revision>
       <revision author="wangc" date="2019-11-08">update ExternalXML with new structure cash flow input</revision>
       <revision author="alfoa" date="2019-11-25">Added Plugin name extension</revision>
     </revisions>
+     <requirements>CF-EA-1 CF-IS-1</requirements>
   </TestInfo>
 
   <RunInfo>
     <WorkingDir>.</WorkingDir>
     <Sequence>MCrun,printTOfile</Sequence>
+    <batchSize>2</batchSize>
   </RunInfo>
 
   <VariableGroups>
