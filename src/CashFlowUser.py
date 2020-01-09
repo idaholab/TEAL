@@ -12,7 +12,6 @@ except ImportError:
 # needs to be in the propoer plugin directory.
 raven_path = os.path.dirname(__file__) + '/../../../framework'
 sys.path.append(os.path.expanduser(raven_path))
-from utils import InputData
 
 class CashFlowUser:
   """
