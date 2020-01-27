@@ -25,7 +25,7 @@ path5=os.path.abspath(os.path.expanduser(path1+'/../../../framework'))
 sys.path.extend([path3,path4,path5])
 
 from utils import mathUtils as utils
-from utils import InputData, xmlUtils, TreeStructure
+from utils import InputData, InputTypes, TreeStructure
 
 
 class GlobalSettings:
@@ -43,13 +43,13 @@ class GlobalSettings:
       @ Out, input_specs, InputData, specs
     """
     glob = InputData.parameterInputFactory('Global')
-    glob.addSub(InputData.parameterInputFactory('DiscountRate', contentType=InputData.FloatType))
-    glob.addSub(InputData.parameterInputFactory('tax', contentType=InputData.FloatType))
-    glob.addSub(InputData.parameterInputFactory('inflation', contentType=InputData.FloatType))
-    glob.addSub(InputData.parameterInputFactory('ProjectTime', contentType=InputData.IntegerType))
-    ind = InputData.parameterInputFactory('Indicator', contentType=InputData.StringListType)
-    ind.addParam('name', param_type=InputData.StringListType, required=True)
-    ind.addParam('target', param_type=InputData.FloatType)
+    glob.addSub(InputData.parameterInputFactory('DiscountRate', contentType=InputTypes.FloatType))
+    glob.addSub(InputData.parameterInputFactory('tax', contentType=InputTypes.FloatType))
+    glob.addSub(InputData.parameterInputFactory('inflation', contentType=InputTypes.FloatType))
+    glob.addSub(InputData.parameterInputFactory('ProjectTime', contentType=InputTypes.IntegerType))
+    ind = InputData.parameterInputFactory('Indicator', contentType=InputTypes.StringListType)
+    ind.addParam('name', param_type=InputTypes.StringListType, required=True)
+    ind.addParam('target', param_type=InputTypes.FloatType)
     glob.addSub(ind)
     return glob
 
@@ -241,12 +241,12 @@ class Component:
       @ Out, input_specs, InputData, specs
     """
     comp = InputData.parameterInputFactory('Component')
-    comp.addParam('name', param_type=InputData.StringType, required=True)
-    comp.addSub(InputData.parameterInputFactory('Life_time', contentType=InputData.IntegerType))
-    comp.addSub(InputData.parameterInputFactory('StartTime', contentType=InputData.IntegerType))
-    comp.addSub(InputData.parameterInputFactory('Repetitions', contentType=InputData.IntegerType))
-    comp.addSub(InputData.parameterInputFactory('tax', contentType=InputData.FloatType))
-    comp.addSub(InputData.parameterInputFactory('inflation', contentType=InputData.FloatType))
+    comp.addParam('name', param_type=InputTypes.StringType, required=True)
+    comp.addSub(InputData.parameterInputFactory('Life_time', contentType=InputTypes.IntegerType))
+    comp.addSub(InputData.parameterInputFactory('StartTime', contentType=InputTypes.IntegerType))
+    comp.addSub(InputData.parameterInputFactory('Repetitions', contentType=InputTypes.IntegerType))
+    comp.addSub(InputData.parameterInputFactory('tax', contentType=InputTypes.FloatType))
+    comp.addSub(InputData.parameterInputFactory('inflation', contentType=InputTypes.FloatType))
     #cf = CashFlow.get_input_specs()
     #comp.addSub(cf)
     cfs = InputData.parameterInputFactory('CashFlows')
@@ -532,15 +532,15 @@ class CashFlow:
     # ONLY appends to existinc specs!
     #cf = InputData.parameterInputFactory('CashFlow')
 
-    specs.addParam('name', param_type=InputData.StringType, required=True)
-    specs.addParam('tax', param_type=InputData.BoolType, required=False)
-    infl = InputData.makeEnumType('inflation_types', 'inflation_type', ['real', 'none']) # "nominal" not yet implemented
+    specs.addParam('name', param_type=InputTypes.StringType, required=True)
+    specs.addParam('tax', param_type=InputTypes.BoolType, required=False)
+    infl = InputTypes.makeEnumType('inflation_types', 'inflation_type', ['real', 'none']) # "nominal" not yet implemented
     specs.addParam('inflation', param_type=infl, required=False)
-    specs.addParam('mult_target', param_type=InputData.BoolType, required=False)
-    specs.addParam('multiply', param_type=InputData.StringType, required=False)
+    specs.addParam('mult_target', param_type=InputTypes.BoolType, required=False)
+    specs.addParam('multiply', param_type=InputTypes.StringType, required=False)
 
-    specs.addSub(InputData.parameterInputFactory('driver', contentType=InputData.InterpretedListType))
-    specs.addSub(InputData.parameterInputFactory('alpha', contentType=InputData.InterpretedListType))
+    specs.addSub(InputData.parameterInputFactory('driver', contentType=InputTypes.InterpretedListType))
+    specs.addSub(InputData.parameterInputFactory('alpha', contentType=InputTypes.InterpretedListType))
     return specs
 
   def __init__(self, component=None, verbosity=100, **kwargs):
@@ -769,10 +769,10 @@ class Capex(CashFlow):
     """
     specs = InputData.parameterInputFactory('Capex')
     specs = CashFlow.get_input_specs(specs)
-    specs.addSub(InputData.parameterInputFactory('reference', contentType=InputData.FloatType))
-    specs.addSub(InputData.parameterInputFactory('X', contentType=InputData.FloatType))
-    deprec = InputData.parameterInputFactory('depreciation', contentType=InputData.InterpretedListType)
-    deprec_schemes = InputData.makeEnumType('deprec_types', 'deprec_types', ['MACRS', 'custom'])
+    specs.addSub(InputData.parameterInputFactory('reference', contentType=InputTypes.FloatType))
+    specs.addSub(InputData.parameterInputFactory('X', contentType=InputTypes.FloatType))
+    deprec = InputData.parameterInputFactory('depreciation', contentType=InputTypes.InterpretedListType)
+    deprec_schemes = InputTypes.makeEnumType('deprec_types', 'deprec_types', ['MACRS', 'custom'])
     deprec.addParam('scheme', param_type=deprec_schemes, required=True)
     specs.addSub(deprec)
     return specs
