@@ -3,7 +3,7 @@
   Date  :  03/23/2018
 """
 
-# This file contains the year dependent data for BOP_TOT_revenueEL to be used in the CashFlow test inputs. 
+# This file contains the year dependent data for BOP_TOT_revenueEL to be used in the CashFlow test inputs.
 
 import numpy as np
 
