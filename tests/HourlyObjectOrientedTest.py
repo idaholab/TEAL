@@ -167,7 +167,7 @@ if __name__ == '__main__':
   targets = ['A', 'B', 'C', 'D', 'Year', 'Time']
   indices = ['RAVEN_sample_ID']
   print('Loading data ...')
-  full_df = pd.read_csv('aux/hourly.csv',
+  full_df = pd.read_csv('aux_file/hourly.csv',
                         index_col=indices,
                         usecols=targets+indices) #,
                         #nrows=300000)
