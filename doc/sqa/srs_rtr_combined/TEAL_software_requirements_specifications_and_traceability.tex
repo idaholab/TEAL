@@ -15,15 +15,17 @@
 % Please send corrections and suggestions for improvements to
 % Rolf Riesen, Org. 9223, MS 1110, rolf@cs.sandia.gov
 %
-\documentclass[pdf,12pt]{INLreport}
+\documentclass[pdf,12pt]{../sdd/INLreport}
 % pslatex is really old (1994).  It attempts to merge the times and mathptm packages.
 % My opinion is that it produces a really bad looking math font.  So why are we using it?
 % If you just want to change the text font, you should just \usepackage{times}.
 % \usepackage{pslatex}
 \usepackage{times}
-\usepackage{longtable}
+%\usepackage{longtable}
 \usepackage[FIGBOTCAP,normal,bf,tight]{subfigure}
 \usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage{ltablex}
 \usepackage{amssymb}
 \usepackage[labelfont=bf]{caption}
 \usepackage{pifont}
@@ -205,7 +207,7 @@ showstringspaces=false            %
     linkcolor=black,
     urlcolor=black
 }
-
+%\usepackage[table,xcdraw]{xcolor}
 \newcommand{\wiki}{\href{https://github.com/idaholab/raven/wiki}{RAVEN wiki}}
 
 % Compress lists of citations like [33,34,35,36,37] to [33-37]
@@ -237,7 +239,7 @@ showstringspaces=false            %
 %
 % Set the title, author, and date
 %
-\title{CashFlow Software Design Description}
+\title{TEAL Software Requirements Specification and Traceability Matrix}
 %\author{%
 %\begin{tabular}{c} Author 1 \\ University1 \\ Mail1 \\ \\
 %Author 3 \\ University3 \\ Mail3 \end{tabular} \and
@@ -257,10 +259,10 @@ showstringspaces=false            %
 % ---------------------------------------------------------------------------- %
 % Set some things we need for SAND reports. These are mandatory
 %
-\SANDnum{SDD-XXX}
+\SANDnum{SPC-2895}
 \SANDprintDate{\today}
 \SANDauthor{Andrea Alfonsi, Aaron Epiney, Paul Talbot, Cristian Rabiti}
-\SANDreleaseType{Revision DRAFT}
+\SANDreleaseType{Revision 0}
 
 % ---------------------------------------------------------------------------- %
 % Include the markings required for your SAND report. The default is "Unlimited
@@ -373,22 +375,20 @@ showstringspaces=false            %
     %
     \SANDmain		% Start the main part of the report
 
-\input{cash_flowIntro.tex}
-\input{otherDesignDocs.tex}
-\input{cash_flowDepAndLimitations.tex}
-\input{cash_flowDesignStakeHoldersAndConcerns.tex}
-\input{cash_flowSoftwareDesing.tex}
-\input{dataInterfaceSystemControl.tex}
-
-
+\input{intro.tex}
+\input{../sdd/TEALDepAndLimitations.tex}
+\input{../srs/requirements.tex}
+\input{../srs/TEALSystemOperations.tex}
+\input{../rtr/traceability_matrix.tex}
+ 
 
     % ---------------------------------------------------------------------- %
     % References
     %
 
-\addcontentsline{toc}{section}{References}
-\bibliographystyle{ieeetr}
-\bibliography{cash_flow_software_design_description}
+%\addcontentsline{toc}{section}{References}
+%\bibliographystyle{ieeetr}
+%\bibliography{TEAL_software_requirements_specifications}
 
 \section*{Document Version Information}
 
