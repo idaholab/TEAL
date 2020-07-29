@@ -29,4 +29,5 @@ before_script:
 test:
     script:
       - cd raven
+      - ./scripts/establish_conda_env.sh --load
       - ./run_tests -j4 --plugins --no-color
