@@ -8,7 +8,7 @@ from collections import defaultdict
 
 import numpy as np
 try:
-  from Teal.src import CashFlows
+  from CashFlow.src import CashFlows
   # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
   # In general, this should not exist, and RAVEN should import Teal.Teal instead of importing Teal directly, implicitly.
 except (ImportError, ModuleNotFoundError):
