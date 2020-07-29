@@ -13,7 +13,7 @@ import time
 
 # NOTE this import exception is ONLY to allow RAVEN to directly import this module.
 try:
-  from CashFlow.src import Amortization
+  from TEAL.src import Amortization
 except ImportError:
   import Amortization
 # TODO fix with plugin relative path

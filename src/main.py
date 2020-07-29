@@ -8,9 +8,9 @@ from collections import defaultdict
 
 import numpy as np
 try:
-  from CashFlow.src import CashFlows
+  from TEAL.src import CashFlows
   # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
-  # In general, this should not exist, and RAVEN should import Teal.Teal instead of importing Teal directly, implicitly.
+  # In general, this should not exist, and RAVEN should import TEAL.CashFlow instead of importing Teal directly, implicitly.
 except (ImportError, ModuleNotFoundError):
   import CashFlows
 
@@ -67,7 +67,7 @@ def check_run_settings(settings, components):
   ## if projecttime is not given, then error if start time/repetitions given (otherwise answer is misleading)
   if settings.get_project_time() is None:
     for comp in components:
-      warn = 'CashFlow: <{node}> given for component "{comp}" but no <ProjectTime> in global settings!'
+      warn = 'TEAL: <{node}> given for component "{comp}" but no <ProjectTime> in global settings!'
       if comp.get_start_time() != 0:
         raise IOError(warn.format(node='StartTime', comp=comp.name))
       if comp.get_repetitions() != 0:
@@ -131,7 +131,7 @@ def _create_eval_process(components, variables):
         # check length of driver
         n = len(np.atleast_1d(variables[driver]))
         if n > 1 and n != lifetime+1:
-          raise RuntimeError(('Component "{c}" CashFlow {cf} driver variable "{d}" has "{n}" entries, '+\
+          raise RuntimeError(('Component "{c}" TEAL {cf} driver variable "{d}" has "{n}" entries, '+\
                               'but "{c}" has a lifetime of {el}!')
                              .format(c=comp.name,
                                      cf=cf.name,
@@ -157,7 +157,7 @@ def _create_eval_process(components, variables):
           if driver_cf not in list(m_cf.name for m_cf in match_comp.get_cashflows()):
             found = False
       if not found:
-        raise RuntimeError(('Component "{c}" CashFlow {cf} driver variable "{d}" was not found ' +\
+        raise RuntimeError(('Component "{c}" TEAL {cf} driver variable "{d}" was not found ' +\
                             'among variables or other cashflows!')
                            .format(c=comp.name,
                                    cf=cf.name,

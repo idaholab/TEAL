@@ -12,7 +12,7 @@ warnings.simplefilter('default', DeprecationWarning)
 
 # NOTE this import exception is ONLY to allow RAVEN to directly import this module.
 try:
-  from CashFlow.src import main
+  from TEAL.src import main
 except ImportError:
   import main
 
