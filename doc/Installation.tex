@@ -11,8 +11,8 @@ For more information, please refere to the RAVEN manual.
 \subsection{Accessing the plug-in from within RAVEN}
 The plugin can be accessed as a special subtype of the External model. The syntax is given in Listing \ref{lst:TEALfromRAVEN}.
 
-\begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Call TEAL from RAVEN input., label=lst:TEALfromRAVEN]
-<ExternalModel name="Cash_Flow" subType="TEAL.TEAL">
+\begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Call TEAL.CashFlow from RAVEN input., label=lst:TEALfromRAVEN]
+<ExternalModel name="Cash_Flow" subType="TEAL.CashFlow">
   <variables> Input and output variables needed by TEAL  </variables>
   <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input.xml"/>
 </ExternalModel>
@@ -26,7 +26,7 @@ Assuming RAVEN is installed and the plugin is in the proper directory (execution
 
 \small
 \begin{lstlisting}[caption=TEAL run as stand-alone python code, label=lst:TEALAsCode]
-~/raven --> python plugins/TEAL/src/TEAL_ExtMode.py -h
+~/raven --> python plugins/TEAL/src/CashFlow_ExtMode.py -h
 usage: Cash_Flow.py [-h] -iXML inp_file -iINP inp_file -o out_file
 
 Run RAVEN TEAL plugin as stand-alone code
