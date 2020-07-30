@@ -97,7 +97,7 @@ class GlobalSettings:
       elif name == 'Indicator':
         self._indicators = node.parameterValues['name']
         self._metricTarget = node.parameterValues.get('target', None)
-        active_cf = val
+        activeCf = val
         self._activeComponents = defaultdict(list)
         for request in activeCf:
           try:
@@ -125,7 +125,7 @@ class GlobalSettings:
       elif name == 'Indicator':
         self._indicators = val['name']
         self._metricTarget = val.get('target', None)
-        active_cf = val['active']
+        activeCf = val['active']
         self._activeComponents = defaultdict(list)
         for request in activeCf:
           try:
@@ -210,7 +210,7 @@ class GlobalSettings:
     """
     return self._projectTime
 
-  def get_tax(self):
+  def getTax(self):
     """
       Get the global tax rate
       @ In, None
@@ -536,8 +536,8 @@ class CashFlow:
     specs.addParam('tax', param_type=InputTypes.BoolType, required=False)
     infl = InputTypes.makeEnumType('inflation_types', 'inflation_type', ['real', 'none']) # "nominal" not yet implemented
     specs.addParam('inflation', param_type=infl, required=False)
-    specs.addParam('mult_target', paramType=InputTypes.BoolType, required=False)
-    specs.addParam('multiply', paramType=InputTypes.StringType, required=False)
+    specs.addParam('mult_target', param_type=InputTypes.BoolType, required=False)
+    specs.addParam('multiply', param_type=InputTypes.StringType, required=False)
 
     specs.addSub(InputData.parameterInputFactory('driver', contentType=InputTypes.InterpretedListType))
     specs.addSub(InputData.parameterInputFactory('alpha', contentType=InputTypes.InterpretedListType))

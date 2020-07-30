@@ -46,7 +46,7 @@ class CashFlow(ExternalModelPluginBase):
       @ Out, None
     """
     # read in XML to global settings, component list
-    settings, components = main.read_from_xml(xmlNode)
+    settings, components = main.readFromXml(xmlNode)
     container._globalSettings = settings
     container._components = components
 
