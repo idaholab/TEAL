@@ -18,10 +18,10 @@ except ImportError:
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.
-dir_path = os.path.dirname(os.path.realpath(__file__))
+dirPath = os.path.dirname(os.path.realpath(__file__))
 # TODO fix with plugin relative path
-raven_path = os.path.dirname(__file__) + '/../../../framework'
-sys.path.append(os.path.expanduser(raven_path))
+ravenPath = os.path.dirname(__file__) + '/../../../framework'
+sys.path.append(os.path.expanduser(ravenPath))
 
 try:
   from utils.graphStructure import graphObject
@@ -46,8 +46,8 @@ class CashFlow(ExternalModelPluginBase):
       @ Out, None
     """
     # read in XML to global settings, component list
-    settings, components = main.read_from_xml(xmlNode)
-    container._global_settings = settings
+    settings, components = main.readFromXml(xmlNode)
+    container._globalSettings = settings
     container._components = components
 
   # =====================================================================================================================
@@ -61,9 +61,9 @@ class CashFlow(ExternalModelPluginBase):
       @ In, inputFiles, list, not used
       @ Out, None
     """
-    settings = container._global_settings
+    settings = container._globalSettings
     components = container._components
-    main.check_run_settings(settings, components)
+    main.checkRunSettings(settings, components)
   # =====================================================================================================================
 
   # =====================================================================================================================
@@ -74,9 +74,9 @@ class CashFlow(ExternalModelPluginBase):
       @ In, Inputs, dict, contains the inputs needed by the CashFlow plugin as specified in the RAVEN input file
       @ Out, None
     """
-    global_settings = container._global_settings
+    globalSettings = container._globalSettings
     components = container._components
-    metrics = main.run(global_settings, components, Inputs)
+    metrics = main.run(globalSettings, components, Inputs)
     for k, v in metrics.items():
       setattr(container, k, v)
 
@@ -104,39 +104,39 @@ if __name__ == "__main__":
   import csv
   # read and process input arguments
   # ================================
-  inp_par = argparse.ArgumentParser(description = 'Run RAVEN CashFlow plugin as stand-alone code')
-  inp_par.add_argument('-iXML', nargs=1, required=True, help='XML CashFlow input file name', metavar='inp_file')
-  inp_par.add_argument('-iINP', nargs=1, required=True, help='CashFlow input file name with the input variable list', metavar='inp_file')
-  inp_par.add_argument('-o', nargs=1, required=True, help='Output file name', metavar='out_file')
-  inp_opt = inp_par.parse_args()
+  inpPar = argparse.ArgumentParser(description = 'Run RAVEN CashFlow plugin as stand-alone code')
+  inpPar.add_argument('-iXML', nargs=1, required=True, help='XML CashFlow input file name', metavar='inpFile')
+  inpPar.add_argument('-iINP', nargs=1, required=True, help='CashFlow input file name with the input variable list', metavar='inpFile')
+  inpPar.add_argument('-o', nargs=1, required=True, help='Output file name', metavar='outFile')
+  inpOpt = inpPar.parse_args()
 
   # check if files exist
-  print ("CashFlow INFO (Run as Code): XML input file: %s" %inp_opt.iXML[0])
-  print ("CashFlow INFO (Run as Code): Variable input file: %s" %inp_opt.iINP[0])
-  print ("CashFlow INFO (Run as Code): Output file: %s" %inp_opt.o[0])
-  if not os.path.exists(inp_opt.iXML[0]) :
-    raise IOError('\033[91m' + "CashFlow INFO (Run as Code): : XML input file " + inp_opt.iXML[0] + " does not exist.. " + '\033[0m')
-  if not os.path.exists(inp_opt.iINP[0]) :
-    raise IOError('\033[91m' + "CashFlow INFO (Run as Code): : Variable input file " + inp_opt.iINP[0] + " does not exist.. " + '\033[0m')
-  if os.path.exists(inp_opt.o[0]) :
-    print ("CashFlow WARNING (Run as Code): Output file %s already exists. Will be overwritten. " %inp_opt.o[0])
+  print ("CashFlow INFO (Run as Code): XML input file: %s" %inpOpt.iXML[0])
+  print ("CashFlow INFO (Run as Code): Variable input file: %s" %inpOpt.iINP[0])
+  print ("CashFlow INFO (Run as Code): Output file: %s" %inpOpt.o[0])
+  if not os.path.exists(inpOpt.iXML[0]) :
+    raise IOError('\033[91m' + "CashFlow INFO (Run as Code): : XML input file " + inpOpt.iXML[0] + " does not exist.. " + '\033[0m')
+  if not os.path.exists(inpOpt.iINP[0]) :
+    raise IOError('\033[91m' + "CashFlow INFO (Run as Code): : Variable input file " + inpOpt.iINP[0] + " does not exist.. " + '\033[0m')
+  if os.path.exists(inpOpt.o[0]) :
+    print ("CashFlow WARNING (Run as Code): Output file %s already exists. Will be overwritten. " %inpOpt.o[0])
 
   # Initialise run
   # ================================
   # create a CashFlow class instance
   MyCashFlow = CashFlow()
-  # read the XML input file inp_opt.iXML[0]
+  # read the XML input file inpOpt.iXML[0]
   MyContainer = FakeSelf()
-  notroot = ET.parse(open(inp_opt.iXML[0], 'r')).getroot()
+  notroot = ET.parse(open(inpOpt.iXML[0], 'r')).getroot()
   root = ET.Element('ROOT')
   root.append(notroot)
   MyCashFlow._readMoreXML(MyContainer, root)
   MyCashFlow.initialize(MyContainer, {}, [])
   #if Myverbosity < 2:
   print("CashFlow INFO (Run as Code): XML input read ")
-  # read the values from input file into dictionary inp_opt.iINP[0]
+  # read the values from input file into dictionary inpOpt.iINP[0]
   MyInputs = {}
-  with open(inp_opt.iINP[0]) as f:
+  with open(inpOpt.iINP[0]) as f:
     for l in f:
       (key, val) = l.split(' ', 1)
       MyInputs[key] = np.array([float(n) for n in val.split(",")])
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     except (KeyError, AttributeError):
       #if Myverbosity < 2:
       print("CashFlow INFO (Run as Code): %s not found" %indicator)
-  with open(inp_opt.o[0], 'w') as out:
+  with open(inpOpt.o[0], 'w') as out:
     CSVwrite = csv.DictWriter(out, outDict.keys())
     CSVwrite.writeheader()
     CSVwrite.writerow(outDict)

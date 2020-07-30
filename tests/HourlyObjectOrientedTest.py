@@ -17,12 +17,12 @@ def run(df):
     @ In, df, pandas.Dataframe, loaded data to run
     @ Out, metrics, dict, dictionary of metric results
   """
-  settings = build_econ_settings()
-  components = build_econ_components(df, settings)
+  settings = buildEconSettings()
+  components = buildEconComponents(df, settings)
   metrics = RunCashFlow.run(settings, list(components.values()), {})
   return metrics
 
-def build_econ_settings():
+def buildEconSettings():
   """
     Constructs global settings for econ run
     @ In, None
@@ -36,7 +36,7 @@ def build_econ_settings():
                           'active': ['MainComponent|RecursHourly', 'MainComponent|RecursYearly', 'MainComponent|Cap']}
            }
   settings = CashFlows.GlobalSettings()
-  settings.set_params(params)
+  settings.setParams(params)
   settings._verbosity = 0
   return settings
 
@@ -48,7 +48,7 @@ def build_econ_components(df, settings):
     @ Out, comps, dict, dict mapping names to CashFlow component objects
   """
   # in this simple case, the project life is the component life for all components.
-  life = settings.get_project_time()
+  life = settings.getProjectTime()
   # construct components
   comps = {}
   ## first (and only) component in the case
@@ -57,30 +57,30 @@ def build_econ_components(df, settings):
   comps[name] = comp
   params = {'name': name,
             'Life_time': 4}
-  comp.set_params(params)
+  comp.setParams(params)
   ## add cashflows to this component
   cfs = []
 
   ### recurring cashflow evaluated hourly, to show usage
-  cf = create_recurring_hourly(df, comp, 'A', 'D')
+  cf = createRecurringHourly(df, comp, 'A', 'D')
   cfs.append(cf)
-  print('DEBUGG hourly recurring:', cf._yearly_cashflow)
+  print('DEBUGG hourly recurring:', cf._yearlyCashflow)
   ### recurring cashflow evaluated yearly
-  cf = create_recurring_yearly(df, comp, 'A', 'D')
+  cf = createRecurringYearly(df, comp, 'A', 'D')
   cfs.append(cf)
-  print('DEBUGG yearly recurring:', cf._yearly_cashflow)
+  print('DEBUGG yearly recurring:', cf._yearlyCashflow)
   ### capex cashflow
-  cf = create_capex(df, comp, 'B', 'D')
+  cf = createCapex(df, comp, 'B', 'D')
   cfs.append(cf)
   ## amortization
-  cf.set_amortization('MACRS', 3)
-  amorts = comp._create_depreciation(cf)
+  cf.setAmortization('MACRS', 3)
+  amorts = comp._createDepreciation(cf)
   cfs.extend(amorts)
   # finally, add cashflows to component
-  comp.add_cashflows(cfs)
+  comp.addCashflows(cfs)
   return comps
 
-def create_capex(df, comp, driver, alpha):
+def createCapex(df, comp, driver, alpha):
   """
     Constructs capex object
     @ In, df, pandas.Dataframe, loaded data to run
@@ -89,14 +89,14 @@ def create_capex(df, comp, driver, alpha):
     @ In, alpha, string, variable name in df to take alpha from
     @ Out, comps, dict, dict mapping names to CashFlow component objects
   """
-  life = comp.get_lifetime()
+  life = comp.getLifetime()
   # extract alpha, driver as just one value
   alpha = df[alpha].mean()
   driver = df[driver].mean()
   cf = CashFlows.Capex()
   cf.name = 'Cap'
-  cf.init_params(life)
-  cf_params = {'name': 'Cap',
+  cf.initParams(life)
+  cfParams = {'name': 'Cap',
                'alpha': alpha,
                'driver': driver,
                'reference': 1.0,
@@ -105,10 +105,10 @@ def create_capex(df, comp, driver, alpha):
                'mult_target': None,
                'inflation': False,
                }
-  cf.set_params(cf_params)
+  cf.setParams(cfParams)
   return cf
 
-def create_recurring_yearly(df, comp, driver, alpha):
+def createRecurringYearly(df, comp, driver, alpha):
   """
     Constructs recurring cashflow with one value per year
     @ In, df, pandas.Dataframe, loaded data to run
@@ -117,13 +117,13 @@ def create_recurring_yearly(df, comp, driver, alpha):
     @ In, alpha, string, variable name in df to take alpha from
     @ Out, comps, dict, dict mapping names to CashFlow component objects
   """
-  life = comp.get_lifetime()
+  life = comp.getLifetime()
   cf = CashFlows.Recurring()
-  cf_params = {'name': 'RecursYearly',
+  cfParams = {'name': 'RecursYearly',
                'X': 1,
                'mult_target': None,
                'inflation': False}
-  cf.set_params(cf_params)
+  cf.setParams(cfParams)
   # because our data comes hourly, collapse it to be yearly
   ## 0 for first year (build year) -> TODO couldn't this be automatic?
   alphas = np.zeros(life + 1)
@@ -131,10 +131,10 @@ def create_recurring_yearly(df, comp, driver, alpha):
   alphas[1:] = df[alpha].groupby(df.index.year).mean().values[:life]
   drivers[1:] = df[driver].groupby(df.index.year).mean().values[:life]
   # construct annual summary cashflows
-  cf.compute_yearly_cashflow(alphas, drivers)
+  cf.computeYearlyCashflow(alphas, drivers)
   return cf
 
-def create_recurring_hourly(df, comp, driver, alpha):
+def createRecurringHourly(df, comp, driver, alpha):
   """
     Constructs recurring cashflow with one value per hour
     @ In, df, pandas.Dataframe, loaded data to run
@@ -143,20 +143,20 @@ def create_recurring_hourly(df, comp, driver, alpha):
     @ In, alpha, string, variable name in df to take alpha from
     @ Out, comps, dict, dict mapping names to CashFlow component objects
   """
-  life = comp.get_lifetime()
+  life = comp.getLifetime()
   cf = CashFlows.Recurring()
-  cf_params = {'name': 'RecursHourly',
+  cfParams = {'name': 'RecursHourly',
                'X': 1,
                'mult_target': None,
                'inflation': False}
-  cf.set_params(cf_params)
-  cf.init_params(life)
-  year_dfs = df.groupby([df.index.year])
-  for year, year_df in year_dfs:
+  cf.setParams(cfParams)
+  cf.initParams(life)
+  yearDfs = df.groupby([df.index.year])
+  for year, yearDf in yearDfs:
     y = year - 2018
     if y > life:
       break
-    cf.compute_intrayear_cashflow(y, year_df[driver], year_df[alpha])
+    cf.computeIntrayearCashflow(y, yearDf[driver], yearDf[alpha])
   return cf
 
 
@@ -167,12 +167,12 @@ if __name__ == '__main__':
   targets = ['A', 'B', 'C', 'D', 'Year', 'Time']
   indices = ['RAVEN_sample_ID']
   print('Loading data ...')
-  full_df = pd.read_csv('aux_file/hourly.csv',
+  fullDf = pd.read_csv('aux_file/hourly.csv',
                         index_col=indices,
                         usecols=targets+indices) #,
                         #nrows=300000)
   # just the first sample
-  df = full_df.loc[0]
+  df = fullDf.loc[0]
   years = pd.to_datetime(df['Year'].values + 2019, format='%Y')
   hours = pd.to_timedelta(df['Time'].values, unit='H')
   datetime = years + hours
