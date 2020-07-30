@@ -10,8 +10,8 @@ except ImportError:
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.
-raven_path = os.path.dirname(__file__) + '/../../../framework'
-sys.path.append(os.path.expanduser(raven_path))
+ravenPath = os.path.dirname(__file__) + '/../../../framework'
+sys.path.append(os.path.expanduser(ravenPath))
 
 class CashFlowUser:
   """
@@ -22,15 +22,15 @@ class CashFlowUser:
     In almost all cases, initialization methods should be called as part of the inheritor's method call.
   """
   @classmethod
-  def get_input_specs(cls, spec):
+  def getInputSpecs(cls, spec):
     """
       Collects input specifications for this class.
       Note this needs to be called as part of an inheriting class's specification definition
       @ In, spec, InputData, specifications that need cash flow added to it
-      @ Out, input_specs, InputData, specs
+      @ Out, inputSpecs, InputData, specs
     """
     # this unit probably has some economics
-    spec.addSub(Component.get_input_specs())
+    spec.addSub(Component.getInputSpecs())
     return spec
 
   def __init__(self):
@@ -41,43 +41,43 @@ class CashFlowUser:
     """
     self._economics = None # CashFlowGroup
 
-  def read_input(self, specs):
+  def readInput(self, specs):
     """
       Sets settings from input file
       @ In, specs, InputData params, input from user
       @ Out, None
     """
     self._economics = Component(self)
-    self._economics.read_input(specs)
+    self._economics.readInput(specs)
 
-  def get_crossrefs(self):
+  def getCrossrefs(self):
     """
       Collect the required value entities needed for this component to function.
       @ In, None
       @ Out, crossrefs, dict, mapping of dictionaries with information about the entities required.
     """
-    return self._economics.get_crossrefs()
+    return self._economics.getCrossrefs()
 
-  def set_crossrefs(self, refs):
+  def setCrossrefs(self, refs):
     """
       Connect cross-reference material from other entities to the ValuedParams in this component.
       @ In, refs, dict, dictionary of entity information
       @ Out, None
     """
-    self._economics.set_crossrefs(refs)
+    self._economics.setCrossrefs(refs)
 
-  def get_incremental_cost(self, activity, raven_vars, meta, t):
+  def getIncrementalCost(self, activity, ravenVars, meta, t):
     """
       get the cost given particular activities
       @ In, activity, pandas.Series, scenario variable values to evaluate cost of
-      @ In, raven_vars, dict, additional variables (presumably from raven) that might be needed
+      @ In, ravenVars, dict, additional variables (presumably from raven) that might be needed
       @ In, meta, dict, further dictionary of information that might be needed
       @ In, t, int, time step at which cost needs to be evaluated
       @ Out, cost, float, cost of activity
     """
-    return self._economics.incremental_cost(activity, raven_vars, meta, t)
+    return self._economics.incrementalCost(activity, ravenVars, meta, t)
 
-  def get_economics(self):
+  def getEconomics(self):
     """
       Accessor for economics.
       @ In, None

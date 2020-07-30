@@ -11,25 +11,25 @@ MACRS = { 20: 0.01 * np.array([3.750, 7.219, 6.677, 6.177, 5.713, 5.285, 4.888, 
           5: 0.01 * np.array([20.00, 32.00, 19.20, 11.52, 11.52, 5.76]),
           3: 0.01 * np.array([33.33, 44.45, 14.81, 7.41])}
 
-def amortize(scheme, plan, start_value, component_life):
+def amortize(scheme, plan, startValue, componentLife):
   """
     return the amortization plan
     @ In, scheme, str, 'macrs' or 'custom'
     @ In, plan, list or array like, list of provided MACRS values
-    @ In, start_value, float, the given initial Capex value
-    @ In, component_life, int, the life of component
+    @ In, startValue, float, the given initial Capex value
+    @ In, componentLife, int, the life of component
     @ Out, alpha, numpy.array, array of alpha values for given scheme
   """
-  alpha = np.zeros(component_life + 1, dtype=float)
+  alpha = np.zeros(componentLife + 1, dtype=float)
   lscheme = scheme.lower()
   if lscheme == 'macrs':
     ys = plan[0]
     pcts = MACRS.get(ys, None)
     if pcts is None:
       raise IOError('Provided MACRS "{}" is not allowed.'.format(ys))
-    alpha[1:len(pcts)+1] = pcts * start_value
+    alpha[1:len(pcts)+1] = pcts * startValue
   elif lscheme == 'custom':
-    alpha[1:len(plan)+1] = np.asarray(plan)/100. * start_value
+    alpha[1:len(plan)+1] = np.asarray(plan)/100. * startValue
   else:
     raise NotImplementedError('Amortization scheme "{}" not yet implemented.'.format(scheme))
   return alpha
