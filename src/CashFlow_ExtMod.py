@@ -1,8 +1,23 @@
+# Copyright 2017 Battelle Energy Alliance, LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
-  Author:  A. S. Epiney, P. Talbot, C. Wang
-  Date  :  02/23/2017
-"""
+Created on Feb 23, 2017
 
+@authors: A. S. Epiney, P. Talbot, C. Wang, A. Alfonsi
+
+This module contains the TEAL.CashFlow plugin module
+"""
 from __future__ import division, print_function, unicode_literals, absolute_import
 import os
 import sys
@@ -18,10 +33,10 @@ except ImportError:
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.
-dir_path = os.path.dirname(os.path.realpath(__file__))
+dirPath = os.path.dirname(os.path.realpath(__file__))
 # TODO fix with plugin relative path
-raven_path = os.path.dirname(__file__) + '/../../../framework'
-sys.path.append(os.path.expanduser(raven_path))
+ravenPath = os.path.dirname(__file__) + '/../../../framework'
+sys.path.append(os.path.expanduser(ravenPath))
 
 try:
   from utils.graphStructure import graphObject
@@ -46,8 +61,8 @@ class CashFlow(ExternalModelPluginBase):
       @ Out, None
     """
     # read in XML to global settings, component list
-    settings, components = main.read_from_xml(xmlNode)
-    container._global_settings = settings
+    settings, components = main.readFromXml(xmlNode)
+    container._globalSettings = settings
     container._components = components
 
   # =====================================================================================================================
@@ -61,9 +76,9 @@ class CashFlow(ExternalModelPluginBase):
       @ In, inputFiles, list, not used
       @ Out, None
     """
-    settings = container._global_settings
+    settings = container._globalSettings
     components = container._components
-    main.check_run_settings(settings, components)
+    main.checkRunSettings(settings, components)
   # =====================================================================================================================
 
   # =====================================================================================================================
@@ -74,7 +89,7 @@ class CashFlow(ExternalModelPluginBase):
       @ In, Inputs, dict, contains the inputs needed by the CashFlow plugin as specified in the RAVEN input file
       @ Out, None
     """
-    global_settings = container._global_settings
+    global_settings = container._globalSettings
     components = container._components
     metrics = main.run(global_settings, components, Inputs)
     for k, v in metrics.items():
@@ -104,52 +119,52 @@ if __name__ == "__main__":
   import csv
   # read and process input arguments
   # ================================
-  inp_par = argparse.ArgumentParser(description = 'Run RAVEN CashFlow plugin as stand-alone code')
-  inp_par.add_argument('-iXML', nargs=1, required=True, help='XML CashFlow input file name', metavar='inp_file')
-  inp_par.add_argument('-iINP', nargs=1, required=True, help='CashFlow input file name with the input variable list', metavar='inp_file')
-  inp_par.add_argument('-o', nargs=1, required=True, help='Output file name', metavar='out_file')
-  inp_opt = inp_par.parse_args()
+  inpPar = argparse.ArgumentParser(description = 'Run RAVEN CashFlow plugin as stand-alone code')
+  inpPar.add_argument('-iXML', nargs=1, required=True, help='XML CashFlow input file name', metavar='inp_file')
+  inpPar.add_argument('-iINP', nargs=1, required=True, help='CashFlow input file name with the input variable list', metavar='inp_file')
+  inpPar.add_argument('-o', nargs=1, required=True, help='Output file name', metavar='out_file')
+  inpOpt = inpPar.parse_args()
 
   # check if files exist
-  print ("CashFlow INFO (Run as Code): XML input file: %s" %inp_opt.iXML[0])
-  print ("CashFlow INFO (Run as Code): Variable input file: %s" %inp_opt.iINP[0])
-  print ("CashFlow INFO (Run as Code): Output file: %s" %inp_opt.o[0])
-  if not os.path.exists(inp_opt.iXML[0]) :
-    raise IOError('\033[91m' + "CashFlow INFO (Run as Code): : XML input file " + inp_opt.iXML[0] + " does not exist.. " + '\033[0m')
-  if not os.path.exists(inp_opt.iINP[0]) :
-    raise IOError('\033[91m' + "CashFlow INFO (Run as Code): : Variable input file " + inp_opt.iINP[0] + " does not exist.. " + '\033[0m')
-  if os.path.exists(inp_opt.o[0]) :
-    print ("CashFlow WARNING (Run as Code): Output file %s already exists. Will be overwritten. " %inp_opt.o[0])
+  print ("CashFlow INFO (Run as Code): XML input file: %s" %inpOpt.iXML[0])
+  print ("CashFlow INFO (Run as Code): Variable input file: %s" %inpOpt.iINP[0])
+  print ("CashFlow INFO (Run as Code): Output file: %s" %inpOpt.o[0])
+  if not os.path.exists(inpOpt.iXML[0]) :
+    raise IOError('\033[91m' + "CashFlow INFO (Run as Code): : XML input file " + inpOpt.iXML[0] + " does not exist.. " + '\033[0m')
+  if not os.path.exists(inpOpt.iINP[0]) :
+    raise IOError('\033[91m' + "CashFlow INFO (Run as Code): : Variable input file " + inpOpt.iINP[0] + " does not exist.. " + '\033[0m')
+  if os.path.exists(inpOpt.o[0]) :
+    print ("CashFlow WARNING (Run as Code): Output file %s already exists. Will be overwritten. " %inpOpt.o[0])
 
   # Initialise run
   # ================================
   # create a CashFlow class instance
-  MyCashFlow = CashFlow()
-  # read the XML input file inp_opt.iXML[0]
-  MyContainer = FakeSelf()
-  notroot = ET.parse(open(inp_opt.iXML[0], 'r')).getroot()
+  myCashFlow = CashFlow()
+  # read the XML input file inpOpt.iXML[0]
+  myContainer = FakeSelf()
+  notroot = ET.parse(open(inpOpt.iXML[0], 'r')).getroot()
   root = ET.Element('ROOT')
   root.append(notroot)
-  MyCashFlow._readMoreXML(MyContainer, root)
-  MyCashFlow.initialize(MyContainer, {}, [])
+  myCashFlow._readMoreXML(myContainer, root)
+  myCashFlow.initialize(myContainer, {}, [])
   #if Myverbosity < 2:
   print("CashFlow INFO (Run as Code): XML input read ")
-  # read the values from input file into dictionary inp_opt.iINP[0]
-  MyInputs = {}
-  with open(inp_opt.iINP[0]) as f:
+  # read the values from input file into dictionary inpOpt.iINP[0]
+  myInputs = {}
+  with open(inpOpt.iINP[0]) as f:
     for l in f:
       (key, val) = l.split(' ', 1)
-      MyInputs[key] = np.array([float(n) for n in val.split(",")])
+      myInputs[key] = np.array([float(n) for n in val.split(",")])
   #if Myverbosity < 2:
   print("CashFlow INFO (Run as Code): Variable input read ")
   #if Myverbosity < 1:
-  print("CashFlow INFO (Run as Code): Inputs dict %s" %MyInputs)
+  print("CashFlow INFO (Run as Code): Inputs dict %s" %myInputs)
 
   # run the stuff
   # ================================
   #if Myverbosity < 2:
   print("CashFlow INFO (Run as Code): Running the code")
-  MyCashFlow.run(MyContainer, MyInputs)
+  myCashFlow.run(myContainer, myInputs)
 
   # create output file
   # ================================
@@ -158,13 +173,13 @@ if __name__ == "__main__":
   outDict = {}
   for indicator in ['NPV_mult', 'NPV', 'IRR', 'PI']:
     try:
-      outDict[indicator] = getattr(MyContainer, indicator)
+      outDict[indicator] = getattr(myContainer, indicator)
       #if Myverbosity < 2:
       print("CashFlow INFO (Run as Code): %s written to file" %indicator)
     except (KeyError, AttributeError):
       #if Myverbosity < 2:
       print("CashFlow INFO (Run as Code): %s not found" %indicator)
-  with open(inp_opt.o[0], 'w') as out:
-    CSVwrite = csv.DictWriter(out, outDict.keys())
-    CSVwrite.writeheader()
-    CSVwrite.writerow(outDict)
+  with open(inpOpt.o[0], 'w') as out:
+    csvWrite = csv.DictWriter(out, outDict.keys())
+    csvWrite.writeheader()
+    csvWrite.writerow(outDict)
