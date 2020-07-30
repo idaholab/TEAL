@@ -1,11 +1,11 @@
 \section{Software Design}
 \subsection{Introduction}
-The \textit{\textbf{CashFlow}} plug-in scope is mostly to provide a set of capabilities in an integrated system with RAVEN
+The \textit{\textbf{TEAL}} plug-in scope is mostly to provide a set of capabilities in an integrated system with RAVEN
 for the computations of the NPV (Net Present Value), the IRR (Internal Rate of Return) and the PI (Profitability Index)m, and their 
 inverse. 
-The \textit{\textbf{CashFlow}} plug-in has been coded using the language \emph{Python}. The \emph{Python}
+The \textit{\textbf{TEAL}} plug-in has been coded using the language \emph{Python}. The \emph{Python}
  code can be used as an ``external mode'' in RAVEN (for installation and usage instructions, see~\cite{RAVENuserManual}).
-The input of  \textit{\textbf{CashFlow}} is an XML file, which can be read and executed by the plug-in and RAVEN.
+The input of  \textit{\textbf{TEAL}} is an XML file, which can be read and executed by the plug-in and RAVEN.
 
 
 \subsection{System Structure (Code)}
@@ -16,31 +16,31 @@ The input of  \textit{\textbf{CashFlow}} is an XML file, which can be read and e
 \label{fig:pluginsLocation}
 \end{figure}
 
-The  \textit{\textbf{CashFlow}} plug-in is based on the RAVEN plug-in system. This system is aimed to ease the creation
+The  \textit{\textbf{TEAL}} plug-in is based on the RAVEN plug-in system. This system is aimed to ease the creation
 of external models and modules by external developers without the need to deeply know the internal structure
 of the RAVEN software. This system is a transparent API for RAVEN external models.
 \\The addition of a plugin does not require modifying RAVEN itself. 
 Instead, the developer creates a new Python module that is going to be embedded
  in RAVEN at run-time (no need to introduce  hard-coded statements).
- This plugin (CashFlow for instance) needs to be placed in a folder  located in (see figure~\ref{fig:pluginsLocation}):
+ This plugin (TEAL for instance) needs to be placed in a folder  located in (see figure~\ref{fig:pluginsLocation}):
 \begin{lstlisting}[language=bash]
  path/to/raven/plugins/
 \end{lstlisting}
-In order to install the CashFlow plugin (if not downloaded by RAVEN submodule system),
+In order to install the TEAL plugin (if not downloaded by RAVEN submodule system),
  the user can run the script contained in the RAVEN script folder:
 \begin{lstlisting}[language=bash]
- python path/to/raven/scripts/install_plugins.py  **directory**/CashFlow
+ python path/to/raven/scripts/install_plugins.py  **directory**/TEAL
 \end{lstlisting}
-where  $**directory**$/CashFlow should be replaced with the absolute path to the CashFlow plugin directory.
-(e.g. ``path/to/my/plugins/CashFlow''). 
+where  $**directory**$/TEAL should be replaced with the absolute path to the TEAL plugin directory.
+(e.g. ``path/to/my/plugins/TEAL'').
 
-\subsection{CashFlow Structure}
-The  \textit{\textbf{CashFlow}} plug-in contains the following methods (API from RAVEN):
+\subsection{TEAL Structure}
+The  \textit{\textbf{TEAL}} plug-in contains the following methods (API from RAVEN):
 
 \begin{lstlisting}[language=python]
 from ExternalModelPluginBase import ExternalModelPluginBase
 
-class CashFlow(ExternalModelPluginBase):
+class TEAL(ExternalModelPluginBase):
   def run (self, container, Inputs)
   def _readMoreXML(self, container, xmlNode)
   def initialize(self,container, runInfo, inputs)
@@ -58,7 +58,7 @@ The only two attributes this method is going to receive are a Python list of inp
 (the inputs coming from the \texttt{createNewInput} method (see \cite{RAVENuserManual}) and a ``self-like'' object
 named ``container''.
 %
-All the outcomes of the CashFlow module will be stored in the above mentioned ``container'' in order to 
+All the outcomes of the TEAL module will be stored in the above mentioned ``container'' in order to
 allow RAVEN to collect them.
 
 \subsubsection{Method: \texttt{\_readMoreXML}}
@@ -66,7 +66,7 @@ allow RAVEN to collect them.
 \begin{lstlisting}[language=python]
 def _readMoreXML(self, container, xmlNode)
 \end{lstlisting}
-In this method, the CashFlow input is read and made available to the plug-in and RAVEN.
+In this method, the TEAL input is read and made available to the plug-in and RAVEN.
 %
 The read information are stored in the ``self-like'' object ``container''
  in order to be available to all the other methods, specifically the  \textbf{run} and  \textbf{initialize} methods. 
@@ -77,13 +77,13 @@ containing all the sub-nodes and attribute of the XML block \xmlNode{ExternalMod
 
 Example XML:
 \begin{lstlisting}[style=XML,morekeywords={subType,ModuleToLoad}]
-<CashFlow name="CAPEX" driver="Plant_capacity" tax="false" inflation="none">
+<TEAL name="CAPEX" driver="Plant_capacity" tax="false" inflation="none">
   <alpha> -4000000000
   0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
   0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0</alpha>
   <reference>1000000000</reference>
   <X>0.64</X> 
-</CashFlow>
+</TEAL>
 \end{lstlisting}
 
 \subsubsection{Method: \texttt{initialize}}
@@ -93,7 +93,7 @@ def initialize(self, container, runInfo, inputs)
 \end{lstlisting}
 
 The \textbf{initialize} method is implemented  to initialize the Cash Flow analysis based on
-the current RAVEN status and CashFlow input file (The XML input file).
+the current RAVEN status and TEAL input file (The XML input file).
 %
  \\Indeed, RAVEN is going to call this method at the initialization stage of each ``Step'' (see section \cite{RAVENuserManual}).
 %

@@ -21,9 +21,11 @@
 % If you just want to change the text font, you should just \usepackage{times}.
 % \usepackage{pslatex}
 \usepackage{times}
-\usepackage{longtable}
+%\usepackage{longtable}
 \usepackage[FIGBOTCAP,normal,bf,tight]{subfigure}
 \usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage{ltablex}
 \usepackage{amssymb}
 \usepackage[labelfont=bf]{caption}
 \usepackage{pifont}
@@ -237,7 +239,7 @@ showstringspaces=false            %
 %
 % Set the title, author, and date
 %
-\title{CashFlow Software Requirements Specification}
+\title{TEAL Software Requirements Specification and Traceability Matrix}
 %\author{%
 %\begin{tabular}{c} Author 1 \\ University1 \\ Mail1 \\ \\
 %Author 3 \\ University3 \\ Mail3 \end{tabular} \and
@@ -257,7 +259,7 @@ showstringspaces=false            %
 % ---------------------------------------------------------------------------- %
 % Set some things we need for SAND reports. These are mandatory
 %
-\SANDnum{CASHFLOW-SRS}
+\SANDnum{SPC-2895}
 \SANDprintDate{\today}
 \SANDauthor{Andrea Alfonsi, Aaron Epiney, Paul Talbot, Cristian Rabiti}
 \SANDreleaseType{Revision 0}
@@ -274,6 +276,7 @@ showstringspaces=false            %
 % ---------------------------------------------------------------------------- %
 \newcommand{\systemtau}{\tensor{\tau}_{\!\text{SUPG}}}
 
+% Added by Sonat
 \usepackage{placeins}
 \usepackage{array}
 
@@ -373,9 +376,10 @@ showstringspaces=false            %
     \SANDmain		% Start the main part of the report
 
 \input{intro.tex}
-\input{../sdd/cash_flowDepAndLimitations.tex}
-\input{requirements.tex}
-\input{cash_flowSystemOperations.tex}
+\input{../sdd/TEALDepAndLimitations.tex}
+\input{../srs/requirements.tex}
+\input{../srs/TEALSystemOperations.tex}
+\input{../rtr/traceability_matrix.tex}
  
 
     % ---------------------------------------------------------------------- %
@@ -384,7 +388,7 @@ showstringspaces=false            %
 
 %\addcontentsline{toc}{section}{References}
 %\bibliographystyle{ieeetr}
-%\bibliography{cash_flow_software_requirements_specifications}
+%\bibliography{TEAL_software_requirements_specifications}
 
 \section*{Document Version Information}
 
