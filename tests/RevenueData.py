@@ -3,7 +3,7 @@
   Date  :  03/23/2018
 """
 
-# This file contains the year dependent data for BOP_TOT_revenueEL to be used in the CashFlow test inputs.
+# This file contains the year dependent data for BOPTOTRevenueEL to be used in the CashFlow test inputs.
 
 import numpy as np
 
@@ -16,12 +16,12 @@ def initialize(self,runInfoDict,inputFiles):
 # =====================================================================================================================
 def run(self, Inputs):
   """
-    Passes back BOP_TOT_revenueEL scaled with input_scaling
-    - In, input_scaling, float, used to scale the data
-    - Out, BOP_TOT_revenueEL, vector with scaled data
+    Passes back BOPTOTRevenueEL scaled with inputScaling
+    - In, inputScaling, float, used to scale the data
+    - Out, BOPTOTRevenueEL, vector with scaled data
   """
 
-  self.BOP_TOT_revenueEL = np.array(Inputs["input_scaling"] * [
+  self.BOPTOTRevenueEL = np.array(Inputs["input_scaling"] * [
     1.249121E+08,
     1.635489E+08,
     2.852712E+08,
