@@ -308,7 +308,7 @@ class Component:
     for name, value in paramDict.items():
       if name == 'name':
         self.name = value
-      elif name == 'cashFlows':
+      elif name == 'cash_flows':
         self._cashFlows = value
       else:
         # remainder are mapped
@@ -583,7 +583,7 @@ class CashFlow:
       elif key == 'inflation':
         self._inflation = value
       elif key == 'mult_target':
-        self._mult_target = value
+        self._multTarget = value
       elif key == 'multiply':
         self._multiplier = value
     for sub in item.subparts:
