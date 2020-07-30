@@ -15,17 +15,15 @@
 % Please send corrections and suggestions for improvements to
 % Rolf Riesen, Org. 9223, MS 1110, rolf@cs.sandia.gov
 %
-\documentclass[pdf,12pt]{../sdd/INLreport}
+\documentclass[pdf,12pt]{INLreport}
 % pslatex is really old (1994).  It attempts to merge the times and mathptm packages.
 % My opinion is that it produces a really bad looking math font.  So why are we using it?
 % If you just want to change the text font, you should just \usepackage{times}.
 % \usepackage{pslatex}
 \usepackage{times}
-%\usepackage{longtable}
+\usepackage{longtable}
 \usepackage[FIGBOTCAP,normal,bf,tight]{subfigure}
 \usepackage{amsmath}
-\usepackage{tabularx}
-\usepackage{ltablex}
 \usepackage{amssymb}
 \usepackage[labelfont=bf]{caption}
 \usepackage{pifont}
@@ -207,7 +205,7 @@ showstringspaces=false            %
     linkcolor=black,
     urlcolor=black
 }
-%\usepackage[table,xcdraw]{xcolor}
+
 \newcommand{\wiki}{\href{https://github.com/idaholab/raven/wiki}{RAVEN wiki}}
 
 % Compress lists of citations like [33,34,35,36,37] to [33-37]
@@ -239,7 +237,7 @@ showstringspaces=false            %
 %
 % Set the title, author, and date
 %
-\title{CashFlow Software Requirements Specification and Traceability Matrix}
+\title{TEAL Software Design Description}
 %\author{%
 %\begin{tabular}{c} Author 1 \\ University1 \\ Mail1 \\ \\
 %Author 3 \\ University3 \\ Mail3 \end{tabular} \and
@@ -259,7 +257,7 @@ showstringspaces=false            %
 % ---------------------------------------------------------------------------- %
 % Set some things we need for SAND reports. These are mandatory
 %
-\SANDnum{SPC-xxxx}
+\SANDnum{SDD-553}
 \SANDprintDate{\today}
 \SANDauthor{Andrea Alfonsi, Aaron Epiney, Paul Talbot, Cristian Rabiti}
 \SANDreleaseType{Revision 0}
@@ -375,20 +373,22 @@ showstringspaces=false            %
     %
     \SANDmain		% Start the main part of the report
 
-\input{intro.tex}
-\input{../sdd/cash_flowDepAndLimitations.tex}
-\input{../srs/requirements.tex}
-\input{../srs/cash_flowSystemOperations.tex}
-\input{../rtr/traceability_matrix.tex}
- 
+\input{TEALIntro.tex}
+\input{otherDesignDocs.tex}
+\input{TEALDepAndLimitations.tex}
+\input{TEALDesignStakeHoldersAndConcerns.tex}
+\input{TEALSoftwareDesing.tex}
+\input{dataInterfaceSystemControl.tex}
+
+
 
     % ---------------------------------------------------------------------- %
     % References
     %
 
-%\addcontentsline{toc}{section}{References}
-%\bibliographystyle{ieeetr}
-%\bibliography{cash_flow_software_requirements_specifications}
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{ieeetr}
+\bibliography{TEAL_software_design_description}
 
 \section*{Document Version Information}
 

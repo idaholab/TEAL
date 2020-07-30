@@ -4,7 +4,7 @@ import sys
 
 # NOTE this import exception is ONLY to allow RAVEN to directly import this module.
 try:
-  from CashFlow.src.CashFlows import Component
+  from TEAL.src.CashFlows import Component
 except ImportError:
   from CashFlows import Component
 

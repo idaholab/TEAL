@@ -1,12 +1,12 @@
-\section{CashFlow for RAVEN}
-A generalized module (called CashFlow) for economic analysisi within RAVEN has been developed \cite{MSApril2017}. The module is able to compute
+\section{TEAL for RAVEN}
+A generalized module within the TEAL software (called TEAL.CashFlow) for economic analysis within RAVEN has been developed \cite{MSApril2017}. The module is able to compute
 the NPV (Net Present Value), the IRR (Internal Rate of Return) and the PI (Profitability Index). Furthermore, it is possible to
 do an NPV, IRR or PI search, i.e. CashFlow will compute a multiplicative value (for example the production cost) so that the
 NPV, IRR or PI has a desired value (for details see \ref{subsec:NPV_search}, NPV\_search). This CashFlow module has been written using the script language Python.
-The Python code can be used as an “external model” in RAVEN (for installation and usage instructions, see \ref{sec:Installation}).
+The Python code can be used as an ``external model'' in RAVEN (for installation and usage instructions, see \ref{sec:Installation}).
 
-The input of CashFlow is an XML file. An example of the input structure is given in Listing \ref{lst:InputExample}. The following section will discuss the
- different keywords in the input and describe how they are used in the CashFlow module.
+The input of \textbf{TEAL.CashFlow} is an XML file. An example of the input structure is given in Listing \ref{lst:InputExample}. The following section will discuss the
+ different keywords in the input and describe how they are used in the \textbf{TEAL.CashFlow} module.
 
 \begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Economics input example., label=lst:InputExample]
 <Economics verbosity='0'>
@@ -50,8 +50,11 @@ The input of CashFlow is an XML file. An example of the input structure is given
 </Economics>
 \end{lstlisting}
 
-As one can see, all the specifications of the CashFlow module are given in the \xmlNode{Economics} block. The block accepts an attribute called \xmlAttr{verbosity},
-which can range from 0 to 100, 0 meaning maximum debug verbosity and 100 meaning errors only. Setting the verbosity to 50 will output (in addition to errors) the NPV, IRR, PI or NPV\_mult. Inside the \xmlNode{Economics} block, there are two types of blocks: \xmlNode{Global} and \xmlNode{Component}.
+As one can see, all the specifications of the \textbf{TEAL.CashFlow} module are given in the \xmlNode{Economics} block. The block accepts an attribute called \xmlAttr{verbosity},
+which can range from 0 to 100, 0 meaning maximum debug verbosity and 100 meaning
+errors only. Setting the verbosity to 50 will output (in addition to errors) the
+ NPV, IRR, PI or NPV\_mult. Inside the \xmlNode{Economics} block, there are two
+ types of blocks: \xmlNode{Global} and \xmlNode{Component}.
 
 \subsection{\xmlNode{Global}}
 Exactly one \xmlNode{Global} block has to be provided. The \xmlNode{Global} block does not have any attributes. The following sub-blocks can be given in the \xmlNode{Global} block:
@@ -228,7 +231,7 @@ Each \xmlNode{Component} has to have one \xmlNode{Life\_time} block and as many 
       is the tax rate given in \xmlNode{tax} in the \xmlNode{Global}
       block. As an example, the cash flow of \textit{comp2} for year 119 in Listing \ref{lst:InputExample} would become $CF^{comp2}_{39}(1-tax)$.
       If a cash flow with \xmlAttr{tax}$=$\textbf{true} is the driver of another cash flow, the cash flow without the tax is used as driver for the new cash flow.
-      The limitation of having a global tax rate will be lifted in future version of the CashFlow module. It is planned to have the possibility to
+      The limitation of having a global tax rate will be lifted in future version of the \textbf{TEAL.CashFlow} module. It is planned to have the possibility to
       input different tax rates for each component, since they might be in different tax regions.
     \item[\xmlAttr{inflation}] Can be \textbf{real, nominal} or \textbf{none}. If it is \textbf{real}, the cash flow is multiplied by
       $(1+inflation)^{-y}$. If it is \textbf{nominal}, the cash flow is multiplied by $(1+inflation)^y$.

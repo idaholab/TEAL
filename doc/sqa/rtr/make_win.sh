@@ -1,7 +1,7 @@
 #!/bin/bash
 # Local variable definition ----------------------------------------------------
 # list of files to run.
-declare -a files=(cash_flow_requirements_traceability_matrix)
+declare -a files=(TEAL_requirements_traceability_matrix)
 # extension to be removed.
 declare -a exts=(txt ps ds)
 
@@ -13,7 +13,7 @@ clean_files () {
 	do
 		for file in `ls *.$ext 2> /dev/null`
 		do
-			rm -rf *.aux *.bbl *.blg *.log *.out *.toc *.lot *.lof cash_flow_*.pdf
+			rm -rf *.aux *.bbl *.blg *.log *.out *.toc *.lot *.lof TEAL_*.pdf
 		done
 	done
 }

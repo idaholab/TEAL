@@ -45,7 +45,7 @@ cp CIlist/*.docx sqa_built_documents/
 # CR_scheme
 cp CR_scheme.pptx sqa_built_documents/
 # Dashboard
-cp CASHFLOW_SQA_Status_Dashboard.pptx sqa_built_documents/
+cp TEAL_SQA_Status_Dashboard.pptx sqa_built_documents/
 
 if git describe
 then

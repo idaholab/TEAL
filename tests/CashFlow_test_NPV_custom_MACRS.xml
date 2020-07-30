@@ -7,10 +7,11 @@
       This input tests the RAVEN plugin CashFlow.
       The tested functionality is called NPV with custom macrs.
     </description>
-    <classesTested>Models.ExternalModel.CashFlow</classesTested>
+    <classesTested>Models.ExternalModel.TEAL</classesTested>
     <revisions>
       <revision author="alfoa" date="2019-11-25">Added Plugin name extension</revision>
       <revision author="alfoa" date="2019-11-25">Added requirements</revision>
+      <revision author="alfoa" date="2020-07-28">Modified name from CashFlow to TEAL</revision>
     </revisions>
     <requirements>CF-EA-1</requirements>
   </TestInfo>
@@ -26,7 +27,7 @@
   </VariableGroups>
 
   <Models>
-    <ExternalModel name="Cash_Flow" subType="CashFlow.CashFlow">
+    <ExternalModel name="Cash_Flow" subType="TEAL.CashFlow">
       <variables> GRO_CashFlow_in, GRO_CashFlow_out</variables>
       <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input_custom_macrs_NPV.xml"/>
     </ExternalModel>
