@@ -179,7 +179,7 @@ def createRecurringHourly(df, comp, driver, alpha):
 
 if __name__ == '__main__':
   # load multiyear data
-  ## TODO use analytic data! this is data from a non-proprietary report, but not analytic.
+  ## TODO use analytic data! this is data from a notproprietary report, but not analytic.
   targets = ['A', 'B', 'C', 'D', 'Year', 'Time']
   indices = ['RAVEN_sample_ID']
   print('Loading data ...')
