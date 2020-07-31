@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# fail if any of these commands fail
+set -e
+
+SCRIPT_DIRNAME=`dirname $0`
+SCRIPT_DIR=`(cd $SCRIPT_DIRNAME; pwd)`
+
+cd $SCRIPT_DIR/..
+
+echo TEAL
+pylint --disable=all --enable=missing-docstring --enable=multiple-statements src/
+
