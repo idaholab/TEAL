@@ -44,7 +44,7 @@ class CashFlowUser:
       Collects input specifications for this class.
       Note this needs to be called as part of an inheriting class's specification definition
       @ In, spec, InputData, specifications that need cash flow added to it
-      @ Out, input_specs, InputData, specs
+      @ Out, spec, InputData, specs
     """
     # this unit probably has some economics
     spec.addSub(Component.getInputSpecs())
@@ -83,16 +83,16 @@ class CashFlowUser:
     """
     self._economics.setCrossrefs(refs)
 
-  def getIncrementalCost(self, activity, raven_vars, meta, t):
+  def getIncrementalCost(self, activity, ravenVars, meta, t):
     """
       get the cost given particular activities
       @ In, activity, pandas.Series, scenario variable values to evaluate cost of
-      @ In, raven_vars, dict, additional variables (presumably from raven) that might be needed
+      @ In, ravenVars, dict, additional variables (presumably from raven) that might be needed
       @ In, meta, dict, further dictionary of information that might be needed
       @ In, t, int, time step at which cost needs to be evaluated
       @ Out, cost, float, cost of activity
     """
-    return self._economics.incrementalCost(activity, raven_vars, meta, t)
+    return self._economics.incrementalCost(activity, ravenVars, meta, t)
 
   def getEconomics(self):
     """

@@ -345,8 +345,8 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   projCf = np.zeros(projectLength)
   years = np.arange(projectLength) # years in project time, year 0 is first year # TODO just indices, pandas?
   # before the project starts, after it ends are zero; we want the working part
-  operating_mask = np.logical_and(years >= start, years <= end)
-  operatingYears = years[operating_mask]
+  operatingMask = np.logical_and(years >= start, years <= end)
+  operatingYears = years[operatingMask]
   startShift = operatingYears - start # y_shift
   # what year realative to production is this component in, for each operating year?
   relativeOperation = startShift % life # yReal
@@ -356,7 +356,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   ### 2) decomission after last year ever running (assuming said decomission is inside the operational years)
   ### 3) years with both a decomissioning and a construction
   ## this is all years in which construction will occur (covers 1 and half of 3)
-  newBuildMask = [a[relativeOperation==0] for a in np.where(operating_mask)]
+  newBuildMask = [a[relativeOperation==0] for a in np.where(operatingMask)]
   # NOTE make the decomissionMask BEFORE removing the last-year-rebuild, if present.
   ## This lets us do smoother numpy operations.
   decomissionMask = [newBuildMask[0][1:]]
@@ -374,7 +374,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   projCf[decomissionMask] += lifeCf[-1] * taxMult * np.power(inflRate, -1*years[decomissionMask])
   #print(projCf)
   ## handle the non-build operational years
-  nonBuildMask = [a[relativeOperation!=0] for a in np.where(operating_mask)]
+  nonBuildMask = [a[relativeOperation!=0] for a in np.where(operatingMask)]
   projCf[nonBuildMask] += lifeCf[relativeOperation[relativeOperation!=0]] * taxMult * np.power(inflRate, -1*years[nonBuildMask])
   return projCf
 
@@ -533,7 +533,7 @@ def run(settings, components, variables):
     @ Out, results, dict, economic metric results
   """
   # make a dictionary mapping component names to components
-  comps_by_name = dict((c.name, c) for c in components)
+  compsByName = dict((c.name, c) for c in components)
   v = settings._verbosity
   m = 'run'
   vprint(v, 0, m, 'Starting CashFlow Run ...')
@@ -556,20 +556,19 @@ def run(settings, components, variables):
   for ocf in ordered:
     if ocf in variables or ocf == 'EndNode': # TODO why this check for ocf in variables? Should it be comp, or cf?
       continue
-    comp_name, cf_name = ocf.split('|')
-    comp = comps_by_name[comp_name]
-    print('DEBUGG getting', cf_name)
-    cf = comp.getCashflow(cf_name)
+    compName, cfName = ocf.split('|')
+    comp = compsByName[compName]
+    print('DEBUGG getting', cfName)
+    cf = comp.getCashflow(cfName)
     # if this component is a "recurring" type, then we don't need to do the lifetime cashflow bit
     #if cf.type == 'Recurring':
     #  raise NotImplementedError # FIXME how to do this right?
     # calculate cash flow for component's lifetime for this cash flow
-    print('jz is comp_name',comp_name)
-    print('jz is cf_name',cf_name)
+    print('jz is compName',compName)
+    print('jz is cfName',cfName)
     lifeCf = componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=0)
-
     print('jz is lifecf',lifeCf)
-    lifetimeCashflows[comp_name][cf_name] = lifeCf
+    lifetimeCashflows[compName][cfName] = lifeCf
 
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Project Lifetime Cashflow Calculations')
