@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Created on Feb 23, 2017
-
 @authors: A. S. Epiney
 
 This module contains the Ammortization schemes used by TEAL.CashFlow plugin module
