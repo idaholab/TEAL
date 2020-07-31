@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Created on Feb 23, 2017
-
 @authors: A. S. Epiney, P. Talbot, C. Wang, A. Alfonsi
 
 Defines the Economics entity.
@@ -57,7 +55,7 @@ class GlobalSettings:
     """
       Collects input specifications for this class.
       @ In, None
-      @ Out, input_specs, InputData, specs
+      @ Out, glob, InputData, specs
     """
     glob = InputData.parameterInputFactory('Global')
     glob.addSub(InputData.parameterInputFactory('DiscountRate', contentType=InputTypes.FloatType))
@@ -255,7 +253,7 @@ class Component:
     """
       Collects input specifications for this class.
       @ In, None
-      @ Out, input_specs, InputData, specs
+      @ Out, comp, InputData, specs
     """
     comp = InputData.parameterInputFactory('Component')
     comp.addParam('name', param_type=InputTypes.StringType, required=True)
@@ -303,8 +301,8 @@ class Component:
     self.name = specs.parameterValues['name']
     # read in specs
     ## since all of these are simple value setters, use a mapping
-    for item_name, attr in self.nodeVarMap.items():
-      item = specs.findFirst(item_name)
+    for itemName, attr in self.nodeVarMap.items():
+      item = specs.findFirst(itemName)
       if item is not None:
         setattr(self, attr, item.value)
     cfs = specs.findFirst('CashFlows')
@@ -314,23 +312,23 @@ class Component:
         self.addCashflows(newCfs)
     self.checkInitialization()
 
-  def setParams(self, param_dict):
+  def setParams(self, paramDict):
     """
       Sets the settings from a dictionary, instead of via an input file.
-      @ In, param_dict, dict, settings
+      @ In, paramDict, dict, settings
       @ Out, None
     """
-    for name, value in param_dict.items():
+    for name, value in paramDict.items():
       if name == 'name':
         self.name = value
       elif name == 'cash_flows':
         self._cashFlows = value
       else:
         # remainder are mapped
-        attr_name = self.nodeVarMap.get(name, None)
-        if attr_name is None:
+        attrName = self.nodeVarMap.get(name, None)
+        if attrName is None:
           continue
-        setattr(self, attr_name, value)
+        setattr(self, attrName, value)
     self.checkInitialization()
 
   def checkInitialization(self):
@@ -430,9 +428,9 @@ class Component:
 
   def getStartTime(self):
     """
-      Get the start_time for this component
+      Get the _startTime for this component
       @ In, None
-      @ Out, start_time, int, the start time of this component
+      @ Out, _startTime, int, the start time of this component
     """
     return self._startTime
 
@@ -489,7 +487,7 @@ class Component:
     if amort is None:
       return []
     print('DEBUGG amortizing cf:', ocf.name)
-    original_value = ocf.getParam('alpha') * -1.0 #start with a positive value
+    originalValue = ocf.getParam('alpha') * -1.0 #start with a positive value
     scheme, plan = amort
     alpha = Amortization.amortize(scheme, plan, 1.0, self._lifetime)
     # first cash flow is POSITIVE on the balance sheet, is not taxed, and is a percent of the target
@@ -612,13 +610,13 @@ class CashFlow:
         self._scale = sub.value
     self.checkInitialization()
 
-  def setParams(self, param_dict):
+  def setParams(self, paramDict):
     """
       Sets the settings from a dictionary, instead of via an input file.
-      @ In, param_dict, dict, settings
+      @ In, paramDict, dict, settings
       @ Out, None
     """
-    for name, val in param_dict.items():
+    for name, val in paramDict.items():
       if name == 'name':
         self.name = val
       elif name == 'driver':
@@ -937,8 +935,8 @@ class Capex(CashFlow):
         continue
       # if it's valued, then it better be the same length as the lifetime (which is comp lifetime + 1)
       elif len(val) != lifetime:
-        pre_msg = 'Component "{comp}" '.format(compName) if compName is not None else ''
-        raise IOError((pre_msg + 'cashflow "{cf}" node <{param}> should have {correct} '+\
+        preMsg = 'Component "{comp}" '.format(compName) if compName is not None else ''
+        raise IOError((preMsg + 'cashflow "{cf}" node <{param}> should have {correct} '+\
                        'entries (1 + lifetime), but only found {found}!')
                        .format(cf=self.name,
                                correct=lifetime,
