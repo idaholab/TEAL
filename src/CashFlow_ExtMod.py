@@ -87,9 +87,9 @@ class CashFlow(ExternalModelPluginBase):
       @ In, Inputs, dict, contains the inputs needed by the CashFlow plugin as specified in the RAVEN input file
       @ Out, None
     """
-    global_settings = container._globalSettings
+    globalSettings = container._globalSettings
     components = container._components
-    metrics = main.run(global_settings, components, Inputs)
+    metrics = main.run(globalSettings, components, Inputs)
     for k, v in metrics.items():
       setattr(container, k, v)
 
