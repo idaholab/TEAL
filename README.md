@@ -1,6 +1,6 @@
 TEAL (Tool for Economic AnaLysis) is RAVEN plugin aimed to
 contain and deploy economic analysis for RAVEN workflows.
-
+ 
 It leverages the Uncertanty Quantification, Probabilistic Risk Assesment, 
 Parameter Optimizzation and Data Anlysis framework  [RAVEN](https://github.com/idaholab/raven)
 to deploy complex economic analyses.
