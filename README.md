@@ -17,4 +17,3 @@ a combined cash flow for components with different component lives.
 
 Instructions for installing RAVEN plugins (including TEAL) 
 can be found [on RAVEN's website](https://github.com/idaholab/raven/wiki/Plugins).
-
