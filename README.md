@@ -16,4 +16,4 @@ deal with taxes, inflation, discounting and offers  capabilities to compute
 a combined cash flow for components with different component lives.
 
 Instructions for installing RAVEN plugins (including TEAL) 
-can be found [on RAVEN's website](https://github.com/idaholab/raven/wiki/Plugins).
+can be found on [RAVEN's website](https://github.com/idaholab/raven/wiki/Plugins).
