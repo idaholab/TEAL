@@ -12,4 +12,3 @@ a developer's fork of TEAL. To merge
 developments into the main `devel` branch, a Pull Request is created
 referencing the issue that incited the development, and a review performed by
 a member of the CCB (via the Change Request Review checklist).
-
