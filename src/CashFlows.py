@@ -1037,10 +1037,11 @@ class Recurring(CashFlow):
     # by now, self._yearlyCashflow should have been filled with appropriate values
     ## if not, then they're being provided directly through array data/variables
     # get variable values, if needed
-    need = {'alpha': self.getParam('alpha'), 'driver': self.getParam('driver')}
-    # load needed variables from variables as needed
-    need = self.loadFromVariables(need, variables, lifetimeCashflows, lifetime)
-    self.computeYearlyCashflow(need['alpha'], need['driver'])
+    if self.getParam('alpha') is not None:
+      need = {'alpha': self.getParam('alpha'), 'driver': self.getParam('driver')}
+      # load needed variables from variables as needed
+      need = self.loadFromVariables(need, variables, lifetimeCashflows, lifetime)
+      self.computeYearlyCashflow(need['alpha'], need['driver'])
     #assert self._yearlyCashflow is not None
     return {'result': self._yearlyCashflow}
 
