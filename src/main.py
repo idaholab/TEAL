@@ -20,7 +20,7 @@ Execution for TEAL (Tool for Economic AnaLysis)
 import os
 import sys
 import functools
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 import numpy as np
 try:
@@ -114,7 +114,7 @@ def _createEvalProcess(components, variables):
     Sorts the cashflow evaluation process so sensible evaluation order is used
     @ In, components, list, list of CashFlows.Component instances
     @ In, variables, dict, variable-value map from RAVEN
-    @ Out, ordered, list, list of ordered cashflows to evaluate (in order)
+    @ Out, unique, list, list of ordered cashflows to evaluate (in order, no duplicates)
   """
   # TODO does this work with float drivers (e.g. already-evaluated drivers)?
   # storage for creating graph sequence
@@ -183,7 +183,9 @@ def _createEvalProcess(components, variables):
       driverGraph[cfn].append('EndNode')
       # each driver depends on its cashflow
       driverGraph[driver].append(cfn)
-  return evaluated + graphObject(driverGraph).createSingleListOfVertices()
+  ordered = evaluated + graphObject(driverGraph).createSingleListOfVertices()
+  unique = list(OrderedDict.fromkeys(ordered))
+  return unique
 
 def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100):
   """
@@ -558,16 +560,12 @@ def run(settings, components, variables):
       continue
     compName, cfName = ocf.split('|')
     comp = compsByName[compName]
-    print('DEBUGG getting', cfName)
     cf = comp.getCashflow(cfName)
     # if this component is a "recurring" type, then we don't need to do the lifetime cashflow bit
     #if cf.type == 'Recurring':
     #  raise NotImplementedError # FIXME how to do this right?
     # calculate cash flow for component's lifetime for this cash flow
-    print('jz is compName',compName)
-    print('jz is cfName',cfName)
     lifeCf = componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=0)
-    print('jz is lifecf',lifeCf)
     lifetimeCashflows[compName][cfName] = lifeCf
 
   vprint(v, 0, m, '='*90)
