@@ -22,7 +22,7 @@ Execution for TEAL (Tool for Economic AnaLysis)
 import os
 import sys
 import functools
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 import numpy as np
 try:
@@ -116,7 +116,7 @@ def _createEvalProcess(components, variables):
     Sorts the cashflow evaluation process so sensible evaluation order is used
     @ In, components, list, list of CashFlows.Component instances
     @ In, variables, dict, variable-value map from RAVEN
-    @ Out, ordered, list, list of ordered cashflows to evaluate (in order)
+    @ Out, unique, list, list of ordered cashflows to evaluate (in order, no duplicates)
   """
   # TODO does this work with float drivers (e.g. already-evaluated drivers)?
   # storage for creating graph sequence
@@ -185,7 +185,9 @@ def _createEvalProcess(components, variables):
       driverGraph[cfn].append('EndNode')
       # each driver depends on its cashflow
       driverGraph[driver].append(cfn)
-  return evaluated + graphObject(driverGraph).createSingleListOfVertices()
+  ordered = evaluated + graphObject(driverGraph).createSingleListOfVertices()
+  unique = list(OrderedDict.fromkeys(ordered))
+  return unique
 
 def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100):
   """
