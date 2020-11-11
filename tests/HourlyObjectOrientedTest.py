@@ -24,8 +24,8 @@ import sys
 import numpy as np
 import pandas as pd
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from CashFlow import CashFlows
-from CashFlow import CashFlow as RunCashFlow
+from TEAL import CashFlows
+from TEAL import CashFlow as RunCashFlow
 
 def run(df):
   """
