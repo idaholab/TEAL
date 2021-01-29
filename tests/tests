@@ -89,4 +89,12 @@
   input = 'HourlyObjectOrientedTest.py'
  [../]
 
+ [./CashFlow_NPV]
+  type = 'RavenFramework'
+  input = 'CashFlow_test_repetitions.xml'
+  UnorderedCsv = 'NPV_with_repetitions.csv'
+  max_time = 500
+  rel_err = 0.001
+ [../]
+
 []
