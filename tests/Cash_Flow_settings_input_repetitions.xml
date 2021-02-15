@@ -1,0 +1,184 @@
+<Economics verbosity="0"> <!-- "0" all debug output, "1" some output, "100" only errors  -->
+  <Global>
+    <DiscountRate>0.1</DiscountRate> <!-- %/100 -->
+    <tax>0.0</tax> <!-- %/100 -->
+    <inflation>0.00</inflation> <!-- %/100 -->
+    <ProjectTime> 30 </ProjectTime>
+    <Indicator name='NPV' target='0'>
+      GEN|CA
+      GEN|RE
+      STOR|CA
+      STOR|RE
+      TURB|CA
+      TURB|RE
+      TURB|RE2
+      TURB|RE3
+      Batt|CA
+      Batt|RE
+      Batt|OM
+      Batt2|CA
+      Batt2|RE
+      Batt2|OM
+      Fixer|CA
+      Fixer2|CA2
+      Fixer2|CA3
+    </Indicator>
+  </Global>
+
+<!--/////////////////////////////////////////////////////////////////////////-->
+  <Component name="GEN">
+    <Life_time>30</Life_time>   <!-- years -->
+
+    <CashFlows> <!--Capital and recurring costs for PEM generation system -->
+      <Capex name="CA" tax="false" inflation="none" mult_target="false">
+        <!--<alpha>-670</alpha>--> <!-- Capital cost per kW -->
+        <driver>GEN_price</driver>
+        <alpha>0.0</alpha> <!-- Size in MW -->
+        <reference>1</reference> <!-- Size in MW -->
+        <X>1.0</X>
+        <!-- <depreciation scheme='MACRS'>20</depreciation> -->
+      </Capex>
+
+      <Recurring name="RE" tax="true" inflation="none" mult_target="true">
+        <alpha>0.0</alpha> <!-- kW/yr. -->
+        <driver>GEN_OM_FIX_PRICE</driver> <!-- $/kW-year -->
+      </Recurring>
+
+    </CashFlows>
+
+  </Component>
+
+<!--/////////////////////////////////////////////////////////////////////////-->
+  <Component name="STOR">
+    <Life_time>40</Life_time>   <!-- years -->
+
+    <CashFlows> <!--Capital and recurring costs for H2 storage system -->
+      <Capex name="CA" tax="false" inflation="none" mult_target="false">
+        <driver>Storage_price</driver> <!-- Cost per kg -->
+        <alpha>0.0</alpha> <!-- Size in kg -->
+        <reference>1</reference> <!-- Size in kg -->
+        <X>1.0</X>
+        <!-- <depreciation scheme='MACRS'>20</depreciation> -->
+      </Capex>
+    </CashFlows>
+
+  </Component>
+
+<!--/////////////////////////////////////////////////////////////////////////-->
+  <Component name="TURB">
+    <Life_time>40</Life_time>   <!-- years -->
+
+    <CashFlows> <!--Capital and recurring costs for turbine system -->
+      <Capex name="CA" tax="false" inflation="none" mult_target="false">
+        <!--<alpha>-550</alpha>--> <!-- Cost per kW -->
+        <driver>TURB_CAP_PRICE</driver>
+        <alpha>0.0</alpha> <!-- Size in kW -->
+        <reference>1</reference> <!-- Size in MW -->
+        <X>1.0</X>
+        <!-- <depreciation scheme='MACRS'>20</depreciation> -->
+      </Capex>
+
+      <Recurring name="RE" tax="true" inflation="none" mult_target="true">
+        <alpha>0.0</alpha> <!-- kW-year -->
+        <driver>TURB_OM_FIX_PRICE</driver> <!--$/kW-year-->
+      </Recurring>
+
+      <Recurring name="RE2" tax="true" inflation="none" mult_target="true">
+        <alpha>0.0</alpha> <!-- kWh -->
+         <driver>turb_om_var_price</driver> <!--$/kWh-->
+      </Recurring>
+
+      <Recurring name="RE3" tax="true" inflation="none" mult_target="true">
+        <driver>LOSSES</driver> <!-- kW/yr. -->
+        <alpha>0</alpha> <!-- $/kW-year -->
+      </Recurring>
+
+    </CashFlows>
+
+  </Component>
+
+  <Component name="Fixer"> <!--  This is just to fix a bug that will be fixed -->
+    <StartTime>10</StartTime>
+    <Life_time>40</Life_time>
+    <CashFlows>
+    <Capex name="CA" tax="false" inflation="none" mult_target="false">
+      <alpha>-0.0</alpha> <!-- Size in kW  -->
+      <driver>Batt_price</driver> <!-- Cost per MW -->
+      <reference>1</reference> <!-- Size in MW -->
+      <X>1.0</X>
+    </Capex>
+  </CashFlows>
+  </Component>
+  <Component name="Fixer2"> <!--  This is just to fix a bug that will be fixed -->
+    <StartTime>11</StartTime>
+    <Life_time>40</Life_time>
+    <CashFlows>
+    <Capex name="CA2" tax="false" inflation="none" mult_target="false">
+      <alpha>-0.0</alpha> <!-- Size in kW  -->
+      <driver>Batt_OM_FIX_PRICE</driver> <!-- Cost per MW -->
+      <reference>1</reference> <!-- Size in MW -->
+      <X>1.0</X>
+    </Capex>
+    <Capex name="CA3" tax="false" inflation="none" mult_target="false">
+      <alpha>-0.0</alpha> <!-- Size in kW  -->
+      <driver>Batt_OM_price</driver> <!-- Cost per MW -->
+      <reference>1</reference> <!-- Size in MW -->
+      <X>1.0</X>
+    </Capex>
+  </CashFlows>
+  </Component>
+
+  <Component name="Batt">
+    <Life_time>10</Life_time>   <!-- years -->
+    <Repetitions>1</Repetitions> <!-- 0 means rebuilt until project completion -->
+
+    <CashFlows> <!--Capital and recurring costs for battery system -->
+      <Capex name="CA" tax="false" inflation="none" mult_target="false">
+        <alpha>1</alpha> <!-- Size in kW  -->
+        <driver>Batt_price</driver> <!-- Cost per MW -->
+        <reference>1</reference> <!-- Size in MW -->
+        <X>1.0</X>
+        <!-- <depreciation scheme='MACRS'>7</depreciation> -->
+      </Capex>
+
+      <Recurring name="OM" tax="true" inflation="none" mult_target="true">
+        <alpha>1</alpha> <!-- kW/yr. -->
+        <driver>Batt_OM_FIX_PRICE</driver> <!-- $/kW-year -->
+      </Recurring>
+
+
+      <Recurring name="RE" tax="true" inflation="none" mult_target="true">
+        <driver>Batt_OM_price</driver> <!--  $/MWh-year. -->
+        <alpha>1.0</alpha> <!--MW-yr -->
+      </Recurring>
+    </CashFlows>
+  </Component>
+
+  <Component name="Batt2">
+    <StartTime>10</StartTime>
+    <Life_time>20</Life_time>   <!-- years -->
+    <Repetitions>1</Repetitions> <!-- 0 means rebuilt until project completion -->
+
+    <CashFlows> <!--Capital and recurring costs for battery system -->
+      <Capex name="CA" tax="false" inflation="none" mult_target="false">
+        <alpha>1</alpha> <!-- Size in kW  -->
+        <driver>Batt2_price</driver> <!-- Cost per MW -->
+        <reference>1</reference> <!-- Size in MW -->
+        <X>1.0</X>
+        <!-- <depreciation scheme='MACRS'>7</depreciation> -->
+      </Capex>
+
+      <Recurring name="OM" tax="true" inflation="none" mult_target="true">
+        <alpha>1</alpha> <!-- kW/yr. -->
+        <driver>Batt2_OM_FIX_PRICE</driver> <!-- $/kW-year -->
+      </Recurring>
+
+
+      <Recurring name="RE" tax="true" inflation="none" mult_target="true">
+        <driver>Batt_OM_price</driver> <!--  $/MWh-year. -->
+        <alpha>1</alpha> <!--MW-yr -->
+      </Recurring>
+    </CashFlows>
+  </Component>
+
+</Economics>

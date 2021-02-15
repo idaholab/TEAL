@@ -1,3 +1,5 @@
+![TEAL Logo](./logos/TEAL_LOGO_FULL.png)
+
 TEAL (Tool for Economic AnaLysis) is RAVEN plugin aimed to
 contain and deploy economic analysis for RAVEN workflows.
 

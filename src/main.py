@@ -320,13 +320,13 @@ def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength
     vprint(v, 1, m, ' ... inflation rate: {}'.format(inflRate))
     vprint(v, 1, m, ' ... tax rate: {}'.format(taxMult))
     lifeCf = lifeCashflows[cf.name]
-    single_cashflow = projectSingleCashflow(cf, compStart, compEnd, compLife, lifeCf, taxMult, inflRate, projectLength, v=v)
+    singleCashflow = projectSingleCashflow(cf, compStart, compEnd, compLife, lifeCf, taxMult, inflRate, projectLength, v=v)
     vprint(v, 0, m, 'Project Cashflow for Component "{}" CashFlow "{}":'.format(comp.name, cf.name))
     if v < 1:
       vprint(v, 0, m, 'Year, Time-Adjusted Value')
-      for y, val in enumerate(single_cashflow):
+      for y, val in enumerate(singleCashflow):
         vprint(v, 0, m, '{:4d}: {: 1.9e}'.format(y, val))
-    cashflows[cf.name] = single_cashflow
+    cashflows[cf.name] = singleCashflow
   return cashflows
 
 def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, projectLength, v=100):
@@ -349,7 +349,10 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   projCf = np.zeros(projectLength)
   years = np.arange(projectLength) # years in project time, year 0 is first year # TODO just indices, pandas?
   # before the project starts, after it ends are zero; we want the working part
-  operatingMask = np.logical_and(years >= start, years <= end)
+  # ALFOA: Modified following expression (see issue #20):
+  #        from operatingMask = np.logical_and(years >= start, years <= end)
+  #        to operatingMask = np.logical_and(years >= start, years < end)
+  operatingMask = np.logical_and(years >= start, years < end)
   operatingYears = years[operatingMask]
   startShift = operatingYears - start # y_shift
   # what year realative to production is this component in, for each operating year?

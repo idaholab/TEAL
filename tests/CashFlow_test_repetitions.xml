@@ -1,0 +1,129 @@
+<Simulation>
+  <TestInfo>
+    <name>CashFlow_test_NPV_repetitions</name>
+    <author>alfoa</author>
+    <created>2020-10-20</created>
+    <description>
+      This input finds the differential NPV between Li-ion batteries and other hydrogen production technologies.
+      This test is showing the usage of periodic (repetition) Operation and Maintainence chasflows for components.
+      This test is aimed to show that the issue #20 (\url{https://github.com/idaholab/TEAL/issues/20}) is resolved.
+    </description>
+    <classesTested>Models.ExternalModel.TEAL</classesTested>
+    <revisions>
+        <revision author="alfoa" date="2021-01-28">Added test for checking issue #20 is resolved</revision>
+    </revisions>
+    <requirements>CF-F-1 CF-F-2 CF-EA-1</requirements>
+  </TestInfo>
+
+  <RunInfo>
+    <WorkingDir>.</WorkingDir>
+    <Sequence>MCrun,printTOfile</Sequence>
+  </RunInfo>
+
+  <VariableGroups>
+    <Group name="GRO_CashFlow_in">GEN_price, GEN_OM_FIX_PRICE, Storage_price, TURB_CAP_PRICE,
+        turb_om_var_price, TURB_OM_FIX_PRICE, LOSSES, Multiplier, Batt_price, Batt_OM_price,
+        Batt_OM_FIX_PRICE, Batt2_OM_FIX_PRICE, Batt2_price</Group>
+    <Group name="GRO_CashFlow_out">NPV</Group>
+    <Group name="statisticalAnalysis_vars">
+                 var_NPV,
+                 mean_NPV,
+                 nsen_NPV_GEN_price,
+                 nsen_NPV_GEN_OM_FIX_PRICE,
+                 nsen_NPV_Batt_price,
+                 nsen_NPV_Batt2_price
+    </Group>
+  </VariableGroups>
+
+  <Models>
+    <ExternalModel name="Cash_Flow" subType="TEAL.CashFlow">
+      <variables> GRO_CashFlow_in, GRO_CashFlow_out</variables>
+      <ExternalXML node="Economics" xmlToLoad="Cash_Flow_settings_input_repetitions.xml"/>
+    </ExternalModel>
+  </Models>
+
+<Distributions>
+  <Uniform name="GEN_price_dis">
+    <lowerBound>-11</lowerBound> <!-- Average of ~-11.5 -->
+    <upperBound>-10</upperBound>
+  </Uniform>
+  <Uniform name="Gen_OMfix_dis">
+    <lowerBound>-11</lowerBound>
+    <upperBound>-10</upperBound>
+  </Uniform>
+  <Uniform name="Batt_price_uni"> <!--$/kW (ths should be positive to force a differential) [only 1 hour of storage]-->
+    <lowerBound>2899.9</lowerBound>
+    <upperBound>2900</upperBound>
+  </Uniform>
+  <Uniform name="Batt2_price_uni"> <!--$/kW (ths should be positive to force a differential) [only 1 hour of storage]-->
+    <lowerBound>1600.85</lowerBound>
+    <upperBound>1600.8571</upperBound>
+  </Uniform>
+</Distributions>
+
+
+
+  <Samplers>
+    <MonteCarlo name="test_MC">
+      <samplerInit>
+        <limit>10</limit>
+      </samplerInit>
+     <variable name="GEN_price">
+        <distribution>GEN_price_dis</distribution>
+      </variable>
+      <variable name="GEN_OM_FIX_PRICE">
+        <distribution>Gen_OMfix_dis</distribution>
+      </variable>
+      <variable name="Batt_price">
+        <distribution>Batt_price_uni</distribution>
+      </variable>
+      <variable name="Batt2_price">
+        <distribution>Batt2_price_uni</distribution>
+      </variable>
+      <constant name="Storage_price">0</constant> <!-- $/kg -->
+      <constant name="TURB_CAP_PRICE">0</constant> <!-- $/kW -->
+      <constant name="TURB_OM_FIX_PRICE">0</constant> <!-- $/kW -->
+      <constant name="turb_om_var_price">0</constant> <!-- kWh -->
+      <constant name="LOSSES">1</constant> <!-- kWh -->
+      <constant name="Multiplier">1.0</constant>
+      <constant name="Batt_OM_price">-45</constant>    <!-- $/kWh-year (this is arbitrage) -->
+      <constant name="Batt_OM_FIX_PRICE">50</constant> <!-- Assume positive for dNPV calc -->
+      <constant name="Batt2_OM_FIX_PRICE">25</constant> <!--  Assume positive for dNPV calc-->
+    </MonteCarlo>
+  </Samplers>
+
+  <DataObjects>
+    <PointSet name="SET_CashFlow_in">
+      <Input>GRO_CashFlow_in</Input>
+      <Output>OutputPlaceHolder</Output>
+    </PointSet>
+    <PointSet name="SET_CashFlow_out">
+      <Input>GRO_CashFlow_in</Input>
+      <Output>GRO_CashFlow_out</Output>
+    </PointSet>
+    <PointSet name="BasicStatistics_basicStatPP">
+      <Output>statisticalAnalysis_vars</Output>
+    </PointSet>
+  </DataObjects>
+
+  <Steps>
+    <MultiRun name="MCrun" pauseAtEnd="True">
+      <Input          class="DataObjects"   type="PointSet">SET_CashFlow_in</Input>
+      <Model          class="Models"        type="ExternalModel">Cash_Flow</Model>
+      <Sampler        class="Samplers"      type="MonteCarlo">test_MC</Sampler>
+      <Output         class="DataObjects"   type="PointSet">SET_CashFlow_out</Output>
+    </MultiRun>
+    <IOStep name="printTOfile">
+     <Input          class="DataObjects"   type="PointSet">SET_CashFlow_out</Input>
+     <Output         class="OutStreams"    type="Print">NPV_with_repetitions</Output>
+    </IOStep>
+  </Steps>
+
+  <OutStreams>
+    <Print name="NPV_with_repetitions">
+      <type>csv</type>
+      <source>SET_CashFlow_out</source>
+      <what>input,output</what>
+    </Print>
+  </OutStreams>
+</Simulation>
