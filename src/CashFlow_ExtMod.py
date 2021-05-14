@@ -40,7 +40,7 @@ sys.path.append(os.path.expanduser(ravenPath))
 
 try:
   from utils.graphStructure import graphObject
-  from PluginsBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase
+  from PluginsaseClasses.ExternalModelPluginBase import ExternalModelPluginBase
 except:
   raise IOError("CashFlow ERROR (Initialisation): RAVEN needs to be installed and CashFlow needs to be in its plugin directory for the plugin to work!'")
 
