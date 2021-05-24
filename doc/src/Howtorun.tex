@@ -1,0 +1,109 @@
+\section{Installation}
+\label{sec:Installation}
+
+This section of the manual describes how to install the TEAL plug-in and use it from within RAVEN \cite{RAVEN}.
+
+\subsection{Installing the plug-in}
+The TEAL plugin is distributed with RAVEN. If you just want to use the plugin and are not interested in developing additional features or bug-fixes for it, just make sure that you have access to the plugin repository and you will automatically get it when installing RAVEN.
+For more information, please refere to the RAVEN manual.
+
+\subsection{Accessing the plug-in from within RAVEN}
+The plugin can be accessed as a special subtype of the External model. The syntax is given in Listing \ref{lst:TEALfromRAVEN}.
+
+\begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Call TEAL.CashFlow from RAVEN input., label=lst:TEALfromRAVEN]
+<ExternalModel name="Cash_Flow" subType="TEAL.CashFlow">
+  <variables> Input and output variables needed by TEAL  </variables>
+  <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input.xml"/>
+</ExternalModel>
+\end{lstlisting}
+
+\subsection{Running the plugin as a stand-alone python code}
+
+In addition to accessing the plug-in from within RAVEN, it can also be run as a stand-alone python program. This is useful for example for testing. However, since TEAL is still a RAVEN plugin, RAVEN needs to be installed and the plugin needs to be in the plugin-folder for that to work.
+
+Assuming RAVEN is installed and the plugin is in the proper directory (execution will generate an error if its not), one can run it using the command shown in Listing \ref{lst:TEALAsCode}.
+
+\small
+\begin{lstlisting}[caption=TEAL run as stand-alone python code, label=lst:TEALAsCode]
+~/raven --> python plugins/TEAL/src/CashFlow_ExtMode.py -h
+usage: Cash_Flow.py [-h] -iXML inp_file -iINP inp_file -o out_file
+
+Run RAVEN TEAL plugin as stand-alone code
+
+arguments:
+  -h, --help      show this help message and exit
+  -iXML inp_file  XML TEAL input file name
+  -iINP inp_file  TEAL input file name with the input
+                  variable list
+  -o out_file     Output file name
+\end{lstlisting}
+\normalsize
+
+The XML TEAL input is the one that contains the component and cash flow definitions, i.e. the one in \xmlAttr{xmlToLoad} in Listing \ref{lst:TEALfromRAVEN}.
+
+The TEAL input file contains the variables that RAVEN provides when using the TEAL as a plugin, i.e. the cash flow drivers and multipliers. Listing \ref{lst:TEALInputFile} shows an example of the TEAL input file for the cash flow definitions given in Listing \ref{lst:InputExample}.
+
+\begin{lstlisting}[caption=TEAL run as stand-alone python code, label=lst:TEALInputFile]
+Cfdriver1 5.5
+multiplier1 1.0
+Cfdriver2 10.8
+multiplier2 2.0
+\end{lstlisting}
+
+\section{TEAL for RAVEN}
+A generalized module within the TEAL software (called TEAL.CashFlow) for economic analysis within RAVEN has been developed \cite{MSApril2017}. The module is able to compute
+the NPV (Net Present Value), the IRR (Internal Rate of Return) and the PI (Profitability Index). Furthermore, it is possible to
+do an NPV, IRR or PI search, i.e. CashFlow will compute a multiplicative value (for example the production cost) so that the
+NPV, IRR or PI has a desired value (for details see \ref{subsec:NPV_search}, NPV\_search). This CashFlow module has been written using the script language Python.
+The Python code can be used as an ``external model'' in RAVEN (for installation and usage instructions, see \ref{sec:Installation}).
+
+The input of \textbf{TEAL.CashFlow} is an XML file. An example of the input structure is given in Listing \ref{lst:InputExample}. The following section will discuss the
+ different keywords in the input and describe how they are used in the \textbf{TEAL.CashFlow} module.
+
+\begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Economics input example., label=lst:InputExample]
+<Economics verbosity='0'>
+    <Global>
+        <Indicator name='IRR,NPV_search,NPV' target='0'>
+            Component1|Cfname1
+            Component1|Cfname2
+            ...
+        </Indicator>
+        <DiscountRate>0.08</DiscountRate>
+        <tax>0.392</tax>
+        <inflation>0.04</inflation>
+        <ProjectTime>100</ProjectTime> <!-- optional -->
+    </Global>
+
+    <Component name='Component1'>
+        <Life_time>20</Life_time>
+        <StartTime>10</StartTime> <!-- optional -->
+        <Repetitions>3</Repetitions> <!-- optional -->
+        <tax>0.3</tax> <!-- optional -->
+        <inflation>0.07</inflation> <!-- optional -->
+	<CashFlows>
+	    <Capex name='Cfname1' tax='false' inflation='none' multiply='multiplier1' mult_target='false'>
+    	        <driver>Cfdriver1</driver>
+                <alpha>-4000000000</alpha>
+                <reference>1000000000</reference>
+                <X>1.0</X>
+            </Capex>
+
+            <Recurring name='Cfname2' tax='false' inflation='none' multiply='multiplier2' mult_target='true'>
+                ...
+            </Recurring>
+            ...
+	</CashFlows>
+    </Component>
+
+    <Component name='Component2'>
+        ...
+    </Component>
+    ...
+</Economics>
+\end{lstlisting}
+
+As one can see, all the specifications of the \textbf{TEAL.CashFlow} module are given in the \xmlNode{Economics} block. The block accepts an attribute called \xmlAttr{verbosity},
+which can range from 0 to 100, 0 meaning maximum debug verbosity and 100 meaning
+errors only. Setting the verbosity to 50 will output (in addition to errors) the
+ NPV, IRR, PI or NPV\_mult. Inside the \xmlNode{Economics} block, there are two
+ types of blocks: \xmlNode{Global} and \xmlNode{Component}.
