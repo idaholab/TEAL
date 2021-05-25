@@ -6,6 +6,7 @@ SRCFILE=TEAL_user_manual
 all: copy populate build finish
 
 copy:
+	chmod u+x script/copy_tex.sh
 	script/copy_tex.sh
 
 populate:
