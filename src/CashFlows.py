@@ -77,7 +77,7 @@ class GlobalSettings:
           \end{itemize}""")
 
     ind.addParam('target', param_type=InputTypes.FloatType, required=False,
-          descr=r"""Target value for the NPV search, i.e. \textbf{'0'} will look for ‘$x$’ so that $NPV(x) = 0$.""")
+          descr=r"""Target value for the NPV search, i.e. \textbf{'0'} will look for '$x$' so that $NPV(x) = 0$.""")
 
     input_specs.addSub(ind)
 
