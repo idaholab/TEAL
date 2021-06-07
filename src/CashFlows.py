@@ -81,13 +81,13 @@ class GlobalSettings:
 
     input_specs.addSub(ind)
 
-    ind.addSub(InputData.parameterInputFactory('DiscountRate', contentType=InputTypes.FloatType,
+    input_specs.addSub(InputData.parameterInputFactory('DiscountRate', contentType=InputTypes.FloatType,
                          descr=r"""The discount rate used to compute the NPV and PI. Not used for the computation of the IRR (although it must be input)."""))
-    ind.addSub(InputData.parameterInputFactory('tax', contentType=InputTypes.FloatType,
+    input_specs.addSub(InputData.parameterInputFactory('tax', contentType=InputTypes.FloatType,
                          descr=r"""The standard tax rate used to compute the taxes if no other tax rate is specified in the componet blocks. This is a required input. If a tax rate is specified inside a component block, the componet will use that tax rate. If no tax rate is specified in a component, this standard tax rate is used for the component. See later in the definition of the cash flows for more details how the tax rate is used."""))
-    ind.addSub(InputData.parameterInputFactory('inflation', contentType=InputTypes.FloatType,
+    input_specs.addSub(InputData.parameterInputFactory('inflation', contentType=InputTypes.FloatType,
                          descr=r"""The standard inflation rate used to compute the inflation if no other inflation rate is specified in the componet blocks. This is a required input. If a inflation rate is specified inside a component block, the componet will use that inflation rate. If no inflation rate is specified in a component, this standard inflation rate is used for the component. See later in the definition of the cash flows"""))
-    ind.addSub(InputData.parameterInputFactory('ProjectTime', contentType=InputTypes.IntegerType,
+    input_specs.addSub(InputData.parameterInputFactory('ProjectTime', contentType=InputTypes.IntegerType,
                          descr=r"""This is a optional input. If it is included in the input, the global project time is not the LCM of all components (see \xmlNode{Indicator} attribute \xmlAttr{name} for more information), but the time indicated here."""))
 
     return input_specs
