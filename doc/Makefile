@@ -1,22 +1,26 @@
-SRCFILE = user_manual
-MANUAL_FILES = user_manual.tex
-LATEX_FLAGS=-interaction=nonstopmode
+SRCFILE=TEAL_user_manual
+# SRC_FILES=../src/HERON_user_manual.tex ../src/HERON_user_manual.bib ../src/Howtorun.tex ../src/Introduction.tex
 
-all: Economics_for_RAVEN_user_manual.pdf
+.PHONY: all build
 
-Economics_for_RAVEN_user_manual.pdf: $(MANUAL_FILES) version.tex
-	pdflatex $(LATEX_FLAGS) $(SRCFILE).tex
-	bibtex $(SRCFILE)
-	pdflatex $(LATEX_FLAGS) $(SRCFILE).tex
-	pdflatex $(LATEX_FLAGS) $(SRCFILE).tex
+all: copy populate build finish
 
-.PHONY: clean
+copy:
+	chmod u+x script/copy_tex.sh
+	script/copy_tex.sh
+
+populate:
+	python script/generate_user_manual.py
+
+build: ../version.tex
+	cd build; pdflatex -interaction=nonstopmode $(SRCFILE).tex
+	bibtex build/$(SRCFILE)
+	cd build; pdflatex -interaction=nonstopmode $(SRCFILE).tex
+	cd build; pdflatex -interaction=nonstopmode $(SRCFILE).tex
+	cp -f build/TEAL_user_manual.pdf pdf/
+
+finish:
+	echo done
 
 clean:
-	@rm -f *~ *.aux *.bbl *.blg *.log *.out *.toc *.lot *.lof $(SRCFILE).pdf
-
-#creating version file
-version.tex : $(MANUAL_FILES)
-	git log -1 --format="%H %an %aD" .. > version.tex
-
-
+	rm -rf build pdf
