@@ -324,10 +324,11 @@ class Component:
                                   \end{equation}""")
 
     capex = Capex.getInputSpecs()
-    cfs.addSub(capex)
     recur = Recurring.getInputSpecs()
-    input_specs.addSub(cfs)
+    cfs.addSub(capex)
     input_specs.addSub(recur)
+    input_specs.addSub(cfs)
+
 
     return input_specs
 
