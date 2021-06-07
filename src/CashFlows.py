@@ -326,7 +326,7 @@ class Component:
     capex = Capex.getInputSpecs()
     recur = Recurring.getInputSpecs()
     cfs.addSub(capex)
-    input_specs.addSub(recur)
+    cfs.addSub(recur)
     input_specs.addSub(cfs)
 
 
