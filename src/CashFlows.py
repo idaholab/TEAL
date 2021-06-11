@@ -23,7 +23,7 @@ from __future__ import unicode_literals, print_function
 import os
 import sys
 from collections import defaultdict
-from typing_extensions import Required
+#from typing_extensions import Required #Where did this line come from??
 import xml.etree.ElementTree as ET
 
 import numpy as np
@@ -82,7 +82,7 @@ class GlobalSettings:
 
     input_specs.addSub(ind)
 
-    input_specs.addSub(InputData.parameterInputFactory('DiscountRate', contentType=InputTypes.FloatType,
+    input_specs.addSub(InputData.parameterInputFactory('DiscountRate', contentType=InputTypes.FloatType, required=True,
                          descr=r"""\textbf{Required input}. The discount rate used to compute the NPV and PI. This is not used for the computation of the IRR (although it must be input)."""))
     input_specs.addSub(InputData.parameterInputFactory('tax', contentType=InputTypes.FloatType,
                          descr=r"""\textbf{Required input}. The standard tax rate used to compute the taxes if no other tax rate is specified in the component blocks. If a tax rate is specified inside a component block, the componet will use that tax rate. If no tax rate is specified in a component, this standard tax rate is used for the component. See later in the definition of the cash flows for more details on using tax rate."""))
