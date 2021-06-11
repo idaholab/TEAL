@@ -23,6 +23,7 @@ from __future__ import unicode_literals, print_function
 import os
 import sys
 from collections import defaultdict
+from typing_extensions import Required
 import xml.etree.ElementTree as ET
 
 import numpy as np
@@ -60,35 +61,35 @@ class GlobalSettings:
       @ Out, glob, InputData, specs
     """
     input_specs = InputData.parameterInputFactory('Global',
-            descr=r"""Exactly one \xmlNode{Global} block has to be provided. The \xmlNode{Global} block does not have any attributes.""")
+            descr=r"""The \xmlNode{Global} block contains the basic attributes applied to the cash flows. Exactly one \xmlNode{Global} block has to be provided. The \xmlNode{Global} block does not have any attributes.""")
 
     ind = InputData.parameterInputFactory('Indicator', contentType=InputTypes.StringListType,
-          descr=r"""List of cash flows considered in the computation of the economic indicator. See later for the definition
-          of the cash flows. Only cash flows listed here are considered, additional cash flows defined, but not listed are ignored.""")
+          descr=r"""This block contains the list of cash flows considered in the computation of the economic indicator. See later for the definition
+          of the cash flows. Only cash flows listed here are considered. Any additional cash flows defined, but not listed, are ignored. Input each cash flow with the syntax $Component_name | Cashflow_name$""")
 
     ind.addParam('name', param_type=InputTypes.StringListType, required=True, descr=r"""
           The names of the economic indicators that should be computed. So far, \textbf{'NPV'}, \textbf{'NPV\_search'}, \textbf{'IRR'} and \textbf{'PI'} are supported. More than one indicator can be asked for.
           The \xmlAttr{name} attribute can contain a comma-separated list as shown in the example in Listing  ref{lst:InputExample}. \\
 
-          \textbf{Note on IRR and PI search}: It should be noted that although the only search keyword allowed in \xmlAttr{name} is \textbf{NPV\_search}, it is possible to perform IRR and PI searches as well.
+          \textbf{Note on IRR and PI search}: Although the only search keyword allowed in \xmlAttr{name} is \textbf{NPV\_search}, it is possible to perform IRR and PI searches as well.
           \begin{itemize}
-          \item To do an IRR search, the DiscountRate is set to the desired IRR and a NPV search with the target of '0' is performed.
-          \item To perform a PI search, an NPV search can be performed where the target PI is multiplied with the initial investment.
+          \item To do an IRR search, set the DiscountRate desired IRR and perform an NPV search with the target of '0'.
+          \item To do a PI search, perform an NPV search where the target PI is multiplied with the initial investment.
           \end{itemize}""")
 
-    ind.addParam('target', param_type=InputTypes.FloatType, required=False,
-          descr=r"""Target value for the NPV search, i.e. \textbf{'0'} will look for '$x$' so that $NPV(x) = 0$.""")
+    ind.addParam('target', param_type=InputTypes.FloatType,
+          descr=r"""\textbf{Optional input}. Target value for the NPV search, i.e. \textbf{'0'} will look for '$x$' so that $NPV(x) = 0$.""")
 
     input_specs.addSub(ind)
 
     input_specs.addSub(InputData.parameterInputFactory('DiscountRate', contentType=InputTypes.FloatType,
-                         descr=r"""The discount rate used to compute the NPV and PI. Not used for the computation of the IRR (although it must be input)."""))
+                         descr=r"""\textbf{Required input}. The discount rate used to compute the NPV and PI. This is not used for the computation of the IRR (although it must be input)."""))
     input_specs.addSub(InputData.parameterInputFactory('tax', contentType=InputTypes.FloatType,
-                         descr=r"""The standard tax rate used to compute the taxes if no other tax rate is specified in the componet blocks. This is a required input. If a tax rate is specified inside a component block, the componet will use that tax rate. If no tax rate is specified in a component, this standard tax rate is used for the component. See later in the definition of the cash flows for more details how the tax rate is used."""))
+                         descr=r"""\textbf{Required input}. The standard tax rate used to compute the taxes if no other tax rate is specified in the component blocks. If a tax rate is specified inside a component block, the componet will use that tax rate. If no tax rate is specified in a component, this standard tax rate is used for the component. See later in the definition of the cash flows for more details on using tax rate."""))
     input_specs.addSub(InputData.parameterInputFactory('inflation', contentType=InputTypes.FloatType,
-                         descr=r"""The standard inflation rate used to compute the inflation if no other inflation rate is specified in the component blocks. This is a required input. If a inflation rate is specified inside a component block, the componet will use that inflation rate. If no inflation rate is specified in a component, this standard inflation rate is used for the component. See later in the definition of the cash flows"""))
+                         descr=r"""\textbf{Optional input}.The standard inflation rate used to compute the inflation if no other inflation rate is specified in the component blocks. If an inflation rate is specified inside a component block, the componet will use that inflation rate. If no inflation rate is specified in a component, this standard inflation rate is used for the component. See later in the definition of the cash flows for more details on using tax rate."""))
     input_specs.addSub(InputData.parameterInputFactory('ProjectTime', contentType=InputTypes.IntegerType,
-                         descr=r"""This is a optional input. If it is included in the input, the global project time is not the LCM of all components (see \xmlNode{Indicator} attribute \xmlAttr{name} for more information), but the time indicated here."""))
+                         descr=r"""\textbf{Optional input}. If it is included in the input, the global project time is not the LCM of all components (see \xmlNode{Indicator} attribute \xmlAttr{name} for more information), but the time indicated here."""))
 
     return input_specs
 
