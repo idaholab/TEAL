@@ -3,14 +3,14 @@
 
 TEAL (Tool for Economic AnaLysis) is RAVEN plugin aimed to contain and deploy economic analysis for RAVEN workflows.
 
-It leverages the Uncertanty Quantification, Probabilistic Risk Assesment, Parameter Optimizzation and Data Anlysis framework RAVEN to deploy complex economic analyses.
+It leverages the Uncertanty Quantification, Probabilistic Risk Assesment, Parameter Optimizzation and Data Anlysis framework in RAVEN to deploy complex economic analyses.
 
-TEAL enables the capability to compute the \textbf{NPV (Net Present Value)}, \textbf{IRR (Internal Rate of Return)} and the \textbf{PI (Profitability Index)} with RAVEN. 
-Furthermore, it allows NPV, IRR or PI search, i.e. TEAL will compute a multiplicative value (for example the production cost) so that the NPV, IRR or PI has a desired value. 
-The plugin allows for a generic definition of cash flows, which drivers are provided by RAVEN. Furthermore, TEAL includes flexible options to deal with taxes, inflation, discounting and 
+TEAL enables the capability to compute the \textbf{NPV (Net Present Value)}, \textbf{IRR (Internal Rate of Return)} and the \textbf{PI (Profitability Index)} with RAVEN.
+Furthermore, it allows NPV, IRR or PI search, i.e. TEAL will compute a multiplicative value (for example the production cost) so that the NPV, IRR or PI has a desired value.
+The plugin allows for a generic definition of cash flows, which are driven by variables provided by RAVEN. Furthermore, TEAL includes flexible options to deal with taxes, inflation, and discounting, and
 offers capabilities to compute a combined cash flow for components with different component lives.
 
-\textbf{NPV}: computes the NPV according to Eq. \ref{eq:NPV}.
+\textbf{NPV}: computes the Net Present Value according to Eq. \ref{eq:NPV}.
 \begin{equation}\label{eq:NPV}
 NPV=\sum_{y=0}^{N}\frac{CF_{y}}{(1+DiscountRate)^{y}}
 \end{equation}
@@ -18,9 +18,9 @@ NPV=\sum_{y=0}^{N}\frac{CF_{y}}{(1+DiscountRate)^{y}}
 The sum runs over the years $y=0$ to $N$. The net cash flows $CF_{y}$ are the sum of all cash flows defined in the indicator block (see later for how to define these cash flows).
 $N$ is the least common multiple (LCM) of all component life times involved. This guarantees that the NPV is computed for a time span so that all components reach their end of life in the same year.
 The individual component cash flows are repeated until the LCM is reached. For example, lets assume the calculation involves two components \textit{Component1} and \textit{Component2}
- with life times of 60 years and 40 years respectively. $N$ will be 120 years where 2 successive \textit{Component1} and 3 successive \textit{Component2} will be build. For every ‘building year’,
-the cash flow for the last year (of the old component) and the year zero (for the newly built component) will be summed. Table \ref{tbl:cashflows} shows an example for illustration.
-The variable sent back to RAVEN, i.e. what needs to be added to the output data object is 'NPV'.
+ with life times of 60 years and 40 years respectively. $N$ will be 120 years where 2 succe ssive \textit{Component1} and 3 successive \textit{Component2} will be built. For every ‘building year’,
+the cash flow for the last year (of the old component) and the year zero (for the newly built component) will be summed. Table \ref{tbl:cashflows} shows an example to illustrate this.
+TEAL computes the the CashFlows and the NPV, and sends the variable 'NPV' back to raven to be added to the output data object.
 
 \begin{table}[]
 \centering
@@ -50,20 +50,20 @@ The variable sent back to RAVEN, i.e. what needs to be added to the output data 
 \end{tabular}
 \end{table}
 
-\textbf{PI}: computes the PI according to Eq. \ref{eq:PI}.
+\textbf{PI}: computes the Profitability Index according to Eq. \ref{eq:PI}.
 \begin{equation}\label{eq:PI}
 PI=\frac{NPV}{Initial\_investment}
 \end{equation}
-where the NPV is calculated as explained above and the $Initial\_investment$ is the Total Net Cash flow at year zero, i.e. $CF_{0}$ in the example above.
-The variable sent back to RAVEN, i.e. what needs to be added to the output data object is 'PI'.
+NPV is calculated as explained above and the $Initial\_investment$ is the Total Net Cash flow at year zero, i.e. $CF_{0}$ in the example above.
+TEAL computes the the CashFlows and the PI, and sends the variable 'PI' back to raven to be added to the output data object.
 
-\textbf{IRR}: computes the IRR according to Eq. \ref{eq:IRR}.
+\textbf{IRR}: computes the Internal Rate of Return according to Eq. \ref{eq:IRR}.
 \begin{equation}\label{eq:IRR}
 0=\sum_{y=0}^{N}\frac{CF_{y}}{(1+IRR)^{y}}
 \end{equation}
-Same as for the NPV, the sum runs over the years $y=0$ to $N$. The net cash flows $CF_{y}$ are the sum of all cash flows defined in the indicator block
+Similar to the NPV, the sum runs over the years $y=0$ to $N$. The net cash flows $CF_{y}$ are the sum of all cash flows defined in the indicator block
 (see explanation of NPV above for details). $N$ is the least common multiple (LCM) of all component life times involved.
-The variable sent back to RAVEN, i.e. what needs to be added to the output data object is 'IRR'.
+EAL computes the the CashFlows and the IRR, and sends the variable 'IRR' back to raven to be added to the output data object.
 
 \textbf{NPV\_search}: The NPV search finds a multiplier '$x$' that multiplies some of the cash flows, so that the NPV has a desired value (defined by the \xmlAttr{target} attribute). The equation solved is shown in Eq. \ref{eq:NPV_search}.
 \label{subsec:NPV_search}

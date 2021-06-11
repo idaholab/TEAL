@@ -5,10 +5,10 @@ This section of the manual describes how to install the TEAL plug-in and use it 
 
 \subsection{Installing the plug-in}
 The TEAL plugin is distributed with RAVEN. If you just want to use the plugin and are not interested in developing additional features or bug-fixes for it, just make sure that you have access to the plugin repository and you will automatically get it when installing RAVEN.
-For more information, please refere to the RAVEN manual.
+For more information, please refer to the RAVEN manual.
 
 \subsection{Accessing the plug-in from within RAVEN}
-The plugin can be accessed as a special subtype of the External model. The syntax is given in Listing \ref{lst:TEALfromRAVEN}.
+The plugin can be accessed as a special subtype of the external model. The syntax is given in Listing \ref{lst:TEALfromRAVEN}, where "Cash_Flow_input.xml" is the text file containing the TEAL code.
 
 \begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Call TEAL.CashFlow from RAVEN input., label=lst:TEALfromRAVEN]
 <ExternalModel name="Cash_Flow" subType="TEAL.CashFlow">
@@ -54,8 +54,8 @@ multiplier2 2.0
 A generalized module within the TEAL software (called TEAL.CashFlow) for economic analysis within RAVEN has been developed \cite{MSApril2017}. The module is able to compute
 the NPV (Net Present Value), the IRR (Internal Rate of Return) and the PI (Profitability Index). Furthermore, it is possible to
 do an NPV, IRR or PI search, i.e. CashFlow will compute a multiplicative value (for example the production cost) so that the
-NPV, IRR or PI has a desired value (for details see \ref{subsec:NPV_search}, NPV\_search). This CashFlow module has been written using the script language Python.
-The Python code can be used as an ``external model'' in RAVEN (for installation and usage instructions, see \ref{sec:Installation}).
+NPV, IRR or PI has a desired value (for details see Sec. \ref{sec:Introduction}. Introduction). This CashFlow module has been written using the script language Python.
+The Python code can be used as an "external model" in RAVEN (for installation and usage instructions, see Sec. \ref{sec:Installation}. Installation).
 
 The input of \textbf{TEAL.CashFlow} is an XML file. An example of the input structure is given in Listing \ref{lst:InputExample}. The following section will discuss the
  different keywords in the input and describe how they are used in the \textbf{TEAL.CashFlow} module.
@@ -117,9 +117,9 @@ all years of the lifetime of the reactor except year zero, which is the construc
 
 \begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=CashFlow input example., label=lst:CashFlowExample]
 <Capex name='CAPEX' tax='false' inflation='none'>
-    <driver>Plant_capacity</driver>
-    <alpha>-4000000000</alpha>
-    <reference>1000000000</reference>
-    <X>0.64</X>
+    <driver>Plant_capacity</driver> <!--The capacity of the design plant. This variable must be defined in RAVEN.-->
+    <alpha>-4000000000</alpha> <!--Reference overnight cost of the reference plant ($4 million)-->
+    <reference>1000000000</reference> <!--Reference capacity of the reference plant (1,000,000,000 W)-->
+    <X>0.64</X> <!--Scaling factor of 0.64 for the reference plant-->
 </Capex>
 \end{lstlisting}
