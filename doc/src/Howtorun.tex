@@ -123,3 +123,95 @@ all years of the lifetime of the reactor except year zero, which is the construc
     <X>0.64</X> <!--Scaling factor of 0.64 for the reference plant-->
 </Capex>
 \end{lstlisting}
+
+Listing 6 gives an example of a RAVEN file corresponding to the input file example above. See the RAVEN user manual for more details.
+\begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Raven input example using CashFlow external model., label=lst:RAVENExample]
+<Simulation verbosity="debug">
+    ...
+    <!-- Group the drivers from the TEAL model and the specified output you are calculating to make them easier to assign later -->
+    <VariableGroups>
+        <Group name="GRO_CashFlow_in">Cfdriver1, Cfdriver2</Group>
+        <Group name="GRO_CashFlow_out">NPV</Group>
+    </VariableGroups>
+
+    <!-- Required for using TEAL with RAVEN -->
+    <Models>
+        <ExternalModel name="Cash_Flow" subType="TEAL.CashFlow">
+            <variables>GRO_CashFlow_in, GRO_CashFlow_out</variables>
+            <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input.xml"/>
+        </ExternalModel>
+    </Models>
+
+    <!-- All drivers from TEAL must be defined in RAVEN -->
+    <Samplers>
+        <MonteCarlo name="MC">
+            <samplerInit>
+                <limit>100</limit>
+            </samplerInit>
+            <variable name="Cfdriver1">
+                <function>driver_1</function>
+            </variable>
+            <constant name="Cfdriver2">10000</constant>
+        </MonteCarlo>
+    </Samplers>
+
+    <DataObjects>
+        <PointSet name="SET_CashFlow_in">
+            <Input>GRO_CashFlow_in</Input>
+            <Output>OutputPlaceHolder</Output>
+        </PointSet>
+        <PointSet name="SET_CashFlow_out">
+            <Input>GRO_CashFlow_in</Input>
+            <Output>GRO_CashFlow_out</Output>
+        </PointSet>
+    </DataObjects>
+
+    <OutStreams>
+        <Print name="dumpNPV">
+            <type>csv</type>
+            <source>SET_CashFlow_out</source>
+            <what>input,output</what>
+        </Print>
+    </OutStreams>
+
+    <Steps>
+        <MultiRun name="MCrun" pauseAtEnd="True">
+            <Input
+                class="DataObjects"
+                type="PointSet">SET_CashFlow_in
+            </Input>
+            <Model
+                class="Models"
+                type="ExternalModel">Cash_Flow
+            </Model>
+            <Sampler
+                class="Samplers"
+                type="MonteCarlo">MC
+            </Sampler>
+            <Output
+                class="DataObjects"
+                type="PointSet">SET_CashFlow_out
+            </Output>
+        </MultiRun>
+        <IOStep name="printTOfile">
+            <Input
+                class="DataObjects"
+                type="PointSet">SET_CashFlow_out
+            </Input>
+            <Output
+                class="OutStreams"
+                type="Print">dumpNPV
+            </Output>
+        </IOStep>
+    </Steps>
+
+    <!-- External functions can be used to set variables -->
+    <Functions>
+        <External name="driver_1" file="driver_1.py">
+            <variables>Cfdriver1</variables>
+        </External>
+    </Functions>
+
+</Simulation>
+\end{lstlisting}
+
