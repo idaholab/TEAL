@@ -61,14 +61,14 @@ class GlobalSettings:
       @ Out, glob, InputData, specs
     """
     input_specs = InputData.parameterInputFactory('Global',
-            descr=r"""The \xmlNode{Global} block contains the basic attributes applied to the cash flows. Exactly one \xmlNode{Global} block has to be provided. The \xmlNode{Global} block does not have any attributes.""")
+            descr=r"""The \xmlNode{Global} block contains the general framework for the analysis and some definitions applied to all cash flows. Exactly one \xmlNode{Global} block has to be provided. The \xmlNode{Global} block does not have any attributes.""")
 
     ind = InputData.parameterInputFactory('Indicator', contentType=InputTypes.StringListType,
-          descr=r"""This block contains the list of cash flows considered in the computation of the economic indicator. See later for the definition
-          of the cash flows. Only cash flows listed here are considered. Any additional cash flows defined, but not listed, are ignored. Input each cash flow with the syntax $Component_name | Cashflow_name$""")
+          descr=r"""This block contains the list of cash flows considered in the computation of the economic indicator. See "CashFlows" definition below.
+          of the cash flows. Only cash flows listed here are considered. Any additional cash flows defined, but not listed, are ignored. Input each cash flow with the syntax \\$Component_name | CashFlow_name$. """)
 
     ind.addParam('name', param_type=InputTypes.StringListType, required=True, descr=r"""
-          The names of the economic indicators that should be computed. So far, \textbf{'NPV'}, \textbf{'NPV\_search'}, \textbf{'IRR'} and \textbf{'PI'} are supported. More than one indicator can be asked for.
+          The names of the economic indicators that should be computed. So far, \textbf{`NPV',} \textbf{`NPV\_search,'} \textbf{`IRR',} and \textbf{`PI'} are supported. More than one indicator can be requested.
           The \xmlAttr{name} attribute can contain a comma-separated list as shown in the example in Listing  ref{lst:InputExample}. \\
 
           \textbf{Note on IRR and PI search}: Although the only search keyword allowed in \xmlAttr{name} is \textbf{NPV\_search}, it is possible to perform IRR and PI searches as well.
@@ -78,7 +78,7 @@ class GlobalSettings:
           \end{itemize}""")
 
     ind.addParam('target', param_type=InputTypes.FloatType, required=False,
-          descr=r"""Target value for the NPV search, i.e. \textbf{'0'} will look for '$x$' so that $NPV(x) = 0$.""")
+          descr=r"""Target value for the NPV search (i.e. \textbf{'0'}) will look for '$x$' so that $NPV(x) = 0$.""")
 
     input_specs.addSub(ind)
 
@@ -282,7 +282,7 @@ class Component:
     """
 
     input_specs = InputData.parameterInputFactory('Component', ordered=False, baseNode=None,
-                         descr=r"""The user can define as many \xmlNode{Component} blocks as needed. A "component" is defined as a part or collection of parts of the total system build that share the same lifetime and cash flows,
+                         descr=r"""The user can define as many \xmlNode{Component} blocks as needed. A "component" is a part or collection of parts of the total system build that each share the same lifetime and cash flows,
                                 such as a gas turbine, a battery, or a nuclear plant. Each component needs to have a \xmlAttr{name} attribute that is unique.
                                 Each \xmlNode{Component} has to have one \xmlNode{Life\_time} block and as many \xmlNode{CashFlow} blocks as needed.""")
 
@@ -290,35 +290,35 @@ class Component:
                          descr=r"""The unique name of the component.""")
 
     input_specs.addSub(InputData.parameterInputFactory('Life_time', contentType=InputTypes.IntegerType,
-                         descr=r"""The lifetime of the component in years. This is used to compute the least common multiple (LCM) of all components involved in the
-                                computation of the economics indicator. For more details see NPV, IRR and PI explanations above."""))
+                         descr=r"""The lifetime of the component in years. This is used to compute the LCM of all components involved in the
+                                computation of the economics indicator. For more details see NPV, IRR, and PI explanations above."""))
 
     input_specs.addSub(InputData.parameterInputFactory('StartTime', contentType=InputTypes.IntegerType,
-                         descr=r"""This is a optional input. If this input is specified for one or more components, the \xmlNode{Global}
-                                input \xmlNode{ProjectTime} is required. This input specifies the year in which this component is going to be build for the first time,
-                                i.e. is going to be included in the cash flows. The default is 0 and the componet is build at the start of the project, i.e. at project year 0.
+                         descr=r"""This is an optional input. If this input is specified for one or more components, the \xmlNode{Global}
+                                input \xmlNode{ProjectTime} is required. This input specifies the year in which this component is going to be built for the first time,
+                                and will henceforth be included in the cash flows. The default is 0 and the component is built at the start of the project (year 0).
                                 For example, if the \xmlNode{ProjectTime} is 100 years, and for this component, the \xmlNode{StartTime} is 20 years, the cash flows for this
-                                component are going to be zero for years 0 to 19 of the project. Year 20 of the project will be year 0 of this component and so on
-                                (project year 21 will be component year 1 etc.)."""))
+                                component would be zero for years 0 to 19 of the project. Year 20 of the project would be year 0 of this component, project year 21 would be component year 1, and so on.
+                                """))
 
     input_specs.addSub(InputData.parameterInputFactory('Repetitions', contentType=InputTypes.IntegerType,
-                         descr=r"""This is a optional input. If this input is specified for one or more components, the \xmlNode{Global}
+                         descr=r"""This is an optional input. If this input is specified for one or more components, the \xmlNode{Global}
                                 input \xmlNode{ProjectTime} is required. This input specifies the number of times this component is going to be rebuilt. The default is 0,
-                                which indicates that the component is going to be rebuild indefinitely until the project end (\xmlNode{ProjectTime}) is reached.
-                                Lets assume the \xmlNode{ProjectTime} is 100 years, and the component \xmlNode{Life\_time} is 20 years. Specifying 3 repetitions of this
-                                component will build 3 components in succession, at years 0, 20 and 40. For years 61 to 100 of the project, the cash flows for this component will be zero."""))
+                                which indicates that the component is going to be rebuilt indefinitely until the project end (\xmlNode{ProjectTime}) is reached.
+                                Lets assume the \xmlNode{ProjectTime} is 100 years, and the component \xmlNode{Life\_time} is 20 years. Specifying three repetitions of this
+                                component will build three components in succession, at years 0, 20, and 40. For years 61 to 100 of the project, the cash flows for this component would be zero."""))
 
     input_specs.addSub(InputData.parameterInputFactory('tax', contentType=InputTypes.FloatType,
-                         descr=r"""This is a optional input. If the tax rate is specified here, i.e. inside the component block, the componet will use this tax rate.
+                         descr=r"""This is an optional input. If the tax rate is specified here, inside the component block, the component will use this tax rate.
                                 If no tax rate is specified in the component, the standard tax rate from the \xmlNode{Global} block is used for the component."""))
 
     input_specs.addSub(InputData.parameterInputFactory('inflation', contentType=InputTypes.FloatType,
-                         descr=r"""This is a optional input. If the inflation rate is specified here, i.e. inside the component block,
-                                the componet will use this inflation rate. If no inflation rate is specified in the component, the standard inflation rate from the \xmlNode{Global}
+                         descr=r"""This is an optional input. If the inflation rate is specified here, inside the component block,
+                                the component will use this inflation rate. If no inflation rate is specified in the component, the standard inflation rate from the \xmlNode{Global}
                                 block is used for the component."""))
 
     cfs = InputData.parameterInputFactory('CashFlows',
-                          descr=r"""The user can define any number of 'cash flows' for a component. Each cash flow is of the form given in
+                          descr=r"""The user can define any number of "cash flows" for a component. Each cash flow is of the form given in
                                   Eq. \ref{eq:CF} where $y$ is the year from 0 (capital investment) to the end of the \xmlNode{Life\_time} of the component.
                                   \begin{equation}\label{eq:CF}
                                   CF_{y}=mult\cdot\alpha_{y}\left ( \frac{driver_{y}}{ref} \right )^{X}
@@ -616,46 +616,45 @@ class CashFlow:
 
     specs.addParam('tax', param_type=InputTypes.BoolType, required=False,
                          descr=r"""Indicate whether or not tax is applied to this cash flow. Can be \textbf{true} or \textbf{false}. If it is \textbf{true}, the cash flow is multiplied by $(1-tax)$, where tax
-                                is the tax rate given in \xmlNode{tax} in the \xmlNode{Global}
+                                is the rate given in \xmlNode{tax} in the \xmlNode{Global}
                                 block. As an example, the cash flow of \textit{comp2} for year 100 in Listing \ref{lst:InputExample} would become $CF^{comp2}_{39}(1-tax)$.
                                 If a cash flow with \xmlAttr{tax}$=$\textbf{true} is the driver of another cash flow, the cash flow without the tax applied is used as driver for the new cash flow.
-                                The limitation of having a global tax rate will be lifted in future version of the \textbf{TEAL.CashFlow} module. It is planned to have the possibility to
+                                The limitation of having a global tax rate will be lifted in future version of the \textbf{TEAL.CashFlow} module. In future versions of TEAL, you will be able to
                                 input different tax rates for each component, since they might be in different tax regions.""") #does without tax mean minus tax or without tax considered?
     infl = InputTypes.makeEnumType('inflation_types', 'inflation_type', ['real', 'none']) # "nominal" not yet implemented
 
     specs.addParam('inflation', param_type=infl, required=False,
-                         descr=r"""Can be \textbf{real, nominal} or \textbf{none} (nominal not yet implemented). If it is \textbf{real}, the cash flow is multiplied by
+                         descr=r"""Can be \textbf{real, nominal,} or \textbf{none} (nominal not yet implemented). If it is \textbf{real}, the cash flow is multiplied by
                                 $(1+inflation)^{-y}$. If it is \textbf{nominal}, the cash flow is multiplied by $(1+inflation)^y$.
                                 In both cases, inflation is given by \xmlNode{inflation} in the \xmlNode{Global} block. Furthermore, $y$ goes from year 0 (capital investment)
                                 to the LCM of all component lifetimes.
-                              This means that the cash flows as expressed in Listing \ref{lst:InputExample} are multiplied with the inflation seen from today, i.e. the cash
-                              flow for \textit{comp2} for year 100 assuming it includes \textbf{real}
-                              inflation would be $CF^{comp2}_{39}(1+inflation)^{-100}$
+                              This means that the cash flows as expressed in Listing \ref{lst:InputExample} are multiplied with the inflation seen from today. For example, the cash
+                              flow for \textit{comp2} for year 100 assuming it includes \textbf{real} inflation would be $CF^{comp2}_{39}(1+inflation)^{-100}$.
                               If a cash flow with \xmlAttr{inflation} equal to \textbf{real} or \textbf{nominal} is the driver of another cash flow, the cash flow without
                               the inflation applied is used as driver for the new cash flow.""")
 
     specs.addParam('mult_target', param_type=InputTypes.BoolType, required=False,
                          descr=r"""Can be \textbf{true} or \textbf{false}. If \textbf{true}, it means that this cash flow multiplies
-                              the search variable '$x$' as explained in the NPV\_search option above.
+                              the search variable `$x$' as explained in the NPV\_search option above.
                               If the NPV\_search option is used, at least one cash flow has to have \xmlAttr{mult\_target}$=$\textbf{true}.""")
 
     specs.addParam('multiply', param_type=InputTypes.StringType, required=False,
                          descr=r"""This is an optional attribute. This can be the name of any scalar variable passed in from RAVEN. This number
-                                is $mult$ in Eq. \ref{eq:CF} that multiplies the cash flow. Although alpha and mult are both multipliers in eq. 5, they are not interchangeable.""")
+                                is $mult$ in Eq. \ref{eq:CF} that multiplies the cash flow. Although alpha and mult are both multipliers in Eq. 5, they are not interchangeable.""")
 
     specs.addSub(InputData.parameterInputFactory('driver', contentType=InputTypes.InterpretedListType,
-                         descr=r"""The $driver$ in Eq. \ref{eq:CF} of the cash flow. The driver is the variable defined in RAVEN that will affect the value of the cash flow. For example, if the cashflow is a capital cost based on plant electric capacity,
+                         descr=r"""This is the $driver$ from Eq. \ref{eq:CF}. The driver is the variable defined in RAVEN that will affect the value of the cash flow. For example, if the cash flow is a capital cost based on plant electric generating capacity,
                             the driver would be the variable sampled in RAVEN that defines the plant capacity in MW. In the case of a variable cost, the driver might be the variable in RAVEN that defines the yearly production of the plant in MWh.
                             This can be any variable passed in from RAVEN or the name of another cash flow. If it is passed in from RAVEN, it has to be either a scalar or a vector with length \xmlNode{Life\_time} + 1.
-                              If its a scalar, all $driver_{y}$ in Eq. \ref{eq:CF}  are the same for all years of the project life. If it is a vector instead, each
+                              If it is a scalar, all $driver_{y}$ in Eq. \ref{eq:CF}  are the same for all years of the project life. If it is a vector instead, each
                               year of the project \xmlNode{Life\_time} will have its corresponding value for the driver. If the driver is another
-                              cash flow, the project \xmlNode{Life\_time} of the component to which the driving cash flow belongs has to be the same than the project"""))
+                              cash flow, the project \xmlNode{Life\_time} of the component to which the driving cash flow belongs has to be the same as the project."""))
 
     specs.addSub(InputData.parameterInputFactory('alpha', contentType=InputTypes.InterpretedListType,
-                         descr=r"""Alpha, $\alpha_{y}$, is a multiplier of the cash flow (see Eq. \ref{eq:CF}) ) that converts the driver into a corresponding cashflow. For example, if a reference value is used,
-                              alpha will be the corresponding cost to the reference value. Similar to \xmlNode{driver}, can be
+                         descr=r"""Alpha, $\alpha_{y}$, is a multiplier of the cash flow (see Eq. \ref{eq:CF}) that converts the driver into a corresponding cashflow. For example, if a reference value is used,
+                              alpha will be the corresponding cost to the reference value. Similar to \xmlNode{driver}, alpha can be
                               either scalar or vector. If a vector, exactly \xmlNode{Life\_time}$ + 1$
-                              values are expected. One for $y=0$ to $y=$\xmlNode{Life\_time}. If a scalar, we assume alpha is zero for all years of the lifetime
+                              values are expected --- one for $y=0$ to $y=$\xmlNode{Life\_time}. If a scalar, we assume alpha is zero for all years of the lifetime
                               of the component except the year zero (the provided scalar value will be used for year zero), which is the construction year."""))
     return specs
 
@@ -891,8 +890,8 @@ class Capex(CashFlow):
     specs.addSub(InputData.parameterInputFactory('reference', contentType=InputTypes.FloatType,
                          descr=r"""The $ref$ value of the cash flow (see Eq. \ref{eq:CF}). The reference value is especially helpful in cases that involve an economy of scale.
                          The reference value should have a corresponding alpha to generate the cash flow.
-                         For example, for a reference nuclear plant with a 200 MW capacity and $2,000,000 capital cost,
-                         200 MW would be the reference value and alpha would be $2,000,000. These would generate the new cash flow based on the driver,
+                         For example, for a reference nuclear plant with a 200 MW capacity and \$2'000'000 capital cost, 200 MW would be the reference value and alpha would be \$2'000'000.
+                         These would generate the new cash flow based on the driver,
                          the actual designed plant capacity."""))
 
     specs.addSub(InputData.parameterInputFactory('X', contentType=InputTypes.FloatType,
@@ -903,7 +902,7 @@ class Capex(CashFlow):
     deprecSchemes = InputTypes.makeEnumType('deprec_types', 'deprec_types', ['MACRS', 'custom'])
 
     deprec.addParam('scheme', param_type=deprecSchemes, required=True,
-                      descr=r"""TEAL recognizes teh MACRS depreciation scheme or a custom scheme. The custom scheme should be entered as a vector of percentage values (ex. 5.58% is 5.58 and not 0.058).""")
+                      descr=r"""TEAL recognizes the MACRS depreciation scheme or a custom scheme. The custom scheme should be entered as a vector of percentage values (ex. 5.58\% is 5.58, not 0.058).""")
                       #how do you specify the macrs years depreciation in the code?
     specs.addSub(deprec)
 
