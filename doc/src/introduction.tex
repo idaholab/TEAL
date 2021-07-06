@@ -2,7 +2,7 @@
 \label{sec:Introduction}
 
 TEAL (Tool for Economic AnaLysis) is a RAVEN plug-in that leverages Uncertainty Quantification, Probabilistic Risk Assessment, Parameter Optimization
-and Data Analysis framework in RAVEN to deploy complex economic analyses.
+and Data Analysis framework in RAVEN to perform basic cash flow analyses.
 
 TEAL enables computation of the \textbf{NPV (Net Present Value)}, \textbf{IRR (Internal Rate of Return)}, and the \textbf{PI (Profitability Index)} with RAVEN.
 Furthermore, it allows NPV, IRR, or PI search (i.e. TEAL will compute a multiplicative value such as the production cost) so that the NPV, IRR or PI has a desired value.
@@ -19,7 +19,7 @@ $N$ is the least common multiple (LCM) of all component lifetimes involved. This
 The individual component cash flows are repeated until the LCM is reached.
 
 For example, let's assume the calculation involves two components, \textit{Component1} and \textit{Component2},
- with life times of 60 years and 40 years respectively. $N$ will be 120 years where two successive \textit{Component1} and three successive \textit{Component2} will be built. For every "building year."
+ with life times of 60 years and 40 years respectively. $N$ will be 120 years where two successive \textit{Component1} and three successive \textit{Component2} will be built. For every "building year,"
 the cash flow will be summed for the last year (of the old component) and the year zero (for the newly built component). Table \ref{tbl:cashflows} shows an example.
 TEAL computes the the cash flows and the NPV, and sends the variable `NPV' back to RAVEN to be added to the output data object.
 
