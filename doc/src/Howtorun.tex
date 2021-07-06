@@ -4,31 +4,32 @@
 This section of the manual describes how to install the TEAL plug-in and use it from within RAVEN \cite{RAVEN}.
 
 \subsection{Installing the plug-in}
-The TEAL plugin is distributed with RAVEN. If you just want to use the plugin and are not interested in developing additional features or bug-fixes for it, just make sure that you have access to the plugin repository and you will automatically get it when installing RAVEN.
-For more information, please refere to the RAVEN manual.
+The TEAL plug-in is distributed with RAVEN. If you just want to use the plug-in, but are not interested in developing additional features or bug-fixes for it, make sure that you have access to the plug-in repository and you will automatically get it when installing RAVEN.
+For more information, please refer to the RAVEN manual.
 
 \subsection{Accessing the plug-in from within RAVEN}
-The plugin can be accessed as a special subtype of the External model. The syntax is given in Listing \ref{lst:TEALfromRAVEN}.
+The plug-in can be accessed as a special subtype of the \texttt{ExternalModel}. The syntax is given in Listing \ref{lst:TEALfromRAVEN}, where "CashFlowinput.xml" is the text file containing the TEAL code.
 
 \begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Call TEAL.CashFlow from RAVEN input., label=lst:TEALfromRAVEN]
 <ExternalModel name="Cash_Flow" subType="TEAL.CashFlow">
   <variables> Input and output variables needed by TEAL  </variables>
-  <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input.xml"/>
+  <ExternalXML node="Economics" xmlToLoad="CashFlowinput.xml"/>
 </ExternalModel>
 \end{lstlisting}
 
-\subsection{Running the plugin as a stand-alone python code}
+\subsection{Running the plug-in as a stand-alone Python code}
 
-In addition to accessing the plug-in from within RAVEN, it can also be run as a stand-alone python program. This is useful for example for testing. However, since TEAL is still a RAVEN plugin, RAVEN needs to be installed and the plugin needs to be in the plugin-folder for that to work.
+In addition to accessing the plug-in from within RAVEN, it can also be run as a stand-alone Python program. This is useful, for example, for testing. However,
+since TEAL is still a RAVEN plug-in, RAVEN needs to be installed and the plug-in needs to be in the plug-in folder for that to work.
 
-Assuming RAVEN is installed and the plugin is in the proper directory (execution will generate an error if its not), one can run it using the command shown in Listing \ref{lst:TEALAsCode}.
+Assuming RAVEN is installed and the plug-in is in the proper directory (execution will generate an error if it is not), one can run it using the command shown in Listing \ref{lst:TEALAsCode}.
 
 \small
-\begin{lstlisting}[caption=TEAL run as stand-alone python code, label=lst:TEALAsCode]
+\begin{lstlisting}[style=XML,caption=TEAL run as stand-alone Python code, label=lst:TEALAsCode]
 ~/raven --> python plugins/TEAL/src/CashFlow_ExtMode.py -h
 usage: Cash_Flow.py [-h] -iXML inp_file -iINP inp_file -o out_file
 
-Run RAVEN TEAL plugin as stand-alone code
+Run RAVEN TEAL plug-in as stand-alone code
 
 arguments:
   -h, --help      show this help message and exit
@@ -39,11 +40,12 @@ arguments:
 \end{lstlisting}
 \normalsize
 
-The XML TEAL input is the one that contains the component and cash flow definitions, i.e. the one in \xmlAttr{xmlToLoad} in Listing \ref{lst:TEALfromRAVEN}.
+The XML TEAL input contains the component and cash flow definitions, such as the one in \xmlAttr{xmlToLoad} in Listing \ref{lst:TEALfromRAVEN}).
 
-The TEAL input file contains the variables that RAVEN provides when using the TEAL as a plugin, i.e. the cash flow drivers and multipliers. Listing \ref{lst:TEALInputFile} shows an example of the TEAL input file for the cash flow definitions given in Listing \ref{lst:InputExample}.
+The TEAL input file contains the variables that RAVEN provides when using TEAL as a plug-in, such as the cash flow drivers and multipliers).
+Listing \ref{lst:TEALInputFile} shows an example of the TEAL input file for the cash flow definitions given in Listing \ref{lst:InputExample}.
 
-\begin{lstlisting}[caption=TEAL run as stand-alone python code, label=lst:TEALInputFile]
+\begin{lstlisting}[caption=TEAL run as stand-alone Python code, label=lst:TEALInputFile]
 Cfdriver1 5.5
 multiplier1 1.0
 Cfdriver2 10.8
@@ -51,11 +53,11 @@ multiplier2 2.0
 \end{lstlisting}
 
 \section{TEAL for RAVEN}
-A generalized module within the TEAL software (called TEAL.CashFlow) for economic analysis within RAVEN has been developed \cite{MSApril2017}. The module is able to compute
-the NPV (Net Present Value), the IRR (Internal Rate of Return) and the PI (Profitability Index). Furthermore, it is possible to
-do an NPV, IRR or PI search, i.e. CashFlow will compute a multiplicative value (for example the production cost) so that the
-NPV, IRR or PI has a desired value (for details see \ref{subsec:NPV_search}, NPV\_search). This CashFlow module has been written using the script language Python.
-The Python code can be used as an ``external model'' in RAVEN (for installation and usage instructions, see \ref{sec:Installation}).
+The generalized module within the TEAL software for economic analysis within RAVEN is called TEAL.CashFlow. \cite{MSApril2017}. The module computes
+the NPV (Net Present Value), the IRR (Internal Rate of Return), and the PI (Profitability Index). Furthermore, it is possible to
+do an NPV, IRR, or PI search (i.e. CashFlow will compute a multiplicative such as the production cost) so that the
+NPV, IRR or PI has a desired value (for details see Sec. \ref{sec:Introduction}. Introduction). This CashFlow module has been written using the script language Python.
+The Python code can be used as an \texttt{ExternalModel} in RAVEN (for installation and usage instructions, see Sec. \ref{sec:Installation}. Installation).
 
 The input of \textbf{TEAL.CashFlow} is an XML file. An example of the input structure is given in Listing \ref{lst:InputExample}. The following section will discuss the
  different keywords in the input and describe how they are used in the \textbf{TEAL.CashFlow} module.
@@ -102,24 +104,116 @@ The input of \textbf{TEAL.CashFlow} is an XML file. An example of the input stru
 </Economics>
 \end{lstlisting}
 
-As one can see, all the specifications of the \textbf{TEAL.CashFlow} module are given in the \xmlNode{Economics} block. The block accepts an attribute called \xmlAttr{verbosity},
+As one can see, all the specifications of the \textbf{TEAL.CashFlow} module are given in the \\\xmlNode{Economics} block. The block accepts an attribute called \xmlAttr{verbosity},
 which can range from 0 to 100, 0 meaning maximum debug verbosity and 100 meaning
 errors only. Setting the verbosity to 50 will output (in addition to errors) the
- NPV, IRR, PI or NPV\_mult. Inside the \xmlNode{Economics} block, there are two
+ NPV, IRR, PI, or NPV\_mult. Inside the \xmlNode{Economics} block, there are two
  types of blocks: \xmlNode{Global} and \xmlNode{Component}.
 
 An example of a cash flow is shown in Listing \ref{lst:CashFlowExample}. In the example, a cash flow called CAPEX is defined.
 In the example, the capital expenditure for a reference plant of capacity
 1'000'000'000 W is \$4 billion. The driver of this cash flow is the actual plant capacity in Watts. Building this plant has some economy
 of scale, so that a plant double the size does cost
-less than double the money ($X=0.64$). The example assums an overnight building cost of the reactor, i.e. $\alpha$ is zero for
-all years of the lifetime of the reactor except year zero, which is the construction year.
+less than double the money ($X=0.64$). The example assumes an overnight building cost of the reactor (i.e. $\alpha$ is zero for
+all years of the lifetime of the reactor except year zero, which is the construction year).
 
 \begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=CashFlow input example., label=lst:CashFlowExample]
 <Capex name='CAPEX' tax='false' inflation='none'>
-    <driver>Plant_capacity</driver>
-    <alpha>-4000000000</alpha>
-    <reference>1000000000</reference>
-    <X>0.64</X>
+    <driver>Plant_capacity</driver> <!--The capacity of the design plant. This variable must be defined in RAVEN.-->
+    <alpha>-4000000000</alpha> <!--Reference overnight cost of the reference plant ($4 million)-->
+    <reference>1000000000</reference> <!--Reference capacity of the reference plant (1,000,000,000 W)-->
+    <X>0.64</X> <!--Scaling factor of 0.64 for the reference plant-->
 </Capex>
 \end{lstlisting}
+
+Listing 6 gives an example of a RAVEN file corresponding to the input file example above. See the RAVEN user manual for more details.
+\begin{lstlisting}[style=XML,morekeywords={anAttribute},caption=Raven input example using CashFlow \texttt{ExternalModel}., label=lst:RAVENExample]
+<Simulation verbosity="debug">
+    ...
+    <!-- Group the drivers from the TEAL model and the specified output you are calculating to make them easier to assign later -->
+    <VariableGroups>
+        <Group name="GRO_CashFlow_in">Cfdriver1, Cfdriver2</Group>
+        <Group name="GRO_CashFlow_out">NPV</Group>
+    </VariableGroups>
+
+    <!-- Required for using TEAL with RAVEN -->
+    <Models>
+        <ExternalModel name="Cash_Flow" subType="TEAL.CashFlow">
+            <variables>GRO_CashFlow_in, GRO_CashFlow_out</variables>
+            <ExternalXML node="Economics" xmlToLoad="Cash_Flow_input.xml"/>
+        </ExternalModel>
+    </Models>
+
+    <!-- All drivers from TEAL must be defined in RAVEN -->
+    <Samplers>
+        <MonteCarlo name="MC">
+            <samplerInit>
+                <limit>100</limit>
+            </samplerInit>
+            <variable name="Cfdriver1">
+                <function>driver_1</function>
+            </variable>
+            <constant name="Cfdriver2">10000</constant>
+        </MonteCarlo>
+    </Samplers>
+
+    <DataObjects>
+        <PointSet name="SET_CashFlow_in">
+            <Input>GRO_CashFlow_in</Input>
+            <Output>OutputPlaceHolder</Output>
+        </PointSet>
+        <PointSet name="SET_CashFlow_out">
+            <Input>GRO_CashFlow_in</Input>
+            <Output>GRO_CashFlow_out</Output>
+        </PointSet>
+    </DataObjects>
+
+    <OutStreams>
+        <Print name="dumpNPV">
+            <type>csv</type>
+            <source>SET_CashFlow_out</source>
+            <what>input,output</what>
+        </Print>
+    </OutStreams>
+
+    <Steps>
+        <MultiRun name="MCrun" pauseAtEnd="True">
+            <Input
+                class="DataObjects"
+                type="PointSet">SET_CashFlow_in
+            </Input>
+            <Model
+                class="Models"
+                type="ExternalModel">Cash_Flow
+            </Model>
+            <Sampler
+                class="Samplers"
+                type="MonteCarlo">MC
+            </Sampler>
+            <Output
+                class="DataObjects"
+                type="PointSet">SET_CashFlow_out
+            </Output>
+        </MultiRun>
+        <IOStep name="printTOfile">
+            <Input
+                class="DataObjects"
+                type="PointSet">SET_CashFlow_out
+            </Input>
+            <Output
+                class="OutStreams"
+                type="Print">dumpNPV
+            </Output>
+        </IOStep>
+    </Steps>
+
+    <!-- External functions can be used to set variables -->
+    <Functions>
+        <External name="driver_1" file="driver_1.py">
+            <variables>Cfdriver1</variables>
+        </External>
+    </Functions>
+
+</Simulation>
+\end{lstlisting}
+
