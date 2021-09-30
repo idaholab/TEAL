@@ -245,6 +245,7 @@ def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100):
         vprint(v, 1, m, '    {y:^{yx}d}, -- N/A -- , -- N/A -- , {c: 1.9e}'.format(y=y,
                                                            yx=yx,
                                                            c=cash))
+  print(lifeCashflow)
   return lifeCashflow
 
 def getProjectLength(settings, components, v=100):
@@ -327,6 +328,7 @@ def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength
       for y, val in enumerate(singleCashflow):
         vprint(v, 0, m, '{:4d}: {: 1.9e}'.format(y, val))
     cashflows[cf.name] = singleCashflow
+  
   return cashflows
 
 def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, projectLength, v=100):
@@ -488,7 +490,7 @@ def PI(components, cashFlows, projectLength, discountRate, mult=None, v=100):
   """
     Calculates the profitability index for system
     @ In, components, list, list of CashFlows.Component instances
-    @ In, cashFlows, dict, component: cashflow: np.array of annual economic values
+    @ In, cashFlows, dict, component: cash flow: np.array of annual economic values
     @ In, projectLength, int, project years
     @ In, discountRate, float, firm discount rate to use in discounting future dollars value
     @ In, mult, float, optional, if provided then scale target cash flow by value
@@ -541,12 +543,13 @@ def run(settings, components, variables):
   """
   # make a dictionary mapping component names to components
   compsByName = dict((c.name, c) for c in components)
-  v = settings._verbosity
+  v = settings._verbosity  
   m = 'run'
   vprint(v, 0, m, 'Starting CashFlow Run ...')
   # check mapping of drivers and determine order in which they should be evaluated
   vprint(v, 0, m, '... Checking if all drivers present ...')
   ordered = checkDrivers(settings, components, variables, v=v)
+  
 
   # compute project cashflows
   ## this comes in multiple styles!
@@ -580,12 +583,51 @@ def run(settings, components, variables):
   projectLength = getProjectLength(settings, components, v=v)
   vprint(v, 0, m, ' ... project length: {} years'.format(projectLength))
   projectCashflows = projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=v)
+  compCashflows = {}
+  for comp in components:
+    tax = comp.getTax() if comp.getTax() is not None else settings.getTax()
+    inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
+    compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
+    compCashflows[comp.name] = compProjCashflows
+  #print("\n\n\n",compCashflows.keys())
+  print(compCashflows["IP"])
+  # print("\n\n\n HELLO",projectCashflows.keys())
+  # print("\n\n",projectCashflows["BOP"])
 
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Economic Indicator Calculations')
   vprint(v, 0, m, '='*90)
   indicators = settings.getIndicators()
-  results = {}
+  OutputType = settings.getOutput()
+  #print("\n\n\n\n\n\n\n\n\n", OutputType)
+
+  some_data = {**projectCashflows, **compCashflows }
+  #print(some_data["BOP"])
+  
+  #print("\n\n\n",some_data.keys())
+  #print("\n\n",compProjCashflows["BOP"])
+  #results = {"all_data": projectCashflows}
+  results = {"all_data": some_data, "OutputType": OutputType}
+  #print("\n\n\n\n\n\n\n\n\n\n", results)
+
+  # indicators = settings.getIndicators()
+  # results = {}
+  # if 'NPV_search' in indicators:
+  #   metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
+  #   results['NPV_mult'] = metric
+  # if 'NPV' in indicators:
+  #   metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
+  #   results['NPV'] = metric
+  # if 'IRR' in indicators:
+  #   metric = IRR(components, projectCashflows, projectLength, v=v)
+  #   results['IRR'] = metric
+  # if 'PI' in indicators:
+  #   metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
+  #   results['PI'] = metric
+  # return results
+
+
+  
   if 'NPV_search' in indicators:
     metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
     results['NPV_mult'] = metric
@@ -598,6 +640,8 @@ def run(settings, components, variables):
   if 'PI' in indicators:
     metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
     results['PI'] = metric
+
+  
   return results
 
 
