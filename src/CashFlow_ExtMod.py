@@ -109,7 +109,13 @@ class CashFlow(ExternalModelPluginBase):
               else:
                 setattr(container, f'{comp}_{cf}_CashFlow', data)
         else:
-          setattr(container, k, v)
+          blank = []
+          blank.append(v)
+          for x in range(projectLife-1):
+            blank.append(0)
+          blank = np.array(blank)
+          print(blank)
+          setattr(container, f'{k}', blank)
     else:
         for k, v in metrics.items():
           setattr(container, k, v)
