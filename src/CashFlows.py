@@ -93,7 +93,7 @@ class GlobalSettings:
     input_specs.addSub(InputData.parameterInputFactory('Output', contentType=InputTypes.BoolType,
                           descr = r"""\textbd{Optional input}. Choose 'True' for a detailed output or 'False' for a simple output. You must create a seperate output file in RAVEN to use this feature. The variables must use specific names.
                           Create a variable called 'ComponentName_CashFlowName' for each component. If MACRS depreciation is used, add variables 'ComponentName_Depreciate' and 'ComponentName_Amortize'. See User Guide for further details. Default setting is False."""))
-    
+
     return input_specs
 
   def __init__(self, verbosity=100, **kwargs):
@@ -365,7 +365,7 @@ class Component:
     self._repetitions = None
     self._specificTax = None
     self._specificInflation = None
-  
+
 
   def readInput(self, source):
     """
