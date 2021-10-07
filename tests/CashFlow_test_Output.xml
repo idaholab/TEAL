@@ -1,19 +1,15 @@
 <Simulation verbosity="debug">
   <TestInfo>
-    <name>CashFlow_test_IRR</name>
-    <author>A. Epiney</author>
-    <created>2017-10-25</created>
+    <name>CashFlow_test_Output</name>
+    <author>E. Worsham</author>
+    <created>2021-10-7</created>
     <description>
       This input tests the RAVEN plugin TEAL.
-      The tested functionality is called IRR.
+      The tested functionality is a detailed output of CashFlows.
     </description>
     <classesTested>Models.ExternalModel.TEAL</classesTested>
     <revisions>
-      <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
-      <revision author="alfoa" date="2019-07-30">Added requirements</revision>
-      <revision author="wangc" date="2019-11-08">update ExternalXML with new structure cash flow input</revision>
-      <revision author="alfoa" date="2019-11-25">Added Plugin name extension</revision>
-      <revision author="alfoa" date="2020-07-28">Modified name from CashFlow to TEAL</revision>
+
     </revisions>
     <requirements>CF-F-1 CF-F-2 CF-EA-2</requirements>
   </TestInfo>

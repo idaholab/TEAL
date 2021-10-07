@@ -245,7 +245,7 @@ def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100):
         vprint(v, 1, m, '    {y:^{yx}d}, -- N/A -- , -- N/A -- , {c: 1.9e}'.format(y=y,
                                                            yx=yx,
                                                            c=cash))
-  print(lifeCashflow)
+  
   return lifeCashflow
 
 def getProjectLength(settings, components, v=100):
@@ -589,25 +589,16 @@ def run(settings, components, variables):
     inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
     compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
     compCashflows[comp.name] = compProjCashflows
-  #print("\n\n\n",compCashflows.keys())
-    # print("\n\n\n HELLO",projectCashflows.keys())
-  # print("\n\n",projectCashflows["BOP"])
 
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Economic Indicator Calculations')
   vprint(v, 0, m, '='*90)
   indicators = settings.getIndicators()
   OutputType = settings.getOutput()
-  #print("\n\n\n\n\n\n\n\n\n", OutputType)
+
 
   some_data = {**projectCashflows, **compCashflows }
-  #print(some_data["BOP"])
 
-  #print("\n\n\n",some_data.keys())
-  #print("\n\n",compProjCashflows["BOP"])
-  #results = {"all_data": projectCashflows}
-
-  #print("\n\n\n\n\n\n\n\n\n\n", results)
   if OutputType == True:
     some_data = {**projectCashflows, **compCashflows }
     results = {"all_data": some_data, "OutputType": OutputType}

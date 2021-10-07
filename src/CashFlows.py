@@ -113,7 +113,7 @@ class GlobalSettings:
     self._activeComponents = None
     self._metricTarget = None
     self._components = []
-    self._outputtype = None
+    self._outputType = None
 
   def readInput(self, source):
     """
@@ -139,7 +139,7 @@ class GlobalSettings:
       elif name == 'ProjectTime':
         self._projectTime = val + 1 # one for the construction year!
       elif name == 'Output':
-        self._outputtype = val
+        self._outputType = val
       elif name == 'Indicator':
         self._indicators = node.parameterValues['name']
         self._metricTarget = node.parameterValues.get('target', None)
@@ -167,7 +167,7 @@ class GlobalSettings:
       elif name == 'inflation':
         self._inflation = val
       elif name == 'Output':
-        self._outputtype = val
+        self._outputType = val
       elif name == 'ProjectTime':
         self._projectTime = val + 1 # one for the construction year!
       elif name == 'Indicator':
@@ -272,7 +272,7 @@ class GlobalSettings:
     @ In, None
     @ Out, self._OutputType, String, output type
     """
-    return self._outputtype
+    return self._outputType
 
 
 class Component:
