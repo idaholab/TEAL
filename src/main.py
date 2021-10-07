@@ -245,7 +245,7 @@ def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100):
         vprint(v, 1, m, '    {y:^{yx}d}, -- N/A -- , -- N/A -- , {c: 1.9e}'.format(y=y,
                                                            yx=yx,
                                                            c=cash))
-  
+
   return lifeCashflow
 
 def getProjectLength(settings, components, v=100):
