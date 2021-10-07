@@ -95,7 +95,7 @@ class CashFlow(ExternalModelPluginBase):
     #print("\n\n\n\n\n",globalSettings)
     components = container._components
     metrics = main.run(globalSettings, components, Inputs)
-    
+
     projectLife = main.getProjectLength(globalSettings, components)
     if metrics['OutputType'] == True:
       for k, v in metrics.items():
@@ -114,7 +114,7 @@ class CashFlow(ExternalModelPluginBase):
           for x in range(projectLife-1):
             blank.append(0)
           blank = np.array(blank)
-          
+
           setattr(container, f'{k}', blank)
     else:
         for k, v in metrics.items():
