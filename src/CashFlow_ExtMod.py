@@ -117,8 +117,12 @@ class CashFlow(ExternalModelPluginBase):
 
           setattr(container, f'{k}', blank)
     else:
-        for k, v in metrics.items():
-          setattr(container, k, v)
+          for k, v in metrics.items():
+            if k == 'OutputType':
+              nothing = 1
+            else:
+              setattr(container, k, v)
+
 
     container.cfYears = np.asarray(range(projectLife))
 

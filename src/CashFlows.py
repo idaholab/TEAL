@@ -270,7 +270,7 @@ class GlobalSettings:
     """
     Get output Type
     @ In, None
-    @ Out, self._OutputType, String, output type
+    @ Out, self._outputType, String, output type
     """
     return self._outputType
 

@@ -629,7 +629,7 @@ def run(settings, components, variables):
     if 'PI' in indicators:
       metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
       results['PI'] = metric
-
+    results['OutputType'] = False
 
   return results
 
