@@ -90,6 +90,9 @@ class GlobalSettings:
                          descr=r"""\textbf{Optional input}.The standard inflation rate used to compute the inflation if no other inflation rate is specified in the component blocks. If an inflation rate is specified inside a component block, the componet will use that inflation rate. If no inflation rate is specified in a component, this standard inflation rate is used for the component. See later in the definition of the cash flows for more details on using tax rate."""))
     input_specs.addSub(InputData.parameterInputFactory('ProjectTime', contentType=InputTypes.IntegerType,
                          descr=r"""\textbf{Optional input}. If it is included in the input, the global project time is not the LCM of all components (see \xmlNode{Indicator} for more information), but the time indicated here."""))
+    input_specs.addSub(InputData.parameterInputFactory('Output', contentType=InputTypes.BoolType,
+                          descr = r"""\textbd{Optional input}. Choose 'True' for a detailed output or 'False' for a simple output. You must create a seperate output file in RAVEN to use this feature. The variables must use specific names.
+                          Create a variable called 'ComponentName_CashFlowName' for each component. If MACRS depreciation is used, add variables 'ComponentName_Depreciate' and 'ComponentName_Amortize'. See User Guide for further details. Default setting is False."""))
 
     return input_specs
 
@@ -110,6 +113,7 @@ class GlobalSettings:
     self._activeComponents = None
     self._metricTarget = None
     self._components = []
+    self._outputType = None
 
   def readInput(self, source):
     """
@@ -134,6 +138,8 @@ class GlobalSettings:
         self._inflation = val
       elif name == 'ProjectTime':
         self._projectTime = val + 1 # one for the construction year!
+      elif name == 'Output':
+        self._outputType = val
       elif name == 'Indicator':
         self._indicators = node.parameterValues['name']
         self._metricTarget = node.parameterValues.get('target', None)
@@ -160,6 +166,8 @@ class GlobalSettings:
         self._tax = val
       elif name == 'inflation':
         self._inflation = val
+      elif name == 'Output':
+        self._outputType = val
       elif name == 'ProjectTime':
         self._projectTime = val + 1 # one for the construction year!
       elif name == 'Indicator':
@@ -258,6 +266,14 @@ class GlobalSettings:
     """
     return self._tax
 
+  def getOutput(self):
+    """
+      Get output type
+      @ In, None
+      @ Out, self._outputType, Boolean, output type
+    """
+    return self._outputType
+
 
 class Component:
   """
@@ -349,6 +365,7 @@ class Component:
     self._repetitions = None
     self._specificTax = None
     self._specificInflation = None
+
 
   def readInput(self, source):
     """

@@ -28,8 +28,10 @@ warnings.simplefilter('default', DeprecationWarning)
 # NOTE this import exception is ONLY to allow RAVEN to directly import this module.
 try:
   from TEAL.src import main
+  from TEAL.src import CashFlows
 except ImportError:
   import main
+
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.
@@ -92,8 +94,38 @@ class CashFlow(ExternalModelPluginBase):
     globalSettings = container._globalSettings
     components = container._components
     metrics = main.run(globalSettings, components, Inputs)
-    for k, v in metrics.items():
-      setattr(container, k, v)
+
+    projectLife = main.getProjectLength(globalSettings, components)
+    if metrics['outputType'] == True:
+      for k, v in metrics.items():
+        if k == "all_data":
+          for comp,cfs in v.items():
+            for cf, data in cfs.items():
+              if cf.find('depreciate') >0 :
+                setattr(container, f'{comp}_Depreciate', data)
+              elif cf.find('amortize') > 0 :
+                setattr(container, f'{comp}_Amortize', data)
+              else:
+                setattr(container, f'{comp}_{cf}_CashFlow', data)
+        else:
+          blank = []
+          blank.append(v)
+          for x in range(projectLife-1):
+            blank.append(0)
+          blank = np.array(blank)
+          setattr(container, f'{k}', blank)
+    else:
+          for k, v in metrics.items():
+            if k == 'outputType':
+              nothing = 1
+            else:
+              setattr(container, k, v)
+
+
+    container.cfYears = np.asarray(range(projectLife))
+
+
+
 
   # =====================================================================================================================
 
