@@ -594,14 +594,14 @@ def run(settings, components, variables):
   vprint(v, 0, m, 'Economic Indicator Calculations')
   vprint(v, 0, m, '='*90)
   indicators = settings.getIndicators()
-  OutputType = settings.getOutput()
+  outputType = settings.getOutput()
 
 
   some_data = {**projectCashflows, **compCashflows }
 
-  if OutputType == True:
+  if outputType == True:
     some_data = {**projectCashflows, **compCashflows }
-    results = {"all_data": some_data, "OutputType": OutputType}
+    results = {"all_data": some_data, "outputType": outputType}
     if 'NPV_search' in indicators:
       metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
       results['NPV_mult'] = metric
@@ -629,7 +629,7 @@ def run(settings, components, variables):
     if 'PI' in indicators:
       metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
       results['PI'] = metric
-    results['OutputType'] = False
+    results['outputType'] = False
 
   return results
 

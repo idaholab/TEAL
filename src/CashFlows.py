@@ -268,9 +268,9 @@ class GlobalSettings:
 
   def getOutput(self):
     """
-    Get output Type
-    @ In, None
-    @ Out, self._outputType, String, output type
+      Get output type
+      @ In, None
+      @ Out, self._outputType, Boolean, output type
     """
     return self._outputType
 
