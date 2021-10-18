@@ -97,4 +97,12 @@
   rel_err = 0.001
  [../]
 
+ [./CashFlowTestOutput]
+  type = 'RavenFramework'
+  input = 'CashFlow_test_Output.xml'
+  csv = 'dumpData.csv dumpData_0.csv'
+  max_time = 500
+  rel_err = 0.001
+ [../]
+
 []

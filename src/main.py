@@ -599,7 +599,7 @@ def run(settings, components, variables):
 
   some_data = {**projectCashflows, **compCashflows }
 
-  if outputType == True:
+  if outputType is True:
     some_data = {**projectCashflows, **compCashflows }
     results = {"all_data": some_data, "outputType": outputType}
     if 'NPV_search' in indicators:
