@@ -1,5 +1,5 @@
 <dependencies>
   <main>
-    <numpy-financial/>
+    <numpy-financial source='forge'/>
   </main>
 </dependencies>
