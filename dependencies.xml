@@ -1,0 +1,5 @@
+<dependencies>
+  <main>
+    <numpy-financial source='forge'/>
+  </main>
+</dependencies>

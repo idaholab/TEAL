@@ -25,6 +25,7 @@ import functools
 from collections import defaultdict, OrderedDict
 
 import numpy as np
+import numpy_financial as npf
 try:
   from TEAL.src import CashFlows
   # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
@@ -372,9 +373,10 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   # if the last year is a rebuild year, don't rebuild, as it won't be operated.
   if newBuildMask[0][-1] == years[-1]:
     newBuildMask[0] = newBuildMask[0][:-1]
+  ## numpy requires tuples as indices, not lists
+  newBuildMask = tuple(newBuildMask)
   ## add construction costs for all of these new build years
   projCf[newBuildMask] = lifeCf[0] * taxMult * np.power(inflRate, -1*years[newBuildMask])
-  #print(projCf)
   ## this is all the years in which decomissioning happens
   ### note that the [0] index is sort of a dummy dimension to help the numpy handshakes
   ### if last decomission is within project life, include that too
@@ -459,7 +461,7 @@ def NPV(components, cashFlows, projectLength, discountRate, mult=None, v=100, re
   """
   m = 'NPV'
   fcff = FCFF(components, cashFlows, projectLength, mult=mult, v=v)
-  npv = np.npv(discountRate, fcff)
+  npv = npf.npv(discountRate, fcff)
   vprint(v, 0, m, '... NPV: {: 1.9e}'.format(npv))
   if not returnFcff:
     return npv
@@ -479,7 +481,7 @@ def IRR(components, cashFlows, projectLength, v=100):
   fcff = FCFF(components, cashFlows, projectLength, mult=None, v=v) # TODO mult is none always?
   # this method can crash if no solution exists!
   #try:
-  irr = np.irr(fcff)
+  irr = npf.irr(fcff)
   vprint(v, 1, m, '... IRR: {: 1.9e}'.format(irr))
   #except: # TODO what kind of crash? General catching is bad practice.
   #  vprint(v, 99, m, 'IRR search failed! No solution found. Setting IRR to -10 for debugging.')
