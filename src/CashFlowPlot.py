@@ -154,7 +154,7 @@ class CashFlowPlot(PlotPlugin):
     widthCumBar = 0.1
     _, ax1 = plt.subplots(1, figsize = (22,12))
     for i, _ in enumerate(cumulativeCashFlow):
-      ax1.bar(lableLoc + widthCumBar * (i - 7/2), dfCashFlow.iloc[:,i], widthCumBar, color = cmapList[i], label = labels.iloc[i,0], edgecolor='white')
+      ax1.bar(lableLoc + widthCumBar * (i - (len(cumulativeCashFlow) + 1) / 2), dfCashFlow.iloc[:,i], widthCumBar, color = cmapList[i], label = labels.iloc[i,0], edgecolor='white')
     #grid
     ax1.set_axisbelow(True)
     ax1.yaxis.grid(color='gray', linestyle='dashed', alpha=0.7)
@@ -194,7 +194,7 @@ class CashFlowPlot(PlotPlugin):
       ax1.text(0.14,0.86,f'${abs(diff): 1.3e}', color="royalblue", fontsize=16, fontweight='bold')
     else:
       pieOut, _ = ax1.pie(cumOutFlow, radius=radiusPieChart,colors = cmapList[0:negativeVariable], startangle=90)
-      pieIn, _ = ax2.pie(cumIn, radius=radiusPieChart-widthPieChart, colors = cmapList[-positiveVariable:]+[(0.0, 0.0, 0.0, 0.0)], startangle=90)
+      pieIn, _ = ax2.pie(cumIn, radius=radiusPieChart - widthPieChart, colors = cmapList[-positiveVariable:]+[(0.0, 0.0, 0.0, 0.0)], startangle=90)
       ax1.text(-0.55,0.86,"Outflows", color="darkred",fontsize=16, fontweight='bold')
       ax1.text(-0.23,0.86,"-            ≈", color="black", fontsize=18, fontweight='bold')
       ax1.text(-0.18,0.86,"Inflows", color="darkblue", fontsize=16, fontweight='bold')
