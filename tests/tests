@@ -101,6 +101,7 @@
   type = 'RavenFramework'
   input = 'CashFlow_test_Output.xml'
   csv = 'dumpData.csv dumpData_0.csv'
+  output = 'Cash_Flows_from_Project_Year_0_to_120.png Cumulative_from_Project_Year_0_to_120.png Cumulative_pie_from_Project_Year_0_to_120.png'
   max_time = 500
   rel_err = 0.001
  [../]

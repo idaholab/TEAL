@@ -18,3 +18,4 @@ from TEAL.src import CashFlow_ExtMod
 from TEAL.src import CashFlows
 from TEAL.src import CashFlowUser
 from TEAL.src import main as CashFlow
+from TEAL.src import CashFlowPlot
