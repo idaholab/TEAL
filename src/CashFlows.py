@@ -44,6 +44,7 @@ sys.path.extend([path3,path4,path5])
 
 from utils import mathUtils as utils
 from utils import InputData, InputTypes, TreeStructure, xmlUtils
+import pyomo.environ as pyo
 
 
 class GlobalSettings:
@@ -1011,10 +1012,15 @@ class Capex(CashFlow):
     # for capex, both the Driver and Alpha are nonzero in year 1 and zero thereafter
     for name, value in toExtend.items():
       if name.lower() in ['alpha', 'driver']:
-        if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
+        if "pyomo.core.expr" in str(type(value)):
+          listArray = [0]*t
+          listArray[0] = value
+          toExtend[name] = np.array(listArray)
+        elif utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
           new = np.zeros(t)
           new[0] = float(value)
           toExtend[name] = new
+
     return toExtend
 
   def calculateCashflow(self, variables, lifetimeCashflows, lifetime, verbosity):
@@ -1024,7 +1030,7 @@ class Capex(CashFlow):
       @ In, lifetimeCashflows, dict, dict of cashflows
       @ In, lifetime, int, the given life time
       @ In, verbosity, int, used to control the output information
-      @ Out, ret, dict, the dict of caculated cashflow
+      @ Out, ret, dict, the dict of calculated cashflow
     """
     ## FIXME what if I have set the values already?
     # get variable values, if needed
@@ -1110,14 +1116,20 @@ class Recurring(CashFlow):
     self._inflation = True
     self._yearlyCashflow = None
 
-  def initParams(self, lifetime):
+  def initParams(self, lifetime, pyomoExp=None):
     """
       Initialize some parameters
       @ In, lifetime, int, the given life time
+      @ In, pyomoExp, pyo.ConcreteModel(), concrete model including all variables
       @ Out, None
     """
     # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
-    self._yearlyCashflow = np.zeros(lifetime+1)
+    if pyomoExp == None:
+      self._yearlyCashflow = np.zeros(lifetime+1)
+    else:
+      m = pyomoExp
+      m.yearlyCashflow = pyo.Var(list(range(lifetime+1)))
+      self._yearlyCashflow = np.array(list(m.yearlyCashflow.values()))
 
   def computeIntrayearCashflow(self, year, alpha, driver):
     """
@@ -1201,10 +1213,15 @@ class Recurring(CashFlow):
     # FIXME: we're going to integrate alpha * D over time (not year time, intrayear time)
     for name, value in toExtend.items():
       if name.lower() in ['alpha']:
-        if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
+        if "pyomo.core.expr" in str(type(value)):
+          listArray = [0]*t
+          listArray[0] = value
+          toExtend[name] = np.array(listArray)
+        elif utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
           new = np.ones(t) * float(value)
           new[0] = 0
           toExtend[name] = new
+
     return toExtend
 
 
