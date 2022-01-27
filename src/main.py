@@ -26,7 +26,6 @@ from collections import defaultdict, OrderedDict
 
 import numpy as np
 import numpy_financial as npf
-import pyomo.environ as pyo
 try:
   from TEAL.src import CashFlows
   # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
@@ -373,10 +372,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
     if "pyomo.core.expr" in str(type(value)):
       pyomoCheck = 1
   if pyomoCheck == 1:
-    p = pyo.ConcreteModel()
-    #globals()[cf.name] = pyo.ConcreteModel()
-    p.proj = pyo.Var(list(range(projectLength)))
-    projCf = np.array(list(p.proj.values()))
+    projCf = np.zeros(projectLength, dtype=object)
   else:
     projCf = np.zeros(projectLength)
   years = np.arange(projectLength) # years in project time, year 0 is first year # TODO just indices, pandas?
@@ -471,9 +467,7 @@ def FCFF(components, cashFlows, projectLength, mult=None, v=100, pyomoFCFF=None)
   if pyomoFCFF == None:
     fcff = np.zeros(projectLength)
   else:
-    x = pyomoFCFF
-    x.FCFF = pyo.Var(list(range(projectLength)))
-    fcff = np.array(list(x.FCFF.values()))
+    fcff = np.zeros(projectLength, dtype=object)
   for comp in components:
     for cf in comp.getCashflows():
       data = cashFlows[comp.name][cf.name]
