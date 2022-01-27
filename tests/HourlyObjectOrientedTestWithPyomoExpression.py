@@ -35,10 +35,24 @@ def run(dfSet):
     to run
     @ Out, metrics, dict, dictionary of metric results
   """
+  dictNew = {}
+  m = pyo.ConcreteModel()
+  for key, value in dfSet[1].items():
+    setattr(m, key+'p', pyo.Var(list(range(len(value)))))
+    if key == 'A':
+      dictNew[key] = np.array(list(m.Ap.values()))
+    elif key == 'B':
+      dictNew[key] = np.array(list(m.Bp.values()))
+    elif key == 'C':
+      dictNew[key] = np.array(list(m.Cp.values()))
+    else:
+      dictNew[key] = np.array(list(m.Dp.values()))
+    #dictNew[key] = np.array(list(y.values()))
+  dfSetNew = (dfSet[0], dictNew, m)
   settings = build_econ_settings()
-  components = build_econ_components(dfSet, settings)
-  metrics = RunCashFlow.run(settings, list(components.values()), {}, pyomoChk=dfSet[2])
-  return metrics
+  components = build_econ_components(dfSetNew, settings)
+  metrics = RunCashFlow.run(settings, list(components.values()), {}, pyomoChk=dfSetNew[2])
+  return metrics, m
 
 def build_econ_settings():
   """
@@ -147,11 +161,8 @@ def createRecurringYearly(dfSet, comp, driver, alpha):
   cf.setParams(cfFarams)
   # because our data comes hourly, collapse it to be yearly
   ## 0 for first year (build year) -> TODO couldn't this be automatic?
-  m = dfSet[2]
-  m.alphas = pyo.Var(list(range(life + 1)))
-  m.drivers = pyo.Var(list(range(life + 1)))
-  alphas = np.array(list(m.alphas.values()))
-  drivers = np.array(list(m.drivers.values()))
+  alphas = np.zeros(life+1, dtype=object)
+  drivers = np.zeros(life+1, dtype=object)
   yearDfs = dfSet[0].groupby([dfSet[0].index.year])
   oldList = []
   newList = []
@@ -194,7 +205,7 @@ def createRecurringHourly(dfSet, comp, driver, alpha):
                'mult_target': None,
                'inflation': False}
   cf.setParams(cfFarams)
-  cf.initParams(life, pyomoExp=dfSet[2])
+  cf.initParams(life, pyomoVar=dfSet[2])
   yearDfs = dfSet[0].groupby([dfSet[0].index.year])
   countOld = 0
   countNew = 0
@@ -232,30 +243,31 @@ if __name__ == '__main__':
   B = np.zeros((x.shape[0]))
   C = np.zeros((x.shape[0]))
   D = np.zeros((x.shape[0]))
-  m = pyo.ConcreteModel()
   for i in range(x.shape[0]):
     A[i] = x[i][0]
     B[i] = x[i][1]
     C[i] = x[i][2]
     D[i] = x[i][3]
-  m.Ap = pyo.Var(list(range(len(A))))
-  m.Bp = pyo.Var(list(range(len(B))))
-  m.Cp = pyo.Var(list(range(len(C))))
-  m.Dp = pyo.Var(list(range(len(D))))
-  A = np.array(list(m.Ap.values()))
-  B = np.array(list(m.Bp.values()))
-  C = np.array(list(m.Cp.values()))
-  D = np.array(list(m.Dp.values()))
   dictDf = {}
   dictDf['A'] = A
   dictDf['B'] = B
   dictDf['C'] = C
   dictDf['D'] = D
-  dfSet = (df, dictDf, m)
+  dfSet = (df, dictDf)
 
-  metrics = run(dfSet)
+  metrics, m = run(dfSet)
 
   calculated = metrics['NPV']
+
+  #m.OBJ = pyo.Objective(expr = calculated)
+  #m.Constraint1 = pyo.Constraint(expr = calculated <= 2.080898547e+08)
+  # for i in range(x.shape[0]):
+  #  m.Constraint = pyo.Constraint(expr = m.Ap[i] + m.Dp[i] >= 0)
+  #  m.Constraint = pyo.Constraint(expr = m.Bp[i] + m.Dp[i] >= 0)
+  #m.Constraint2 = pyo.Constraint(expr = m.Ap + m.Dp >= 0)
+  #m.Constraint3 = pyo.Constraint(expr = m.Bp + m.Dp >= 0)
+  #solver = pyo.SolverFactory('ipopt')
+  #results = solver.solve(m)
   #correct = 2.080898547e+08
   #if abs(calculated - correct)/correct < 1e-8:
     #print('Success!')
