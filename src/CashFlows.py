@@ -44,7 +44,6 @@ sys.path.extend([path3,path4,path5])
 
 from utils import mathUtils as utils
 from utils import InputData, InputTypes, TreeStructure, xmlUtils
-import pyomo.environ as pyo
 
 
 class GlobalSettings:
@@ -972,14 +971,18 @@ class Capex(CashFlow):
     if self._alpha is None:
       raise IOError(self.missingNodeTemplate.format(comp=self._component, cf=self.name, node='alpha'))
 
-  def initParams(self, lifetime):
+  def initParams(self, lifetime, pyomoVar=None):
     """
       Initialize some parameters
       @ In, lifetime, int, the given life time
       @ Out, None
     """
-    self._alpha = np.zeros(1 + lifetime)
-    self._driver = np.zeros(1 + lifetime)
+    if pyomoVar == None:
+      self._alpha = np.zeros(1 + lifetime)
+      self._driver = np.zeros(1 + lifetime)
+    else:
+      self._alpha = np.zeros(1 + lifetime, dtype=object)
+      self._driver = np.zeros(1 + lifetime, dtype=object)
 
   def getAmortization(self):
     """
@@ -1116,20 +1119,18 @@ class Recurring(CashFlow):
     self._inflation = True
     self._yearlyCashflow = None
 
-  def initParams(self, lifetime, pyomoExp=None):
+  def initParams(self, lifetime, pyomoVar=None):
     """
       Initialize some parameters
       @ In, lifetime, int, the given life time
-      @ In, pyomoExp, pyo.ConcreteModel(), concrete model including all variables
+      @ In, pyomoVar, pyo.ConcreteModel(), concrete model including all variables
       @ Out, None
     """
     # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
-    if pyomoExp == None:
+    if pyomoVar == None:
       self._yearlyCashflow = np.zeros(lifetime+1)
     else:
-      m = pyomoExp
-      m.yearlyCashflow = pyo.Var(list(range(lifetime+1)))
-      self._yearlyCashflow = np.array(list(m.yearlyCashflow.values()))
+      self._yearlyCashflow = np.zeros(lifetime+1, dtype=object)
 
   def computeIntrayearCashflow(self, year, alpha, driver):
     """
