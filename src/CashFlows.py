@@ -971,13 +971,14 @@ class Capex(CashFlow):
     if self._alpha is None:
       raise IOError(self.missingNodeTemplate.format(comp=self._component, cf=self.name, node='alpha'))
 
-  def initParams(self, lifetime, pyomoVar=None):
+  def initParams(self, lifetime, pyomoVar=False):
     """
       Initialize some parameters
       @ In, lifetime, int, the given life time
+      @ In, pyomoVar, boolean, 'True' will trigger pyomo flag
       @ Out, None
     """
-    if pyomoVar == None:
+    if pyomoVar == False:
       self._alpha = np.zeros(1 + lifetime)
       self._driver = np.zeros(1 + lifetime)
     else:
@@ -1015,14 +1016,16 @@ class Capex(CashFlow):
     # for capex, both the Driver and Alpha are nonzero in year 1 and zero thereafter
     for name, value in toExtend.items():
       if name.lower() in ['alpha', 'driver']:
-        if "pyomo.core.expr" in str(type(value)):
+        if utils.isAFloatOrInt(value):
+          if (len(value) == 1 and utils.isAFloatOrInt(value[0])):
+            new = np.zeros(t)
+            new[0] = float(value)
+            toExtend[name] = new
+        else:
+          # the else is for any object type data. if other types require distinction, add new 'elif'
           listArray = [0]*t
           listArray[0] = value
           toExtend[name] = np.array(listArray)
-        elif utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
-          new = np.zeros(t)
-          new[0] = float(value)
-          toExtend[name] = new
 
     return toExtend
 
@@ -1119,15 +1122,15 @@ class Recurring(CashFlow):
     self._inflation = True
     self._yearlyCashflow = None
 
-  def initParams(self, lifetime, pyomoVar=None):
+  def initParams(self, lifetime, pyomoVar=False):
     """
       Initialize some parameters
       @ In, lifetime, int, the given life time
-      @ In, pyomoVar, pyo.ConcreteModel(), concrete model including all variables
+      @ In, pyomoVar, boolean, 'True' will trigger pyomo flag
       @ Out, None
     """
     # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
-    if pyomoVar == None:
+    if pyomoVar == False:
       self._yearlyCashflow = np.zeros(lifetime+1)
     else:
       self._yearlyCashflow = np.zeros(lifetime+1, dtype=object)
@@ -1214,14 +1217,16 @@ class Recurring(CashFlow):
     # FIXME: we're going to integrate alpha * D over time (not year time, intrayear time)
     for name, value in toExtend.items():
       if name.lower() in ['alpha']:
-        if "pyomo.core.expr" in str(type(value)):
+        if utils.isAFloatOrInt(value):
+          if (len(value) == 1 and utils.isAFloatOrInt(value[0])):
+            new = np.zeros(t)
+            new[0] = float(value)
+            toExtend[name] = new
+        else:
+          # the else is for any object type data. if other types require distinction, add new 'elif'
           listArray = [0]*t
           listArray[0] = value
           toExtend[name] = np.array(listArray)
-        elif utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
-          new = np.ones(t) * float(value)
-          new[0] = 0
-          toExtend[name] = new
 
     return toExtend
 
