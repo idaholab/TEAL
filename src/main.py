@@ -285,12 +285,6 @@ def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength,
     compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
     projectCashflows[comp.name] = compProjCashflows
   return projectCashflows
-  # compCashflows = {}
-  # for comp in components:
-  #   tax = comp.getTax() if comp.getTax() is not None else settings.getTax()
-  #   inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
-  #   compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
-  #   compCashflows[comp.name] = compProjCashflows
 
 def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength, v=100):
   """
@@ -486,13 +480,8 @@ def IRR(components, cashFlows, projectLength, v=100):
   """
   m = 'IRR'
   fcff = FCFF(components, cashFlows, projectLength, mult=None, v=v) # TODO mult is none always?
-  # this method can crash if no solution exists!
-  #try:
   irr = npf.irr(fcff)
   vprint(v, 1, m, '... IRR: {: 1.9e}'.format(irr))
-  #except: # TODO what kind of crash? General catching is bad practice.
-  #  vprint(v, 99, m, 'IRR search failed! No solution found. Setting IRR to -10 for debugging.')
-  #  irr = -10.0
   return irr
 
 def PI(components, cashFlows, projectLength, discountRate, mult=None, v=100):
@@ -592,7 +581,6 @@ def run(settings, components, variables):
   projectLength = getProjectLength(settings, components, v=v)
   vprint(v, 0, m, ' ... project length: {} years'.format(projectLength))
   projectCashflows = projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=v)
-  # preserve cashflows by component so they're reportable as outputs
 
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Economic Indicator Calculations')
