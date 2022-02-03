@@ -198,7 +198,8 @@ if __name__ == '__main__':
   metrics = run(df)
 
   calculated = metrics['NPV']
-  correct = 2.080898547e+08
+  correct = 2.213218922e+08
+  # NOTE if inflation is applied to all cashflows, answer is 2.080898547e+08
   if abs(calculated - correct)/correct < 1e-8:
     print('Success!')
     sys.exit(0)

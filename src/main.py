@@ -21,6 +21,7 @@ Execution for TEAL (Tool for Economic AnaLysis)
 
 import os
 import sys
+import copy
 import functools
 from collections import defaultdict, OrderedDict
 
@@ -284,6 +285,12 @@ def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength,
     compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
     projectCashflows[comp.name] = compProjCashflows
   return projectCashflows
+  # compCashflows = {}
+  # for comp in components:
+  #   tax = comp.getTax() if comp.getTax() is not None else settings.getTax()
+  #   inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
+  #   compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
+  #   compCashflows[comp.name] = compProjCashflows
 
 def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength, v=100):
   """
@@ -341,7 +348,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
     @ In, life, int, lifetime of component
     @ In, lifeCf, np.array, cashflow for lifetime of component
     @ In, taxMult, float, tax rate multiplyer (1 - tax)
-    @ In, inflRate, float, inflation rate multiplier (1 - inflation)
+    @ In, inflRate, float, inflation rate multiplier (1 + inflation)
     @ In, projectLength, int, total years of analysis
     @ In, v, int, verbosity
     @ Out, projCf, np.array, cashflow for project life of component
@@ -585,12 +592,7 @@ def run(settings, components, variables):
   projectLength = getProjectLength(settings, components, v=v)
   vprint(v, 0, m, ' ... project length: {} years'.format(projectLength))
   projectCashflows = projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=v)
-  compCashflows = {}
-  for comp in components:
-    tax = comp.getTax() if comp.getTax() is not None else settings.getTax()
-    inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
-    compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
-    compCashflows[comp.name] = compProjCashflows
+  # preserve cashflows by component so they're reportable as outputs
 
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Economic Indicator Calculations')
@@ -598,40 +600,23 @@ def run(settings, components, variables):
   indicators = settings.getIndicators()
   outputType = settings.getOutput()
 
-
-  some_data = {**projectCashflows, **compCashflows }
+  results = {}
+  if 'NPV_search' in indicators:
+    metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
+    results['NPV_mult'] = metric
+  if 'NPV' in indicators:
+    metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
+    results['NPV'] = metric
+  if 'IRR' in indicators:
+    metric = IRR(components, projectCashflows, projectLength, v=v)
+    results['IRR'] = metric
+  if 'PI' in indicators:
+    metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
+    results['PI'] = metric
+  results['outputType'] = outputType
 
   if outputType is True:
-    some_data = {**projectCashflows, **compCashflows }
-    results = {"all_data": some_data, "outputType": outputType}
-    if 'NPV_search' in indicators:
-      metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
-      results['NPV_mult'] = metric
-    if 'NPV' in indicators:
-      metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['NPV'] = metric
-    if 'IRR' in indicators:
-      metric = IRR(components, projectCashflows, projectLength, v=v)
-      results['IRR'] = metric
-    if 'PI' in indicators:
-      metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['PI'] = metric
-
-  else:
-    results = {}
-    if 'NPV_search' in indicators:
-      metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
-      results['NPV_mult'] = metric
-    if 'NPV' in indicators:
-      metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['NPV'] = metric
-    if 'IRR' in indicators:
-      metric = IRR(components, projectCashflows, projectLength, v=v)
-      results['IRR'] = metric
-    if 'PI' in indicators:
-      metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['PI'] = metric
-    results['outputType'] = False
+    results["all_data"] = projectCashflows
 
   return results
 

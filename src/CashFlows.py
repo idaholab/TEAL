@@ -107,7 +107,7 @@ class GlobalSettings:
     self._metrics = None
     self._discountRate = None
     self._tax = None
-    self._inflation = None
+    self._inflation_rate = None
     self._projectTime = None
     self._indicators = None
     self._activeComponents = None
@@ -135,7 +135,7 @@ class GlobalSettings:
       elif name == 'tax':
         self._tax = val
       elif name == 'inflation':
-        self._inflation = val
+        self._inflation_rate = val
       elif name == 'ProjectTime':
         self._projectTime = val + 1 # one for the construction year!
       elif name == 'Output':
@@ -165,7 +165,7 @@ class GlobalSettings:
       elif name == 'tax':
         self._tax = val
       elif name == 'inflation':
-        self._inflation = val
+        self._inflation_rate = val
       elif name == 'Output':
         self._outputType = val
       elif name == 'ProjectTime':
@@ -196,7 +196,7 @@ class GlobalSettings:
       raise IOError('Missing <DiscountRate> from global parameters!')
     if self._tax is None:
       raise IOError('Missing <tax> from global parameters!')
-    if self._inflation is None:
+    if self._inflation_rate is None:
       raise IOError('Missing <inflation> from global parameters!')
     if self._indicators is None:
       raise IOError('Missing <Indicator> from global parameters!')
@@ -230,9 +230,9 @@ class GlobalSettings:
     """
       Get the global inflation
       @ In, None
-      @ Out, self._inflation, None or float, the inflation for the whole project
+      @ Out, self._inflation_rate, None or float, the inflation for the whole project
     """
-    return self._inflation
+    return self._inflation_rate
 
   def getIndicators(self):
     """
@@ -638,16 +638,21 @@ class CashFlow:
                                 If a cash flow with \xmlAttr{tax}$=$\textbf{true} is the driver of another cash flow, the cash flow without the tax applied is used as driver for the new cash flow.
                                 The limitation of having a global tax rate will be lifted in future version of the \textbf{TEAL.CashFlow} module. In future versions of TEAL, you will be able to
                                 input different tax rates for each component, since they might be in different tax regions.""") #does without tax mean minus tax or without tax considered?
-    infl = InputTypes.makeEnumType('inflation_types', 'inflation_type', ['real', 'none']) # "nominal" not yet implemented
 
+    infl = InputTypes.makeEnumType('inflation_types', 'inflation_type', ['True', 'False', 'real', 'none']) # "nominal" not yet implemented
     specs.addParam('inflation', param_type=infl, required=False,
-                         descr=r"""Can be \textbf{real, nominal,} or \textbf{none} (nominal not yet implemented). If it is \textbf{real}, the cash flow is multiplied by
-                                $(1+inflation)^{-y}$. If it is \textbf{nominal}, the cash flow is multiplied by $(1+inflation)^y$.
-                                In both cases, inflation is given by \xmlNode{inflation} in the \xmlNode{Global} block. Furthermore, $y$ goes from year 0 (capital investment)
-                                to the LCM of all component lifetimes.
+                         descr=r"""Determines whether inflation should be applied to this cashflow (True) or ignored (False).
+                               For historical reasons, "none" is treated as False and "real" is treated as True. If a CashFlow
+                               is expressed in present dollars, inflation should not be applied; however, if a CashFlow is expressed
+                               in inflation-included future dollars, then inflation should be applied. Note that inflation is applied
+                               in addition to the discount rate, so discount rate should not include inflation; if discount rate includes
+                               inflation, then CashFlows should not apply inflation.
+                               If inflation is True, then the cash flow is multiplied by
+                               $(1+inflation)^{-y}$, where inflation is given by \xmlNode{inflation} in the \xmlNode{Global} block, and $y$ goes from year 0 (capital investment)
+                               to the project lifetimes.
                               This means that the cash flows as expressed in Listing \ref{lst:InputExample} are multiplied with the inflation seen from today. For example, the cash
-                              flow for \textit{comp2} for year 100 assuming it includes \textbf{real} inflation would be $CF^{comp2}_{39}(1+inflation)^{-100}$.
-                              If a cash flow with \xmlAttr{inflation} equal to \textbf{real} or \textbf{nominal} is the driver of another cash flow, the cash flow without
+                              flow for \textit{comp2} for year 100 assuming it includes inflation would be $CF^{comp2}_{39}(1+inflation)^{-100}$.
+                              If a cash flow with \xmlAttr{inflation} is the driver of another cash flow, the cash flow without
                               the inflation applied is used as driver for the new cash flow.""")
 
     specs.addParam('mult_target', param_type=InputTypes.BoolType, required=False,
@@ -695,8 +700,8 @@ class CashFlow:
     self.name = None          # base name of cash flow
     self.type = None          # Capex, Recurring, Custom
     self._taxable = None      # apply tax or not
-    self._inflation = None    # apply inflation or not
-    self._multTarget = None  # true if this cash flow gets multiplied by a global multiplier (e.g. NPV=0 search) (?)
+    self._inflatable = False  # apply inflation or not; by default most cashflows should not need this
+    self._multTarget = None   # true if this cash flow gets multiplied by a global multiplier (e.g. NPV=0 search) (?)
     self._multiplier = None   # arbitrary scalar multiplier (variable name)
     self._depreciate = None
 
@@ -713,7 +718,7 @@ class CashFlow:
       if key == 'tax':
         self._taxable = value
       elif key == 'inflation':
-        self._inflation = value
+        self._inflatable = value in ['True', 'real']
       elif key == 'mult_target':
         self._multTarget = value
       elif key == 'multiply':
@@ -743,7 +748,7 @@ class CashFlow:
       elif name == 'tax':
         self._taxable = val
       elif name == 'inflation':
-        self._inflation = val
+        self._inflatable = val in [True, 1, 'True', 'real']
       elif name == 'mult_target':
         self._multTarget = val
       elif name == 'multiply':
@@ -808,9 +813,7 @@ class CashFlow:
       @ In, None
       @ Out, isInflated, Bool, True if inflated otherwise False
     """
-    # right now only 'none' and 'real' are options, so this is boolean
-    ## when nominal is implemented, might need to extend this method a bit
-    return self._inflation != 'none'
+    return self._inflatable
 
   def isMultTarget(self):
     """
@@ -925,7 +928,6 @@ class Capex(CashFlow):
 
     return specs
 
-
   def __init__(self, **kwargs):
     """
       Constructor
@@ -939,8 +941,7 @@ class Capex(CashFlow):
     self._amortPlan = None   # if scheme is MACRS, this is the years to recovery. Otherwise, vector percentages.
     # set defaults different from base class
     self.type = 'Capex'
-    self._taxable = False
-    self._inflation = False
+    self._taxable = False    # capital investments are not taxed by default
 
   def readInput(self, item):
     """
@@ -1106,8 +1107,7 @@ class Recurring(CashFlow):
     CashFlow.__init__(self, **kwargs)
     # set defaults different from base class
     self.type = 'Recurring'
-    self._taxable = True
-    self._inflation = True
+    self._taxable = True        # sales/yearly are expected to be taxed
     self._yearlyCashflow = None
 
   def initParams(self, lifetime):
