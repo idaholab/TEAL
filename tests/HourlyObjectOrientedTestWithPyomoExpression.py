@@ -37,6 +37,7 @@ def run(dfSet):
   """
   dictNew = {}
   m = pyo.ConcreteModel()
+  # Create new dictionary with pyomo expressions
   for key, value in dfSet[1].items():
     setattr(m, key+'p', pyo.Var(list(range(len(value)))))
     if key == 'A':
@@ -46,12 +47,11 @@ def run(dfSet):
     elif key == 'C':
       dictNew[key] = np.array(list(m.Cp.values()))
     else:
-      dictNew[key] = np.array(list(m.Dp.values()))
-    #dictNew[key] = np.array(list(y.values()))
+      dictNew[key] = np.array(list(m.Dp.values()s))
   dfSetNew = (dfSet[0], dictNew, m)
   settings = build_econ_settings()
   components = build_econ_components(dfSetNew, settings)
-  metrics = RunCashFlow.run(settings, list(components.values()), {}, pyomoChk=dfSetNew[2])
+  metrics = RunCashFlow.run(settings, list(components.values()), {}, pyomoChk=True)
   return metrics, m
 
 def build_econ_settings():
@@ -205,7 +205,7 @@ def createRecurringHourly(dfSet, comp, driver, alpha):
                'mult_target': None,
                'inflation': False}
   cf.setParams(cfFarams)
-  cf.initParams(life, pyomoVar=dfSet[2])
+  cf.initParams(life, pyomoVar=True)
   yearDfs = dfSet[0].groupby([dfSet[0].index.year])
   countOld = 0
   countNew = 0
@@ -226,6 +226,7 @@ if __name__ == '__main__':
   targets = ['A', 'B', 'C', 'D', 'Year', 'Time']
   indices = ['RAVEN_sample_ID']
   print('Loading data ...')
+  # Data includes the driver and alphas each time of the corresponding year
   full_df = pd.read_csv('aux_file/hourly.csv',
                         index_col=indices,
                         usecols=targets+indices) #,
@@ -238,27 +239,31 @@ if __name__ == '__main__':
   df.index = datetime
   df = df.sort_index()[['A', 'B', 'C', 'D']]
 
+  # Converting pandas dataframe to numpy array. This is required for numpy-to-pyomo interaction
+  # and will allow typical numpy operations apply to pyomo expressions
   x = df.to_numpy()
-  A = np.zeros((x.shape[0]))
+  A = np.zeros((x.shape[0])) # Creating arrays for the given driver and alphas
   B = np.zeros((x.shape[0]))
   C = np.zeros((x.shape[0]))
   D = np.zeros((x.shape[0]))
-  for i in range(x.shape[0]):
+  for i in range(x.shape[0]): # Converting into dictionary format for function 'run'
     A[i] = x[i][0]
     B[i] = x[i][1]
     C[i] = x[i][2]
     D[i] = x[i][3]
-  dictDf = {}
+  dictDf = {} # Create empty dictionary, and apply applicable drivers and alphas
   dictDf['A'] = A
   dictDf['B'] = B
   dictDf['C'] = C
   dictDf['D'] = D
-  dfSet = (df, dictDf)
+  dfSet = (df, dictDf) # Passing tuple to function 'run'
 
   metrics, m = run(dfSet)
 
   calculated = metrics['NPV']
 
+  # TODO: To solve the current expression with the constraints below, uncomment the code below.
+  # TODO: Caution! It may take a while before it is solved
   #m.OBJ = pyo.Objective(expr = calculated)
   #m.Constraint1 = pyo.Constraint(expr = calculated <= 2.080898547e+08)
   # for i in range(x.shape[0]):
@@ -268,9 +273,3 @@ if __name__ == '__main__':
   #m.Constraint3 = pyo.Constraint(expr = m.Bp + m.Dp >= 0)
   #solver = pyo.SolverFactory('ipopt')
   #results = solver.solve(m)
-  #correct = 2.080898547e+08
-  #if abs(calculated - correct)/correct < 1e-8:
-    #print('Success!')
-    #sys.exit(0)
-  #else:
-    #print('ERROR: correct: {:1.3e}, calculated: {:1.3e}, diff {:1.3e}'.format(correct, calculated, correct-calculated))
