@@ -21,6 +21,7 @@ Execution for TEAL (Tool for Economic AnaLysis)
 
 import os
 import sys
+import copy
 import functools
 from collections import defaultdict, OrderedDict
 
@@ -341,7 +342,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
     @ In, life, int, lifetime of component
     @ In, lifeCf, np.array, cashflow for lifetime of component
     @ In, taxMult, float, tax rate multiplyer (1 - tax)
-    @ In, inflRate, float, inflation rate multiplier (1 - inflation)
+    @ In, inflRate, float, inflation rate multiplier (1 + inflation)
     @ In, projectLength, int, total years of analysis
     @ In, v, int, verbosity
     @ Out, projCf, np.array, cashflow for project life of component
@@ -479,13 +480,8 @@ def IRR(components, cashFlows, projectLength, v=100):
   """
   m = 'IRR'
   fcff = FCFF(components, cashFlows, projectLength, mult=None, v=v) # TODO mult is none always?
-  # this method can crash if no solution exists!
-  #try:
   irr = npf.irr(fcff)
   vprint(v, 1, m, '... IRR: {: 1.9e}'.format(irr))
-  #except: # TODO what kind of crash? General catching is bad practice.
-  #  vprint(v, 99, m, 'IRR search failed! No solution found. Setting IRR to -10 for debugging.')
-  #  irr = -10.0
   return irr
 
 def PI(components, cashFlows, projectLength, discountRate, mult=None, v=100):
@@ -585,12 +581,6 @@ def run(settings, components, variables):
   projectLength = getProjectLength(settings, components, v=v)
   vprint(v, 0, m, ' ... project length: {} years'.format(projectLength))
   projectCashflows = projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=v)
-  compCashflows = {}
-  for comp in components:
-    tax = comp.getTax() if comp.getTax() is not None else settings.getTax()
-    inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
-    compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
-    compCashflows[comp.name] = compProjCashflows
 
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Economic Indicator Calculations')
@@ -598,40 +588,23 @@ def run(settings, components, variables):
   indicators = settings.getIndicators()
   outputType = settings.getOutput()
 
-
-  some_data = {**projectCashflows, **compCashflows }
+  results = {}
+  if 'NPV_search' in indicators:
+    metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
+    results['NPV_mult'] = metric
+  if 'NPV' in indicators:
+    metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
+    results['NPV'] = metric
+  if 'IRR' in indicators:
+    metric = IRR(components, projectCashflows, projectLength, v=v)
+    results['IRR'] = metric
+  if 'PI' in indicators:
+    metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
+    results['PI'] = metric
+  results['outputType'] = outputType
 
   if outputType is True:
-    some_data = {**projectCashflows, **compCashflows }
-    results = {"all_data": some_data, "outputType": outputType}
-    if 'NPV_search' in indicators:
-      metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
-      results['NPV_mult'] = metric
-    if 'NPV' in indicators:
-      metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['NPV'] = metric
-    if 'IRR' in indicators:
-      metric = IRR(components, projectCashflows, projectLength, v=v)
-      results['IRR'] = metric
-    if 'PI' in indicators:
-      metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['PI'] = metric
-
-  else:
-    results = {}
-    if 'NPV_search' in indicators:
-      metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
-      results['NPV_mult'] = metric
-    if 'NPV' in indicators:
-      metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['NPV'] = metric
-    if 'IRR' in indicators:
-      metric = IRR(components, projectCashflows, projectLength, v=v)
-      results['IRR'] = metric
-    if 'PI' in indicators:
-      metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['PI'] = metric
-    results['outputType'] = False
+    results["all_data"] = projectCashflows
 
   return results
 
