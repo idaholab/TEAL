@@ -616,9 +616,7 @@ def run(settings, components, variables, pyomoChk=False):
   vprint(v, 0, m, 'Component Lifetime Cashflow Calculations')
   vprint(v, 0, m, '='*90)
   lifetimeCashflows = defaultdict(dict) # keys are component, cashflow, then indexed by lifetime
-  #count = 0
   for ocf in ordered:
-    #count += 1
     if ocf in variables or ocf == 'EndNode': # TODO why this check for ocf in variables? Should it be comp, or cf?
       continue
     compName, cfName = ocf.split('|')
@@ -638,12 +636,6 @@ def run(settings, components, variables, pyomoChk=False):
   projectLength = getProjectLength(settings, components, v=v)
   vprint(v, 0, m, ' ... project length: {} years'.format(projectLength))
   projectCashflows = projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=v, pyomoChoice=pyomoChk)
-  compCashflows = {}
-  for comp in components:
-    tax = comp.getTax() if comp.getTax() is not None else settings.getTax()
-    inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
-    compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v, pyomoComp=pyomoChk)
-    compCashflows[comp.name] = compProjCashflows
 
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Economic Indicator Calculations')
@@ -652,39 +644,23 @@ def run(settings, components, variables, pyomoChk=False):
   outputType = settings.getOutput()
 
 
-  some_data = {**projectCashflows, **compCashflows }
+  results = {}
+  if 'NPV_search' in indicators:
+    metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
+    results['NPV_mult'] = metric
+  if 'NPV' in indicators:
+    metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v, pyomoNPV=pyomoChk)
+    results['NPV'] = metric
+  if 'IRR' in indicators:
+    metric = IRR(components, projectCashflows, projectLength, v=v)
+    results['IRR'] = metric
+  if 'PI' in indicators:
+    metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
+    results['PI'] = metric
+  results['outputType'] = outputType
 
   if outputType is True:
-    some_data = {**projectCashflows, **compCashflows }
-    results = {"all_data": some_data, "outputType": outputType}
-    if 'NPV_search' in indicators:
-      metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
-      results['NPV_mult'] = metric
-    if 'NPV' in indicators:
-      metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v, pyomoNPV=pyomoChk)
-      results['NPV'] = metric
-    if 'IRR' in indicators:
-      metric = IRR(components, projectCashflows, projectLength, v=v)
-      results['IRR'] = metric
-    if 'PI' in indicators:
-      metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['PI'] = metric
-
-  else:
-    results = {}
-    if 'NPV_search' in indicators:
-      metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
-      results['NPV_mult'] = metric
-    if 'NPV' in indicators:
-      metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v, pyomoNPV=pyomoChk)
-      results['NPV'] = metric
-    if 'IRR' in indicators:
-      metric = IRR(components, projectCashflows, projectLength, v=v)
-      results['IRR'] = metric
-    if 'PI' in indicators:
-      metric = PI(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v)
-      results['PI'] = metric
-    results['outputType'] = False
+    results["all_data"] = projectCashflows
 
   return results
 
