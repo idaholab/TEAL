@@ -47,7 +47,7 @@ def run(dfSet):
     elif key == 'C':
       dictNew[key] = np.array(list(m.Cp.values()))
     else:
-      dictNew[key] = np.array(list(m.Dp.values()s))
+      dictNew[key] = np.array(list(m.Dp.values()))
   dfSetNew = (dfSet[0], dictNew, m)
   settings = build_econ_settings()
   components = build_econ_components(dfSetNew, settings)
