@@ -1016,16 +1016,25 @@ class Capex(CashFlow):
     # for capex, both the Driver and Alpha are nonzero in year 1 and zero thereafter
     for name, value in toExtend.items():
       if name.lower() in ['alpha', 'driver']:
-        if utils.isAFloatOrInt(value):
+        try:
           if (len(value) == 1 and utils.isAFloatOrInt(value[0])):
             new = np.zeros(t)
             new[0] = float(value)
             toExtend[name] = new
-        else:
-          # the else is for any object type data. if other types require distinction, add new 'elif'
-          listArray = [0]*t
-          listArray[0] = value
-          toExtend[name] = np.array(listArray)
+          else:
+            listArray = [0]*t
+            listArray[0] = value
+            toExtend[name] = np.array(listArray)
+        except:
+          if utils.isAFloatOrInt(value):
+            new = np.zeros(t)
+            new[0] = float(value)
+            toExtend[name] = new
+          else:
+            # the else is for any object type data. if other types require distinction, add new 'elif'
+            listArray = [0]*t
+            listArray[0] = value
+            toExtend[name] = np.array(listArray)
 
     return toExtend
 
@@ -1217,16 +1226,25 @@ class Recurring(CashFlow):
     # FIXME: we're going to integrate alpha * D over time (not year time, intrayear time)
     for name, value in toExtend.items():
       if name.lower() in ['alpha']:
-        if utils.isAFloatOrInt(value):
+        try:
           if (len(value) == 1 and utils.isAFloatOrInt(value[0])):
             new = np.zeros(t)
             new[0] = float(value)
             toExtend[name] = new
-        else:
-          # the else is for any object type data. if other types require distinction, add new 'elif'
-          listArray = [0]*t
-          listArray[0] = value
-          toExtend[name] = np.array(listArray)
+          else:
+            listArray = [0]*t
+            listArray[0] = value
+            toExtend[name] = np.array(listArray)
+        except:
+          if utils.isAFloatOrInt(value):
+            new = np.zeros(t)
+            new[0] = float(value)
+            toExtend[name] = new
+          else:
+            # the else is for any object type data. if other types require distinction, add new 'elif'
+            listArray = [0]*t
+            listArray[0] = value
+            toExtend[name] = np.array(listArray)
 
     return toExtend
 
