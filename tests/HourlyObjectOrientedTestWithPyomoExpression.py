@@ -263,9 +263,9 @@ if __name__ == '__main__':
   calculated = metrics['NPV']
 
   # TODO: To solve the current expression with the constraints below, uncomment the code below.
-  # TODO: Caution! It may take a while before it is solved
+  # Note: Caution! It may take a while before it is solved
   #m.OBJ = pyo.Objective(expr = calculated)
-  #m.Constraint1 = pyo.Constraint(expr = calculated <= 2.080898547e+08)
+  #m.Constraint1 = pyo.Constraint(expr = calculated <= 2.213218922e+08)
   # for i in range(x.shape[0]):
   #  m.Constraint = pyo.Constraint(expr = m.Ap[i] + m.Dp[i] >= 0)
   #  m.Constraint = pyo.Constraint(expr = m.Bp[i] + m.Dp[i] >= 0)

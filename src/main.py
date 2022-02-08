@@ -21,6 +21,7 @@ Execution for TEAL (Tool for Economic AnaLysis)
 
 import os
 import sys
+import copy
 import functools
 from collections import defaultdict, OrderedDict
 
@@ -303,6 +304,12 @@ def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength,
     compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v, pyomoComp=pyomoChoice)
     projectCashflows[comp.name] = compProjCashflows
   return projectCashflows
+  # compCashflows = {}
+  # for comp in components:
+  #   tax = comp.getTax() if comp.getTax() is not None else settings.getTax()
+  #   inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
+  #   compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
+  #   compCashflows[comp.name] = compProjCashflows
 
 def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength, v=100, pyomoComp=False):
   """
@@ -364,7 +371,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
     @ In, life, int, lifetime of component
     @ In, lifeCf, np.array, cashflow for lifetime of component
     @ In, taxMult, float, tax rate multiplyer (1 - tax)
-    @ In, inflRate, float, inflation rate multiplier (1 - inflation)
+    @ In, inflRate, float, inflation rate multiplier (1 + inflation)
     @ In, projectLength, int, total years of analysis
     @ In, v, int, verbosity
     @ In, pyomoSing, boolean, 'True' will trigger pyomo flag
@@ -529,13 +536,8 @@ def IRR(components, cashFlows, projectLength, v=100):
   """
   m = 'IRR'
   fcff = FCFF(components, cashFlows, projectLength, mult=None, v=v) # TODO mult is none always?
-  # this method can crash if no solution exists!
-  #try:
   irr = npf.irr(fcff)
   vprint(v, 1, m, '... IRR: {: 1.9e}'.format(irr))
-  #except: # TODO what kind of crash? General catching is bad practice.
-  #  vprint(v, 99, m, 'IRR search failed! No solution found. Setting IRR to -10 for debugging.')
-  #  irr = -10.0
   return irr
 
 def PI(components, cashFlows, projectLength, discountRate, mult=None, v=100):
@@ -636,13 +638,13 @@ def run(settings, components, variables, pyomoChk=False):
   projectLength = getProjectLength(settings, components, v=v)
   vprint(v, 0, m, ' ... project length: {} years'.format(projectLength))
   projectCashflows = projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=v, pyomoChoice=pyomoChk)
+  # preserve cashflows by component so they're reportable as outputs
 
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Economic Indicator Calculations')
   vprint(v, 0, m, '='*90)
   indicators = settings.getIndicators()
   outputType = settings.getOutput()
-
 
   results = {}
   if 'NPV_search' in indicators:
