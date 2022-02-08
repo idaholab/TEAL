@@ -1027,10 +1027,14 @@ class Capex(CashFlow):
               new = np.zeros(t)
               new[0] = float(value)
               toExtend[name] = new
+            elif type(value) is str:
+              continue
             else:
               listArray = [0]*t
               listArray[0] = value
               toExtend[name] = np.array(listArray)
+        elif type(value) is str:
+          continue
         else:
           # the else is for any object type data. if other types require distinction, add new 'elif'
           listArray = [0]*t
@@ -1236,10 +1240,14 @@ class Recurring(CashFlow):
               new = np.zeros(t)
               new[0] = float(value)
               toExtend[name] = new
+            elif type(value) is str:
+              continue
             else:
               listArray = [0]*t
               listArray[0] = value
               toExtend[name] = np.array(listArray)
+        elif type(value) is str:
+          continue
         else:
           # the else is for any object type data. if other types require distinction, add new 'elif'
           listArray = [0]*t
