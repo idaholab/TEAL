@@ -103,7 +103,7 @@ def checkDrivers(settings, components, variables, v=100, pyomoDriv=False):
     @ In, components, list, list of CashFlows.Component instances
     @ In, variables, dict, variable-value map from RAVEN
     @ In, v, int, verbosity level
-    @ In, pyomoDriv, boolean, 'True' will trigger pyomo flag
+    @ In, pyomoDriv, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, ordered, list, list of ordered cashflows to evaluate (in order)
   """
   m = 'checkDrivers'
@@ -119,7 +119,7 @@ def _createEvalProcess(components, variables, pyomoEval=False):
     Sorts the cashflow evaluation process so sensible evaluation order is used
     @ In, components, list, list of CashFlows.Component instances
     @ In, variables, dict, variable-value map from RAVEN
-    @ In, pyomoEval, boolean, 'True' will trigger pyomo flag
+    @ In, pyomoEval, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, unique, list, list of ordered cashflows to evaluate (in order, no duplicates)
   """
   # TODO does this work with float drivers (e.g. already-evaluated drivers)?
@@ -200,7 +200,7 @@ def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100, pyomoSw
     @ In, cf, CashFlows.CashFlow, cashflow who is being analyzed
     @ In, variables, dict, RAVEN variables as name: value
     @ In, v, int, verbosity
-    @ In, pyomoSwitch, boolean, 'True' will trigger pyomo flag
+    @ In, pyomoSwitch, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, lifeCashflow, np.array, array of cashflow values with length of component life
   """
   m = 'compLife'
@@ -292,7 +292,7 @@ def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength,
     @ In, lifetimeCashflows, dict, component: cashflow: np.array of annual economic values
     @ In, projectLength, int, project years
     @ In, v, int, verbosity level
-    @ In, pyomoChoice, boolean, 'True' will trigger pyomo flag
+    @ In, pyomoChoice, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, projectCashflows, dict, dictionary of project-length cashflows (same structure as lifetime dict)
   """
   m = 'proj_life'
@@ -304,12 +304,6 @@ def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength,
     compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v, pyomoComp=pyomoChoice)
     projectCashflows[comp.name] = compProjCashflows
   return projectCashflows
-  # compCashflows = {}
-  # for comp in components:
-  #   tax = comp.getTax() if comp.getTax() is not None else settings.getTax()
-  #   inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
-  #   compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v)
-  #   compCashflows[comp.name] = compProjCashflows
 
 def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength, v=100, pyomoComp=False):
   """
@@ -320,7 +314,7 @@ def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength
     @ In, lifeCashflows, dict, dictionary of component lifetime cash flows
     @ In, projectLength, int, project years
     @ In, v, int, verbosity level
-    @ In, pyomoComp, boolean, 'True' will trigger pyomo flag
+    @ In, pyomoComp, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, cashflows, dict, dictionary of cashflows for this component, taken to project life
   """
   m = 'proj comp'
@@ -374,7 +368,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
     @ In, inflRate, float, inflation rate multiplier (1 + inflation)
     @ In, projectLength, int, total years of analysis
     @ In, v, int, verbosity
-    @ In, pyomoSing, boolean, 'True' will trigger pyomo flag
+    @ In, pyomoSing, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, projCf, np.array, cashflow for project life of component
   """
   m = 'proj c_fl'
@@ -473,7 +467,7 @@ def FCFF(components, cashFlows, projectLength, mult=None, v=100, pyomoFCFF=False
     @ In, projectLength, int, project years
     @ In, mult, float, optional, if provided then scale target cash flow by value
     @ In, v, int, verbosity level
-    @ In, pyomoFCFF, boolean, 'True' will trigger pyomo flag
+    @ In, pyomoFCFF, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, fcff, float, free cash flow to the firm
   """
   m = 'FCFF'
@@ -507,7 +501,7 @@ def NPV(components, cashFlows, projectLength, discountRate, mult=None, v=100, py
     @ In, projectLength, int, project years
     @ In, discountRate, float, firm discount rate to use in discounting future dollars value
     @ In, mult, float, optional, if provided then scale target cash flow by value
-    @ In, pyomoNPV, boolean, 'True' will trigger pyomo flag
+    @ In, pyomoNPV, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ In, returnFcff, bool, optional, if True then provide calculated FCFF as well
     @ In, v, int, verbosity level
     @ Out, npv, float, net-present value of system
@@ -593,7 +587,7 @@ def run(settings, components, variables, pyomoChk=False):
     @ In, settings, CashFlows.GlobalSettings, global settings
     @ In, components, list, list of CashFlows.Component instances
     @ In, variables, dict, variables from RAVEN
-    @ In, pyomoChk, boolean, 'True' will trigger pyomo flag
+    @ In, pyomoChk, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, results, dict, economic metric results
   """
   # make a dictionary mapping component names to components

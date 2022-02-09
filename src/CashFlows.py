@@ -976,7 +976,7 @@ class Capex(CashFlow):
     """
       Initialize some parameters
       @ In, lifetime, int, the given life time
-      @ In, pyomoVar, boolean, 'True' will trigger pyomo flag
+      @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value
       @ Out, None
     """
     if pyomoVar == False:
@@ -1040,7 +1040,6 @@ class Capex(CashFlow):
           listArray = [0]*t
           listArray[0] = value
           toExtend[name] = np.array(listArray)
-
     return toExtend
 
   def calculateCashflow(self, variables, lifetimeCashflows, lifetime, verbosity):
@@ -1139,7 +1138,7 @@ class Recurring(CashFlow):
     """
       Initialize some parameters
       @ In, lifetime, int, the given life time
-      @ In, pyomoVar, boolean, 'True' will trigger pyomo flag
+      @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value
       @ Out, None
     """
     # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
@@ -1231,29 +1230,32 @@ class Recurring(CashFlow):
     for name, value in toExtend.items():
       if name.lower() in ['alpha', 'driver']:
         if utils.isAFloatOrInt(value):
-          new = np.zeros(t)
-          new[0] = float(value)
+          new = np.ones(t) * float(value)
+          new[0] = 0
           toExtend[name] = new
         elif type(value) in [list, np.ndarray]:
           if len(value) == 1:
             if utils.isAFloatOrInt(value[0]):
-              new = np.zeros(t)
-              new[0] = float(value)
+              new = np.ones(t) * float(value)
+              new[0] = 0
               toExtend[name] = new
             elif type(value) is str:
               continue
             else:
               listArray = [0]*t
-              listArray[0] = value
+              for i in range(len(listArray)):
+                listArray[i] = value
+              listArray[0] = 0
               toExtend[name] = np.array(listArray)
         elif type(value) is str:
           continue
         else:
           # the else is for any object type data. if other types require distinction, add new 'elif'
           listArray = [0]*t
-          listArray[0] = value
+          for i in range(len(listArray)):
+            listArray[i] = value
+          listArray[0] = 0
           toExtend[name] = np.array(listArray)
-
     return toExtend
 
 
