@@ -89,7 +89,7 @@
   input = 'HourlyObjectOrientedTest.py'
  [../]
 
- [./CashFlow_ObjectOriented]
+ [./CashFlow_ObjectOriented_Pyomo]
   type = 'RavenPython'
   input = 'HourlyObjectOrientedTestWithPyomoExpression.py'
  [../]
