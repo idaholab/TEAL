@@ -979,7 +979,7 @@ class Capex(CashFlow):
       @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value
       @ Out, None
     """
-    if pyomoVar == False:
+    if not pyomoVar:
       self._alpha = np.zeros(1 + lifetime)
       self._driver = np.zeros(1 + lifetime)
     else:
@@ -1142,7 +1142,7 @@ class Recurring(CashFlow):
       @ Out, None
     """
     # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
-    if pyomoVar == False:
+    if not pyomoVar:
       self._yearlyCashflow = np.zeros(lifetime+1)
     else:
       self._yearlyCashflow = np.zeros(lifetime+1, dtype=object)

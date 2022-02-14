@@ -96,30 +96,30 @@ def checkRunSettings(settings, components):
   if 'NPV_search' in settings.getIndicators() and sum(comp.countMulttargets() for comp in components) < 1:
     raise IOError('NPV_search in <Indicators> "name" but no cash flows have "mult_target=True"!')
 
-def checkDrivers(settings, components, variables, v=100, pyomoDriv=False):
+def checkDrivers(settings, components, variables, v=100, pyomoVar=False):
   """
     checks if all drivers needed are present in variables
     @ In, settings, CashFlows.GlobalSettings, global settings
     @ In, components, list, list of CashFlows.Component instances
     @ In, variables, dict, variable-value map from RAVEN
     @ In, v, int, verbosity level
-    @ In, pyomoDriv, boolean, if True, indicates that an expression will be constructed instead of a value calculated
+    @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, ordered, list, list of ordered cashflows to evaluate (in order)
   """
   m = 'checkDrivers'
   #active = _get_active_drivers(settings, components)
   active = list(comp for comp in components if comp.name in settings.getActiveComponents())
   vprint(v, 0, m, '... creating evaluation sequence ...')
-  ordered = _createEvalProcess(active, variables, pyomoEval=pyomoDriv)
+  ordered = _createEvalProcess(active, variables, pyomoVar=pyomoVar)
   vprint(v, 0, m, '... evaluation sequence:', ordered)
   return ordered
 
-def _createEvalProcess(components, variables, pyomoEval=False):
+def _createEvalProcess(components, variables, pyomoVar=False):
   """
     Sorts the cashflow evaluation process so sensible evaluation order is used
     @ In, components, list, list of CashFlows.Component instances
     @ In, variables, dict, variable-value map from RAVEN
-    @ In, pyomoEval, boolean, if True, indicates that an expression will be constructed instead of a value calculated
+    @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, unique, list, list of ordered cashflows to evaluate (in order, no duplicates)
   """
   # TODO does this work with float drivers (e.g. already-evaluated drivers)?
@@ -143,7 +143,7 @@ def _createEvalProcess(components, variables, pyomoEval=False):
       # does the driver come from the variable list, or from another cashflow, or is it already evaluated?
       cfn = '{}|{}'.format(comp.name, cf.name)
       found = False
-      if driver is None or utils.isAFloatOrInt(driver) or isinstance(driver, np.ndarray) or pyomoEval == True:
+      if driver is None or utils.isAFloatOrInt(driver) or isinstance(driver, np.ndarray) or pyomoVar:
         found = True
         # TODO assert it's already filled?
         evaluated.append(cfn)
@@ -193,14 +193,14 @@ def _createEvalProcess(components, variables, pyomoEval=False):
   unique = list(OrderedDict.fromkeys(ordered))
   return unique
 
-def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100, pyomoSwitch=False):
+def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100, pyomoVar=False):
   """
     Calcualtes the annual lifetime-based cashflow for a cashflow of a component
     @ In, comp, CashFlows.Component, component whose cashflow is being analyzed
     @ In, cf, CashFlows.CashFlow, cashflow who is being analyzed
     @ In, variables, dict, RAVEN variables as name: value
     @ In, v, int, verbosity
-    @ In, pyomoSwitch, boolean, if True, indicates that an expression will be constructed instead of a value calculated
+    @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, lifeCashflow, np.array, array of cashflow values with length of component life
   """
   m = 'compLife'
@@ -225,7 +225,7 @@ def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100, pyomoSw
           name = orig
         else:
           name = '(from input)'
-        if pyomoSwitch == False:
+        if not pyomoVar:
           vprint(v, 1, m, '... {:^10.10s}: {}'.format(item, name))
           vprint(v, 1, m, '...           mean: {: 1.9e}'.format(value.mean()))
           vprint(v, 1, m, '...           std : {: 1.9e}'.format(value.std()))
@@ -244,7 +244,7 @@ def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100, pyomoSw
                                                                                         c='cashflow'))
     for y, cash in enumerate(lifeCashflow):
       if cf.type in ['Capex']:
-        if pyomoSwitch == False:
+        if not pyomoVar:
           vprint(v, 1, m, '    {y:^{yx}d}, {a: 1.3e}, {d: 1.3e}, {c: 1.9e}'.format(y=y,
                                                                                  yx=yx,
                                                                                  a=results['alpha'][y],
@@ -257,7 +257,7 @@ def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100, pyomoSw
                                                                                  d=type(results['driver'][y]),
                                                                                  c=type(cash)))
       elif cf.type == 'Recurring':
-        if pyomoSwitch == False:
+        if not pyomoVar:
           vprint(v, 1, m, '    {y:^{yx}d}, -- N/A -- , -- N/A -- , {c: 1.9e}'.format(y=y,
                                                              yx=yx,
                                                              c=cash))
@@ -284,7 +284,7 @@ def getProjectLength(settings, components, v=100):
     projectLength = lcmm(*lifetimes) + 1
   return int(projectLength)
 
-def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=100, pyomoChoice=False):
+def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=100, pyomoVar=False):
   """
     creates all cashflows for life of project, for all components
     @ In, settings, CashFlows.GlobalSettings, global settings
@@ -292,7 +292,7 @@ def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength,
     @ In, lifetimeCashflows, dict, component: cashflow: np.array of annual economic values
     @ In, projectLength, int, project years
     @ In, v, int, verbosity level
-    @ In, pyomoChoice, boolean, if True, indicates that an expression will be constructed instead of a value calculated
+    @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, projectCashflows, dict, dictionary of project-length cashflows (same structure as lifetime dict)
   """
   m = 'proj_life'
@@ -301,11 +301,11 @@ def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength,
   for comp in components:
     tax = comp.getTax() if comp.getTax() is not None else settings.getTax()
     inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
-    compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v, pyomoComp=pyomoChoice)
+    compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v, pyomoVar=pyomoVar)
     projectCashflows[comp.name] = compProjCashflows
   return projectCashflows
 
-def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength, v=100, pyomoComp=False):
+def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength, v=100, pyomoVar=False):
   """
     does all the cashflows for a SINGLE COMPONENT for the life of the project
     @ In, comp, CashFlows.Component, component to run numbers for
@@ -314,7 +314,7 @@ def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength
     @ In, lifeCashflows, dict, dictionary of component lifetime cash flows
     @ In, projectLength, int, project years
     @ In, v, int, verbosity level
-    @ In, pyomoComp, boolean, if True, indicates that an expression will be constructed instead of a value calculated
+    @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, cashflows, dict, dictionary of cashflows for this component, taken to project life
   """
   m = 'proj comp'
@@ -343,12 +343,12 @@ def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength
     vprint(v, 1, m, ' ... inflation rate: {}'.format(inflRate))
     vprint(v, 1, m, ' ... tax rate: {}'.format(taxMult))
     lifeCf = lifeCashflows[cf.name]
-    singleCashflow = projectSingleCashflow(cf, compStart, compEnd, compLife, lifeCf, taxMult, inflRate, projectLength, v=v, pyomoSing=pyomoComp)
+    singleCashflow = projectSingleCashflow(cf, compStart, compEnd, compLife, lifeCf, taxMult, inflRate, projectLength, v=v, pyomoVar=pyomoVar)
     vprint(v, 0, m, 'Project Cashflow for Component "{}" CashFlow "{}":'.format(comp.name, cf.name))
     if v < 1:
       vprint(v, 0, m, 'Year, Time-Adjusted Value')
       for y, val in enumerate(singleCashflow):
-        if pyomoComp == False:
+        if not pyomoVar:
           vprint(v, 0, m, '{:4d}: {: 1.9e}'.format(y, val))
         else:
           vprint(v, 0, m, '{:4d}: {:}'.format(y, type(val)))
@@ -356,7 +356,7 @@ def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength
 
   return cashflows
 
-def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, projectLength, v=100, pyomoSing=False):
+def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, projectLength, v=100, pyomoVar=False):
   """
     does a single cashflow for the life of the project
     @ In, cf, CashFlows.CashFlow, cash flow to extend to full project life
@@ -368,13 +368,13 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
     @ In, inflRate, float, inflation rate multiplier (1 + inflation)
     @ In, projectLength, int, total years of analysis
     @ In, v, int, verbosity
-    @ In, pyomoSing, boolean, if True, indicates that an expression will be constructed instead of a value calculated
+    @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, projCf, np.array, cashflow for project life of component
   """
   m = 'proj c_fl'
   vprint(v, 1, m, "-"*50)
   vprint(v, 1, m, 'Computing PROJECT cash flow for CashFlow "{}" ...'.format(cf.name))
-  if pyomoSing == False:
+  if pyomoVar == False:
     projCf = np.zeros(projectLength)
   else:
     projCf = np.zeros(projectLength, dtype=object)
@@ -404,7 +404,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   ## numpy requires tuples as indices, not lists
   newBuildMask = tuple(newBuildMask)
   ## add construction costs for all of these new build years
-  if pyomoSing == False:
+  if not pyomoVar:
     projCf[newBuildMask] = lifeCf[0] * taxMult * np.power(inflRate, -1*years[newBuildMask])
   else:
     for i in range(len(newBuildMask[0])):
@@ -414,7 +414,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   ### if last decomission is within project life, include that too
   if operatingYears[-1] < years[-1]:
     decomissionMask[0] = np.hstack((decomissionMask[0],np.atleast_1d(operatingYears[-1]+1)))
-  if pyomoSing == False:
+  if not pyomoVar:
     projCf[decomissionMask] += lifeCf[-1] * taxMult * np.power(inflRate, -1*years[decomissionMask])
   else:
     for i in range(len(decomissionMask[0])):
@@ -459,7 +459,7 @@ def npvSearch(settings, components, cashFlows, projectLength, v=100):
       vprint(v, 1, m, 'NPV mismatch warning! Calculated NPV with mult: {: 1.9e}, target: {: 1.9e}'.format(npv, targetVal))
   return mult
 
-def FCFF(components, cashFlows, projectLength, mult=None, v=100, pyomoFCFF=False):
+def FCFF(components, cashFlows, projectLength, mult=None, v=100, pyomoVar=False):
   """
     Calculates "free cash flow to the firm" (FCFF)
     @ In, settings, CashFlows.GlobalSettings, global settings
@@ -467,12 +467,12 @@ def FCFF(components, cashFlows, projectLength, mult=None, v=100, pyomoFCFF=False
     @ In, projectLength, int, project years
     @ In, mult, float, optional, if provided then scale target cash flow by value
     @ In, v, int, verbosity level
-    @ In, pyomoFCFF, boolean, if True, indicates that an expression will be constructed instead of a value calculated
+    @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, fcff, float, free cash flow to the firm
   """
   m = 'FCFF'
   # FCFF_R for each year
-  if pyomoFCFF == False:
+  if not pyomoVar:
     fcff = np.zeros(projectLength)
   else:
     fcff = np.zeros(projectLength, dtype=object)
@@ -484,7 +484,7 @@ def FCFF(components, cashFlows, projectLength, mult=None, v=100, pyomoFCFF=False
           fcff[i] += data[i] * mult
         else:
           fcff[i] += data[i]
-  if pyomoFCFF == False:
+  if not pyomoVar:
     vprint(v, 1, m, 'FCFF yearly (not discounted):\n{}'.format(fcff))
   else:
     vprint(v, 1, m, 'FCFF yearly (not discounted):')
@@ -493,7 +493,7 @@ def FCFF(components, cashFlows, projectLength, mult=None, v=100, pyomoFCFF=False
       vprint(v, 1, m, '{:}: {:}'.format(year, type(value)))
   return fcff
 
-def NPV(components, cashFlows, projectLength, discountRate, mult=None, v=100, pyomoNPV=False, returnFcff=False):
+def NPV(components, cashFlows, projectLength, discountRate, mult=None, v=100, pyomoVar=False, returnFcff=False):
   """
     Calculates net present value of cash flows
     @ In, components, list, list of CashFlows.Component instances
@@ -501,16 +501,16 @@ def NPV(components, cashFlows, projectLength, discountRate, mult=None, v=100, py
     @ In, projectLength, int, project years
     @ In, discountRate, float, firm discount rate to use in discounting future dollars value
     @ In, mult, float, optional, if provided then scale target cash flow by value
-    @ In, pyomoNPV, boolean, if True, indicates that an expression will be constructed instead of a value calculated
+    @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ In, returnFcff, bool, optional, if True then provide calculated FCFF as well
     @ In, v, int, verbosity level
     @ Out, npv, float, net-present value of system
     @ Out, fcff, float, optional, free cash flow to the firm for same system
   """
   m = 'NPV'
-  fcff = FCFF(components, cashFlows, projectLength, mult=mult, v=v, pyomoFCFF=pyomoNPV)
+  fcff = FCFF(components, cashFlows, projectLength, mult=mult, v=v, pyomoVar=pyomoVar)
   npv = npf.npv(discountRate, fcff)
-  if pyomoNPV == False:
+  if not pyomoVar:
     vprint(v, 0, m, '... NPV: {: 1.9e}'.format(npv))
   else:
     vprint(v, 0, m, '... NPV: {:}'.format(type(npv)))
@@ -582,12 +582,12 @@ def lcmm(*args):
 #=====================
 # MAIN METHOD
 #=====================
-def run(settings, components, variables, pyomoChk=False):
+def run(settings, components, variables, pyomoVar=False):
   """
     @ In, settings, CashFlows.GlobalSettings, global settings
     @ In, components, list, list of CashFlows.Component instances
     @ In, variables, dict, variables from RAVEN
-    @ In, pyomoChk, boolean, if True, indicates that an expression will be constructed instead of a value calculated
+    @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value calculated
     @ Out, results, dict, economic metric results
   """
   # make a dictionary mapping component names to components
@@ -597,7 +597,7 @@ def run(settings, components, variables, pyomoChk=False):
   vprint(v, 0, m, 'Starting CashFlow Run ...')
   # check mapping of drivers and determine order in which they should be evaluated
   vprint(v, 0, m, '... Checking if all drivers present ...')
-  ordered = checkDrivers(settings, components, variables, v=v, pyomoDriv=pyomoChk)
+  ordered = checkDrivers(settings, components, variables, v=v, pyomoVar=pyomoVar)
 
 
   # compute project cashflows
@@ -622,7 +622,7 @@ def run(settings, components, variables, pyomoChk=False):
     #if cf.type == 'Recurring':
     #  raise NotImplementedError # FIXME how to do this right?
     # calculate cash flow for component's lifetime for this cash flow
-    lifeCf = componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=0, pyomoSwitch=pyomoChk)
+    lifeCf = componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=0, pyomoVar=pyomoVar)
     lifetimeCashflows[compName][cfName] = lifeCf
 
   vprint(v, 0, m, '='*90)
@@ -631,7 +631,7 @@ def run(settings, components, variables, pyomoChk=False):
   # determine how the project life is calculated.
   projectLength = getProjectLength(settings, components, v=v)
   vprint(v, 0, m, ' ... project length: {} years'.format(projectLength))
-  projectCashflows = projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=v, pyomoChoice=pyomoChk)
+  projectCashflows = projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=v, pyomoVar=pyomoVar)
   # preserve cashflows by component so they're reportable as outputs
 
   vprint(v, 0, m, '='*90)
@@ -645,7 +645,7 @@ def run(settings, components, variables, pyomoChk=False):
     metric = npvSearch(settings, components, projectCashflows, projectLength, v=v)
     results['NPV_mult'] = metric
   if 'NPV' in indicators:
-    metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v, pyomoNPV=pyomoChk)
+    metric = NPV(components, projectCashflows, projectLength, settings.getDiscountRate(), v=v, pyomoVar=pyomoVar)
     results['NPV'] = metric
   if 'IRR' in indicators:
     metric = IRR(components, projectCashflows, projectLength, v=v)

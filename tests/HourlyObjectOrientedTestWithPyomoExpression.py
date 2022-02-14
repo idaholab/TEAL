@@ -51,7 +51,7 @@ def run(dfSet):
   dfSetNew = (dfSet[0], dictNew, m)
   settings = build_econ_settings()
   components = build_econ_components(dfSetNew, settings)
-  metrics = RunCashFlow.run(settings, list(components.values()), {}, pyomoChk=True)
+  metrics = RunCashFlow.run(settings, list(components.values()), {}, pyomoVar=True)
   return metrics, m
 
 def build_econ_settings():
