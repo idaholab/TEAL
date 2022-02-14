@@ -92,6 +92,7 @@
  [./CashFlow_ObjectOriented_Pyomo]
   type = 'RavenPython'
   input = 'HourlyObjectOrientedTestWithPyomoExpression.py'
+  python3_only = True
  [../]
 
  [./CashFlow_NPV]
