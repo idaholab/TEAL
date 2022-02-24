@@ -972,14 +972,19 @@ class Capex(CashFlow):
     if self._alpha is None:
       raise IOError(self.missingNodeTemplate.format(comp=self._component, cf=self.name, node='alpha'))
 
-  def initParams(self, lifetime):
+  def initParams(self, lifetime, pyomoVar=False):
     """
       Initialize some parameters
       @ In, lifetime, int, the given life time
+      @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value
       @ Out, None
     """
-    self._alpha = np.zeros(1 + lifetime)
-    self._driver = np.zeros(1 + lifetime)
+    if not pyomoVar:
+      self._alpha = np.zeros(1 + lifetime)
+      self._driver = np.zeros(1 + lifetime)
+    else:
+      self._alpha = np.zeros(1 + lifetime, dtype=object)
+      self._driver = np.zeros(1 + lifetime, dtype=object)
 
   def getAmortization(self):
     """
@@ -1012,10 +1017,29 @@ class Capex(CashFlow):
     # for capex, both the Driver and Alpha are nonzero in year 1 and zero thereafter
     for name, value in toExtend.items():
       if name.lower() in ['alpha', 'driver']:
-        if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
+        if utils.isAFloatOrInt(value):
           new = np.zeros(t)
           new[0] = float(value)
           toExtend[name] = new
+        elif type(value) in [list, np.ndarray]:
+          if len(value) == 1:
+            if utils.isAFloatOrInt(value[0]):
+              new = np.zeros(t)
+              new[0] = float(value)
+              toExtend[name] = new
+            elif type(value) is str:
+              continue
+            else:
+              listArray = [0]*t
+              listArray[0] = value
+              toExtend[name] = np.array(listArray)
+        elif type(value) is str:
+          continue
+        else:
+          # the else is for any object type data. if other types require distinction, add new 'elif'
+          listArray = [0]*t
+          listArray[0] = value
+          toExtend[name] = np.array(listArray)
     return toExtend
 
   def calculateCashflow(self, variables, lifetimeCashflows, lifetime, verbosity):
@@ -1025,7 +1049,7 @@ class Capex(CashFlow):
       @ In, lifetimeCashflows, dict, dict of cashflows
       @ In, lifetime, int, the given life time
       @ In, verbosity, int, used to control the output information
-      @ Out, ret, dict, the dict of caculated cashflow
+      @ Out, ret, dict, the dict of calculated cashflow
     """
     ## FIXME what if I have set the values already?
     # get variable values, if needed
@@ -1110,14 +1134,18 @@ class Recurring(CashFlow):
     self._taxable = True        # sales/yearly are expected to be taxed
     self._yearlyCashflow = None
 
-  def initParams(self, lifetime):
+  def initParams(self, lifetime, pyomoVar=False):
     """
       Initialize some parameters
       @ In, lifetime, int, the given life time
+      @ In, pyomoVar, boolean, if True, indicates that an expression will be constructed instead of a value
       @ Out, None
     """
     # Recurring doesn't use m alpha D/D' X, it uses integral(alpha * D)dt for each year
-    self._yearlyCashflow = np.zeros(lifetime+1)
+    if not pyomoVar:
+      self._yearlyCashflow = np.zeros(lifetime+1)
+    else:
+      self._yearlyCashflow = np.zeros(lifetime+1, dtype=object)
 
   def computeIntrayearCashflow(self, year, alpha, driver):
     """
@@ -1200,11 +1228,34 @@ class Recurring(CashFlow):
     # for recurring, both the Driver and Alpha are zero in year 1 and nonzero thereafter
     # FIXME: we're going to integrate alpha * D over time (not year time, intrayear time)
     for name, value in toExtend.items():
-      if name.lower() in ['alpha']:
-        if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
+      if name.lower() in ['alpha', 'driver']:
+        if utils.isAFloatOrInt(value):
           new = np.ones(t) * float(value)
           new[0] = 0
           toExtend[name] = new
+        elif type(value) in [list, np.ndarray]:
+          if len(value) == 1:
+            if utils.isAFloatOrInt(value[0]):
+              new = np.ones(t) * float(value)
+              new[0] = 0
+              toExtend[name] = new
+            elif type(value) is str:
+              continue
+            else:
+              listArray = [0]*t
+              for i in range(len(listArray)):
+                listArray[i] = value
+              listArray[0] = 0
+              toExtend[name] = np.array(listArray)
+        elif type(value) is str:
+          continue
+        else:
+          # the else is for any object type data. if other types require distinction, add new 'elif'
+          listArray = [0]*t
+          for i in range(len(listArray)):
+            listArray[i] = value
+          listArray[0] = 0
+          toExtend[name] = np.array(listArray)
     return toExtend
 
 
