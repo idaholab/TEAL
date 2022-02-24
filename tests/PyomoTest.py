@@ -31,7 +31,11 @@ from TEAL import CashFlow as RunCashFlow
 def build_econ_settings(cfs, life=5, dr=0.1, tax=0.21, infl=0.02184):
   """
     Constructs global settings for econ run
-    @ In, FIXME
+    @ In, cfs, CashFlow, cash flow components
+    @ In, life, float, life time of the years to evaluate
+    @ In, dr, float, discount rate
+    @ In, tax, float, the amount of tax ratio to apply
+    @ In, infl, float, the amount of inflation ratio to apply
     @ Out, settings, CashFlow.GlobalSettings, settings
   """
   active = []
@@ -53,6 +57,13 @@ def build_econ_settings(cfs, life=5, dr=0.1, tax=0.21, infl=0.02184):
 
 
 def build_generator(size, lifetime, dispatch):
+  """
+    Constructs the cash flow of each applicable components
+    @ In, size, pyomo.core.base.var, build size
+    @ In, lifetime, int, life time of the years to evaluate
+    @ In, dispatch, numpy array, dispatch variables
+    @ Out, generator, CashFlow.GlobalSettings, settings
+  """
   # make the TEAL component
   generator = CashFlows.Component()
   generator.setParams({'name': 'Generator', 'Life_time': lifetime})
@@ -84,7 +95,12 @@ def build_generator(size, lifetime, dispatch):
 
 def build_market(size, life, prices, dispatch):
   """
-    FIXME
+    Constructs the cash flow of each applicable components
+    @ In, size, pyomo.core.base.var, build size
+    @ In, life, int, life time of the years to evaluate
+    @ In, prices, numpy array, values of pricing
+    @ In, dispatch, numpy array, dispatch variables
+    @ Out, market, TEAL.src.CashFlows.Component, hourly cashflow sales for each component
   """
   market = CashFlows.Component()
   market.setParams({'name': 'Market', 'Life_time': life})
@@ -101,8 +117,11 @@ def build_market(size, life, prices, dispatch):
 
 def createCapex(comp, alpha, driver):
   """
-    Constructs capex object
-    FIXME
+    Constructs the parameters for capital expenditures
+    @ In, comp, TEAL.src.CashFlows.Component, main structure to add component cash flows
+    @ In, alpha, float, price
+    @ In, driver, pyomo.core.base.var.ScalarVar, quantity sold
+    @ Out, cf, TEAL.src.CashFlows.Component, cashflow sale for each capital expenditures
   """
   life = comp.getLifetime()
   # extract alpha, driver as just one value
@@ -124,8 +143,11 @@ def createCapex(comp, alpha, driver):
 
 def createRecurringYearly(comp, alpha, driver):
   """
-    Constructs recurring cashflow with one value per year
-    FIXME
+    Constructs the parameters for capital expenditures
+    @ In, comp, TEAL.src.CashFlows.Component, main structure to add component cash flows
+    @ In, alpha, float, yearly price to populate
+    @ In, driver, pyomo.core.base.var.ScalarVar, quantity sold to populate
+    @ Out, cf, TEAL.src.CashFlows.Component, cashflow sale for the recurring yearly
   """
   life = comp.getLifetime()
   cf = CashFlows.Recurring()
@@ -236,8 +258,6 @@ if __name__ == '__main__':
 
   market = build_market(market_size, market_life, prices, market_dispatch)
 
-  # DEBUGG
-
   metrics = RunCashFlow.run(tealSettings, [generator, market], {}, pyomoVar=True) # Past version was pyomoChk
 
   # now set up the rest of the Pyomo model
@@ -265,19 +285,31 @@ if __name__ == '__main__':
   # Objective: NPV
   m.npv = pyo.Objective(expr=metrics['NPV'], sense=pyo.maximize)
 
-  print('DEBUGG PRE:')
-  m.display()
   # solve pyomo problem
   solver = pyo.SolverFactory('ipopt')
   results = solver.solve(m)
-  print('\n\n')
-  print('DEBUGG POST:')
+  print('Display Results:')
   m.display()
-  print(m.gen_size.value)
-  calculated = pyo.value(m.npv) # Changed from print(m.npv.value)
-  correct = 10164.740285148146
-  if abs(pyo.value(m.npv) - correct)/correct < 1e-8:
+  calculatedNPV = pyo.value(m.npv) # Changed from print(m.npv.value)
+  calculatedGenSize = m.gen_size.value
+  correctNPV = 10164.740285148146
+  correctGenSize = 50.00000048819408
+  # Checking if market values are alternating as anticipated
+  check = 0
+  for i in range(10):
+    if m.Market_disp_year_1[i].value == m.Market_disp_year_2[i].value:
+      check += 1
+    else:
+      continue
+  # Final check
+  if abs(calculatedNPV - correctNPV)/correctNPV < 1e-8 and abs(calculatedGenSize - correctGenSize)/correctGenSize < 1e-8 and check == 0:
     print('Success!')
     sys.exit(0)
   else:
-    print('ERROR: correct: {:1.3e}, calculated: {:1.3e}, diff {:1.3e}'.format(correct, calculated, correct-calculated))
+    if abs(calculatedNPV - correctNPV)/correctNPV >= 1e-8:
+      print('ERROR: correct NPV: {:1.3e}, calculated NPV: {:1.3e}, diff {:1.3e}'.format(correctNPV, calculatedNPV, correctNPV-calculatedNPV))
+    if abs(calculatedGenSize - correctGenSize)/correctGenSize >= 1e-8:
+      print('ERROR: correct generation size: {:1.3e}, calculated generation size: {:1.3e}, diff {:1.3e}'.format(correctGenSize, calculatedGenSize, correctGenSize-calculatedGenSize))
+    if check != 0:
+      print('ERROR: there are {:} market values between consecutive years that should not be matching.'.format(check))
+    sys.exit(1)

@@ -89,18 +89,11 @@
   input = 'HourlyObjectOrientedTest.py'
  [../]
 
- [./CashFlow_PyomoObjectOriented]
-  type = 'RavenPython'
-  input = 'HourlyObjectOrientedTestWithPyomoExpression.py'
-  python3_only = True
-  required_libraries = 'pyomo'
- [../]
-
- [./CashFlow_PyomoTest]
+ [./PyomoTest]
   type = 'RavenPython'
   input = 'PyomoTest.py'
   python3_only = True
-  required_libraries = 'pyomo'
+  minimum_library_versions = 'pyomo 6.2'
  [../]
 
  [./CashFlow_NPV]
