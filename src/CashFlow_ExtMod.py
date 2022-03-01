@@ -25,20 +25,11 @@ import numpy as np
 import warnings
 warnings.simplefilter('default', DeprecationWarning)
 
-# NOTE this import exception is ONLY to allow RAVEN to directly import this module.
-try:
-  from ..src import main
-  from ..src import CashFlows
-except ImportError:
-  import main
-
+from ..src import main
+from ..src import CashFlows
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.
-dirPath = os.path.dirname(os.path.realpath(__file__))
-# TODO fix with plugin relative path
-ravenPath = os.path.dirname(__file__) + '/../../../framework'
-sys.path.append(os.path.expanduser(ravenPath))
 
 try:
   from framework.utils.graphStructure import graphObject
