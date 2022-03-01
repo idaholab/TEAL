@@ -1011,7 +1011,7 @@ class Capex(CashFlow):
           toExtend[name] = new
         elif type(value) in [list, np.ndarray]:
           if len(value) == 1:
-            if utils.isAFloatOrInt(value[0]):
+            if mathUtils.isAFloatOrInt(value[0]):
               new = np.zeros(t)
               new[0] = float(value)
               toExtend[name] = new
@@ -1223,7 +1223,7 @@ class Recurring(CashFlow):
           toExtend[name] = new
         elif type(value) in [list, np.ndarray]:
           if len(value) == 1:
-            if utils.isAFloatOrInt(value[0]):
+            if mathUtils.isAFloatOrInt(value[0]):
               new = np.ones(t) * float(value)
               new[0] = 0
               toExtend[name] = new
