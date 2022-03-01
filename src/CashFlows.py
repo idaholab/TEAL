@@ -36,14 +36,14 @@ except ImportError:
   import Amortization
 # TODO fix with plugin relative path
 path1 = os.path.dirname(__file__)
-path2 = '/../raven/framework'
+path2 = '/../raven'
 path3=os.path.abspath(os.path.expanduser(path1+'/..'+path2))
 path4=os.path.abspath(os.path.expanduser(path1+path2))
-path5=os.path.abspath(os.path.expanduser(path1+'/../../../framework'))
+path5=os.path.abspath(os.path.expanduser(path1+'/../../..'))
 sys.path.extend([path3,path4,path5])
 
-from utils import mathUtils as utils
-from utils import InputData, InputTypes, TreeStructure, xmlUtils
+from framework.utils import mathUtils as utils
+from framework.utils import InputData, InputTypes, TreeStructure, xmlUtils
 
 
 class GlobalSettings:

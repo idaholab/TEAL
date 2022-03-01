@@ -27,7 +27,7 @@ from collections import defaultdict, OrderedDict
 import numpy as np
 import numpy_financial as npf
 try:
-  from TEAL.src import CashFlows
+  from ..src import CashFlows
   # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
   # In general, this should not exist, and RAVEN should import TEAL.CashFlow instead of importing Teal directly, implicitly.
 except (ImportError, ModuleNotFoundError):
@@ -36,8 +36,8 @@ except (ImportError, ModuleNotFoundError):
 raven_path= os.path.abspath(os.path.dirname(__file__)) + '/../../raven/framework'
 sys.path.append(raven_path) #'~/projects/raven/framework') # TODO generic RAVEN location
 
-from utils.graphStructure import graphObject
-from utils import mathUtils as utils
+from framework.utils.graphStructure import graphObject
+from framework.utils import mathUtils as utils
 
 #=====================
 # UTILITIES

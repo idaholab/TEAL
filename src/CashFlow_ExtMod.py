@@ -27,8 +27,8 @@ warnings.simplefilter('default', DeprecationWarning)
 
 # NOTE this import exception is ONLY to allow RAVEN to directly import this module.
 try:
-  from TEAL.src import main
-  from TEAL.src import CashFlows
+  from ..src import main
+  from ..src import CashFlows
 except ImportError:
   import main
 
@@ -41,8 +41,8 @@ ravenPath = os.path.dirname(__file__) + '/../../../framework'
 sys.path.append(os.path.expanduser(ravenPath))
 
 try:
-  from utils.graphStructure import graphObject
-  from PluginBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase
+  from framework.utils.graphStructure import graphObject
+  from framework.PluginBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase
 except:
   raise IOError("CashFlow ERROR (Initialisation): RAVEN needs to be installed and CashFlow needs to be in its plugin directory for the plugin to work!'")
 
