@@ -32,8 +32,8 @@ from ..src import CashFlows
 # needs to be in the propoer plugin directory.
 
 try:
-  from framework.utils.graphStructure import graphObject
-  from framework.PluginBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase
+  from ravenframework.utils.graphStructure import graphObject
+  from ravenframework.PluginBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase
 except:
   raise IOError("CashFlow ERROR (Initialisation): RAVEN needs to be installed and CashFlow needs to be in its plugin directory for the plugin to work!'")
 

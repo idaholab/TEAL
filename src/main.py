@@ -30,8 +30,8 @@ import numpy_financial as npf
 
 from ..src import CashFlows
 
-from framework.utils.graphStructure import graphObject
-from framework.utils import mathUtils
+from ravenframework.utils.graphStructure import graphObject
+from ravenframework.utils import mathUtils
 
 #=====================
 # UTILITIES

@@ -31,8 +31,8 @@ import time
 
 from ..src import Amortization
 
-from framework.utils import mathUtils
-from framework.utils import InputData, InputTypes, TreeStructure, xmlUtils
+from ravenframework.utils import mathUtils
+from ravenframework.utils import InputData, InputTypes, TreeStructure, xmlUtils
 
 class GlobalSettings:
   """
