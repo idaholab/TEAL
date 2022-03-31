@@ -25,6 +25,7 @@ import numpy as np
 import pandas as pd
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))) #Plugins (including TEAL)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))) #RAVEN
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'raven'))) #RAVEN (if TEAL and RAVEN in same directory)
 from TEAL import CashFlows
 from TEAL import CashFlow as RunCashFlow
 
