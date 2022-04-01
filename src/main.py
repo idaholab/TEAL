@@ -27,18 +27,11 @@ from collections import defaultdict, OrderedDict
 
 import numpy as np
 import numpy_financial as npf
-try:
-  from TEAL.src import CashFlows
-  # NOTE this import exception is ONLY to allow RAVEN to directly import this extmod.
-  # In general, this should not exist, and RAVEN should import TEAL.CashFlow instead of importing Teal directly, implicitly.
-except (ImportError, ModuleNotFoundError):
-  import CashFlows
 
-raven_path= os.path.abspath(os.path.dirname(__file__)) + '/../../raven/framework'
-sys.path.append(raven_path) #'~/projects/raven/framework') # TODO generic RAVEN location
+from ..src import CashFlows
 
-from utils.graphStructure import graphObject
-from utils import mathUtils as utils
+from ravenframework.utils.graphStructure import graphObject
+from ravenframework.utils import mathUtils
 
 #=====================
 # UTILITIES
@@ -143,7 +136,7 @@ def _createEvalProcess(components, variables, pyomoVar=False):
       # does the driver come from the variable list, or from another cashflow, or is it already evaluated?
       cfn = '{}|{}'.format(comp.name, cf.name)
       found = False
-      if driver is None or utils.isAFloatOrInt(driver) or isinstance(driver, np.ndarray) or pyomoVar:
+      if driver is None or mathUtils.isAFloatOrInt(driver) or isinstance(driver, np.ndarray) or pyomoVar:
         found = True
         # TODO assert it's already filled?
         evaluated.append(cfn)
@@ -217,11 +210,11 @@ def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100, pyomoVa
     for item, value in results.items():
       if item == 'result':
         continue
-      if utils.isAFloatOrInt(value):
+      if mathUtils.isAFloatOrInt(value):
         vprint(v, 1, m, paramText.format(item, value))
       else:
         orig = cf.getParam(item)
-        if utils.isSingleValued(orig):
+        if mathUtils.isSingleValued(orig):
           name = orig
         else:
           name = '(from input)'

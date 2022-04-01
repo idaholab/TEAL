@@ -29,22 +29,10 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import time
 
-# NOTE this import exception is ONLY to allow RAVEN to directly import this module.
-try:
-  from TEAL.src import Amortization
-except ImportError:
-  import Amortization
-# TODO fix with plugin relative path
-path1 = os.path.dirname(__file__)
-path2 = '/../raven/framework'
-path3=os.path.abspath(os.path.expanduser(path1+'/..'+path2))
-path4=os.path.abspath(os.path.expanduser(path1+path2))
-path5=os.path.abspath(os.path.expanduser(path1+'/../../../framework'))
-sys.path.extend([path3,path4,path5])
+from ..src import Amortization
 
-from utils import mathUtils as utils
-from utils import InputData, InputTypes, TreeStructure, xmlUtils
-
+from ravenframework.utils import mathUtils
+from ravenframework.utils import InputData, InputTypes, TreeStructure, xmlUtils
 
 class GlobalSettings:
   """
@@ -842,13 +830,13 @@ class CashFlow:
     if len(value) == 1:
       # single entry should be either a float (price) or string (raven variable)
       value = value[0]
-      if utils.isAString(value) or utils.isAFloatOrInt(value):
+      if mathUtils.isAString(value) or mathUtils.isAFloatOrInt(value):
         ret = value
       else:
         raise IOError('Unrecognized alpha/driver type: "{}" with type "{}"'.format(value, type(value)))
     else:
       # should be floats; InputData assures the entries are the same type already
-      if not utils.isAFloatOrInt(value[0]):
+      if not mathUtils.isAFloatOrInt(value[0]):
         raise IOError('Multiple non-number entries for alpha/driver found, but require either a single variable name or multiple float entries: {}'.format(value))
       ret = np.asarray(value)
     return ret
@@ -864,7 +852,7 @@ class CashFlow:
     """
     # load variable values from variables or other cash flows, as needed (ha!)
     for name, source in need.items():
-      if utils.isAString(source):
+      if mathUtils.isAString(source):
         # as a string, this is either from the variables or other cashflows
         # look in variables first
         value = variables.get(source, None)
@@ -1017,13 +1005,13 @@ class Capex(CashFlow):
     # for capex, both the Driver and Alpha are nonzero in year 1 and zero thereafter
     for name, value in toExtend.items():
       if name.lower() in ['alpha', 'driver']:
-        if utils.isAFloatOrInt(value):
+        if mathUtils.isAFloatOrInt(value):
           new = np.zeros(t)
           new[0] = float(value)
           toExtend[name] = new
         elif type(value) in [list, np.ndarray]:
           if len(value) == 1:
-            if utils.isAFloatOrInt(value[0]):
+            if mathUtils.isAFloatOrInt(value[0]):
               new = np.zeros(t)
               new[0] = float(value)
               toExtend[name] = new
@@ -1068,7 +1056,7 @@ class Capex(CashFlow):
     mult = self.getMultiplier()
     if mult is None:
       mult = 1.0
-    elif utils.isAString(mult):
+    elif mathUtils.isAString(mult):
       mult = float(variables[mult])
     result = mult * alpha * (driver / reference) ** scale
     if verbosity > 1:
@@ -1092,7 +1080,7 @@ class Capex(CashFlow):
     for param in ['alpha', 'driver']:
       val = self.getParam(param)
       # if a string, then it's probably a variable, so don't check it now
-      if utils.isAString(val):
+      if mathUtils.isAString(val):
         continue
       # if it's valued, then it better be the same length as the lifetime (which is comp lifetime + 1)
       elif len(val) != lifetime:
@@ -1160,7 +1148,7 @@ class Recurring(CashFlow):
     mult = self.getMultiplier()
     if mult is None:
       mult = 1.0
-    elif utils.isAString(mult):
+    elif mathUtils.isAString(mult):
       raise NotImplementedError
     try:
       self._yearlyCashflow[year] = mult * (alpha * driver).sum() # +1 is for initial construct year
@@ -1181,7 +1169,7 @@ class Recurring(CashFlow):
     mult = self.getMultiplier()
     if mult is None:
       mult = 1.0
-    elif utils.isAString(mult):
+    elif mathUtils.isAString(mult):
       raise NotImplementedError
     try:
       self._yearlyCashflow = mult * (alpha * driver)
@@ -1229,13 +1217,13 @@ class Recurring(CashFlow):
     # FIXME: we're going to integrate alpha * D over time (not year time, intrayear time)
     for name, value in toExtend.items():
       if name.lower() in ['alpha', 'driver']:
-        if utils.isAFloatOrInt(value):
+        if mathUtils.isAFloatOrInt(value):
           new = np.ones(t) * float(value)
           new[0] = 0
           toExtend[name] = new
         elif type(value) in [list, np.ndarray]:
           if len(value) == 1:
-            if utils.isAFloatOrInt(value[0]):
+            if mathUtils.isAFloatOrInt(value[0]):
               new = np.ones(t) * float(value)
               new[0] = 0
               toExtend[name] = new
@@ -1275,12 +1263,12 @@ class Amortizor(Capex):
     driver = toExtend['driver']
     # how we treat the driver depends on if this is the amortizer or the depreciator
     if self.name.split('_')[-2] == 'amortize':
-      if not utils.isAString(driver):
+      if not mathUtils.isAString(driver):
         toExtend['driver'] = np.ones(t) * driver[0] * -1.0
         toExtend['driver'][0] = 0.0
       for name, value in toExtend.items():
         if name.lower() in ['driver']:
-          if utils.isAFloatOrInt(value) or (len(value) == 1 and utils.isAFloatOrInt(value[0])):
+          if mathUtils.isAFloatOrInt(value) or (len(value) == 1 and mathUtils.isAFloatOrInt(value[0])):
             new = np.zeros(t)
             new[1:] = float(value)
             toExtend[name] = new
