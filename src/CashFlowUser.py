@@ -22,15 +22,10 @@ Base module for objects that want to access the functionality of the CashFlow ob
 import os
 import sys
 
-# NOTE this import exception is ONLY to allow RAVEN to directly import this module.
-try:
-  from TEAL.src.CashFlows import Component
-except ImportError:
-  from CashFlows import Component
+from ..src.CashFlows import Component
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.
-sys.path.append(os.path.expanduser(os.path.dirname(__file__) + '/../../../framework'))
 
 class CashFlowUser:
   """

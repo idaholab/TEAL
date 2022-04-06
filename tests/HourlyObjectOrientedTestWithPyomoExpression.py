@@ -23,28 +23,42 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))) #Plugins (including TEAL)
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))) #RAVEN
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'raven'))) #RAVEN (if TEAL and RAVEN in same directory)
+import pyomo.environ as pyo
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from TEAL import CashFlows
 from TEAL import CashFlow as RunCashFlow
 
-def run(df):
+def run(dfSet):
   """
     Main run command.
-    @ In, df, pandas.Dataframe, loaded data to run
+    @ In, dfSet, tuple, includes pandas.Dataframe, dict of inputs, and pyomo concrete model loaded
+    to run
     @ Out, metrics, dict, dictionary of metric results
   """
+  dictNew = {}
+  m = pyo.ConcreteModel()
+  # Create new dictionary with pyomo expressions
+  for key, value in dfSet[1].items():
+    setattr(m, key+'p', pyo.Var(list(range(len(value)))))
+    if key == 'A':
+      dictNew[key] = np.array(list(m.Ap.values()))
+    elif key == 'B':
+      dictNew[key] = np.array(list(m.Bp.values()))
+    elif key == 'C':
+      dictNew[key] = np.array(list(m.Cp.values()))
+    else:
+      dictNew[key] = np.array(list(m.Dp.values()))
+  dfSetNew = (dfSet[0], dictNew, m)
   settings = build_econ_settings()
-  components = build_econ_components(df, settings)
-  metrics = RunCashFlow.run(settings, list(components.values()), {})
-  return metrics
+  components = build_econ_components(dfSetNew, settings)
+  metrics = RunCashFlow.run(settings, list(components.values()), {}, pyomoVar=True)
+  return metrics, m
 
 def build_econ_settings():
   """
     Constructs global settings for econ run
     @ In, None
-    @ Out, settigns, CashFlow.GlobalSettings, settings
+    @ Out, settings, CashFlow.GlobalSettings, settings
   """
   params = {'DiscountRate': 0.10,
             'tax': 0.21,
@@ -58,10 +72,11 @@ def build_econ_settings():
   settings._verbosity = 0
   return settings
 
-def build_econ_components(df, settings):
+def build_econ_components(dfSet, settings):
   """
     Constructs run components
-    @ In, df, pandas.Dataframe, loaded data to run
+    @ In, dfSet, tuple, includes pandas.Dataframe, dict of inputs, and pyomo concrete model loaded
+    to run
     @ In, settings, CashFlow.GlobalSettings, settings
     @ Out, comps, dict, dict mapping names to CashFlow component objects
   """
@@ -80,15 +95,15 @@ def build_econ_components(df, settings):
   cfs = []
 
   ### recurring cashflow evaluated hourly, to show usage
-  cf = createRecurringHourly(df, comp, 'A', 'D')
+  cf = createRecurringHourly(dfSet, comp, 'A', 'D')
   cfs.append(cf)
   print('DEBUGG hourly recurring:', cf._yearlyCashflow)
   ### recurring cashflow evaluated yearly
-  cf = createRecurringYearly(df, comp, 'A', 'D')
+  cf = createRecurringYearly(dfSet, comp, 'A', 'D')
   cfs.append(cf)
   print('DEBUGG yearly recurring:', cf._yearlyCashflow)
   ### capex cashflow
-  cf = createCapex(df, comp, 'B', 'D')
+  cf = createCapex(dfSet, comp, 'B', 'D')
   cfs.append(cf)
   ## amortization
   cf.setAmortization('MACRS', 3)
@@ -98,10 +113,11 @@ def build_econ_components(df, settings):
   comp.addCashflows(cfs)
   return comps
 
-def createCapex(df, comp, driver, alpha):
+def createCapex(dfSet, comp, driver, alpha):
   """
     Constructs capex object
-    @ In, df, pandas.Dataframe, loaded data to run
+    @ In, dfSet, tuple, includes pandas.Dataframe, dict of inputs, and pyomo concrete model loaded
+    to run
     @ In, comp, CashFlow.Component, component this cf will belong to
     @ In, driver, string, variable name in df to take driver from
     @ In, alpha, string, variable name in df to take alpha from
@@ -109,8 +125,8 @@ def createCapex(df, comp, driver, alpha):
   """
   life = comp.getLifetime()
   # extract alpha, driver as just one value
-  alpha = df[alpha].mean()
-  driver = df[driver].mean()
+  alpha = dfSet[1][alpha].mean()
+  driver = dfSet[1][driver].mean()
   cf = CashFlows.Capex()
   cf.name = 'Cap'
   cf.initParams(life)
@@ -126,10 +142,11 @@ def createCapex(df, comp, driver, alpha):
   cf.setParams(cfFarams)
   return cf
 
-def createRecurringYearly(df, comp, driver, alpha):
+def createRecurringYearly(dfSet, comp, driver, alpha):
   """
     Constructs recurring cashflow with one value per year
-    @ In, df, pandas.Dataframe, loaded data to run
+    @ In, dfSet, tuple, includes pandas.Dataframe, dict of inputs, and pyomo concrete model loaded
+    to run
     @ In, comp, CashFlow.Component, component this cf will belong to
     @ In, driver, string, variable name in df to take driver from
     @ In, alpha, string, variable name in df to take alpha from
@@ -144,18 +161,38 @@ def createRecurringYearly(df, comp, driver, alpha):
   cf.setParams(cfFarams)
   # because our data comes hourly, collapse it to be yearly
   ## 0 for first year (build year) -> TODO couldn't this be automatic?
-  alphas = np.zeros(life + 1)
-  drivers = np.zeros(life + 1)
-  alphas[1:] = df[alpha].groupby(df.index.year).mean().values[:life]
-  drivers[1:] = df[driver].groupby(df.index.year).mean().values[:life]
+  alphas = np.zeros(life+1, dtype=object)
+  drivers = np.zeros(life+1, dtype=object)
+  yearDfs = dfSet[0].groupby([dfSet[0].index.year])
+  oldList = []
+  newList = []
+  countOld = 0
+  countNew = 0
+  count = 0
+  for year, yearDf in yearDfs:
+    countOld = countNew
+    oldList.append(countOld)
+    if count != 0:
+      countNew = len(yearDf) + countOld
+      newList.append(countNew)
+      alphas[count] = dfSet[1][alpha][oldList[count]:newList[count]].mean()
+      drivers[count] = dfSet[1][driver][oldList[count]:newList[count]].mean()
+    else:
+      newList.append(countNew)
+      alphas[count] = 0
+      drivers[count] = 0
+    count += 1
+    if count == life+1:
+      break
   # construct annual summary cashflows
   cf.computeYearlyCashflow(alphas, drivers)
   return cf
 
-def createRecurringHourly(df, comp, driver, alpha):
+def createRecurringHourly(dfSet, comp, driver, alpha):
   """
     Constructs recurring cashflow with one value per hour
-    @ In, df, pandas.Dataframe, loaded data to run
+    @ In, dfSet, tuple, includes pandas.Dataframe, dict of inputs, and pyomo concrete model loaded
+    sto run
     @ In, comp, CashFlow.Component, component this cf will belong to
     @ In, driver, string, variable name in df to take driver from
     @ In, alpha, string, variable name in df to take alpha from
@@ -168,13 +205,17 @@ def createRecurringHourly(df, comp, driver, alpha):
                'mult_target': None,
                'inflation': False}
   cf.setParams(cfFarams)
-  cf.initParams(life)
-  yearDfs = df.groupby([df.index.year])
+  cf.initParams(life, pyomoVar=True)
+  yearDfs = dfSet[0].groupby([dfSet[0].index.year])
+  countOld = 0
+  countNew = 0
   for year, yearDf in yearDfs:
+    countOld = countNew
+    countNew = len(yearDf) + countOld
     y = year - 2018
     if y > life:
       break
-    cf.computeIntrayearCashflow(y, yearDf[driver], yearDf[alpha])
+    cf.computeIntrayearCashflow(y, dfSet[1][driver][countOld:countNew], dfSet[1][alpha][countOld:countNew])
   return cf
 
 
@@ -185,6 +226,7 @@ if __name__ == '__main__':
   targets = ['A', 'B', 'C', 'D', 'Year', 'Time']
   indices = ['RAVEN_sample_ID']
   print('Loading data ...')
+  # Data includes the driver and alphas each time of the corresponding year
   full_df = pd.read_csv('aux_file/hourly.csv',
                         index_col=indices,
                         usecols=targets+indices) #,
@@ -197,13 +239,37 @@ if __name__ == '__main__':
   df.index = datetime
   df = df.sort_index()[['A', 'B', 'C', 'D']]
 
-  metrics = run(df)
+  # Converting pandas dataframe to numpy array. This is required for numpy-to-pyomo interaction
+  # and will allow typical numpy operations apply to pyomo expressions
+  x = df.to_numpy()
+  A = np.zeros((x.shape[0])) # Creating arrays for the given driver and alphas
+  B = np.zeros((x.shape[0]))
+  C = np.zeros((x.shape[0]))
+  D = np.zeros((x.shape[0]))
+  for i in range(x.shape[0]): # Converting into dictionary format for function 'run'
+    A[i] = x[i][0]
+    B[i] = x[i][1]
+    C[i] = x[i][2]
+    D[i] = x[i][3]
+  dictDf = {} # Create empty dictionary, and apply applicable drivers and alphas
+  dictDf['A'] = A
+  dictDf['B'] = B
+  dictDf['C'] = C
+  dictDf['D'] = D
+  dfSet = (df, dictDf) # Passing tuple to function 'run'
+
+  metrics, m = run(dfSet)
 
   calculated = metrics['NPV']
-  correct = 2.213218922e+08
-  # NOTE if inflation is applied to all cashflows, answer is 2.080898547e+08
-  if abs(calculated - correct)/correct < 1e-8:
-    print('Success!')
-    sys.exit(0)
-  else:
-    print('ERROR: correct: {:1.3e}, calculated: {:1.3e}, diff {:1.3e}'.format(correct, calculated, correct-calculated))
+
+  # TODO: To solve the current expression with the constraints below, uncomment the code below.
+  # Note: Caution! It may take a while before it is solved
+  #m.OBJ = pyo.Objective(expr = calculated)
+  #m.Constraint1 = pyo.Constraint(expr = calculated <= 2.213218922e+08)
+  # for i in range(x.shape[0]):
+  #  m.Constraint = pyo.Constraint(expr = m.Ap[i] + m.Dp[i] >= 0)
+  #  m.Constraint = pyo.Constraint(expr = m.Bp[i] + m.Dp[i] >= 0)
+  #m.Constraint2 = pyo.Constraint(expr = m.Ap + m.Dp >= 0)
+  #m.Constraint3 = pyo.Constraint(expr = m.Bp + m.Dp >= 0)
+  #solver = pyo.SolverFactory('ipopt')
+  #results = solver.solve(m)
