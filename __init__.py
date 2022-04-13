@@ -13,9 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from TEAL.src import Amortization
-from TEAL.src import CashFlow_ExtMod
-from TEAL.src import CashFlows
-from TEAL.src import CashFlowUser
-from TEAL.src import main as CashFlow
-from TEAL.src import CashFlowPlot
+
+from .src import Amortization
+from .src import CashFlow_ExtMod
+from .src import CashFlows
+from .src import CashFlowUser
+from .src import main as CashFlow
+from .src import CashFlowPlot
+

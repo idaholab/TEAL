@@ -58,6 +58,7 @@
  [./CashFlow_NPV_RunAsCode]
   type = 'RavenPython'
   input = 'CashFlow_test_NPV_RunAsCode.py'
+  skip = 'Need to create driver to make this work'
  [../]
 
  [./CashFlow_NPV_customTime]
@@ -87,6 +88,13 @@
  [./CashFlow_ObjectOriented]
   type = 'RavenPython'
   input = 'HourlyObjectOrientedTest.py'
+ [../]
+
+ [./PyomoTest]
+  type = 'RavenPython'
+  input = 'PyomoTest.py'
+  python3_only = True
+  minimum_library_versions = 'pyomo 6.2'
  [../]
 
  [./CashFlow_NPV]
