@@ -24,6 +24,7 @@ import pyomo.environ as pyo
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','..'))) # Path to access ravenframework
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','raven'))) # Path to access ravenframework
 from TEAL import CashFlows
 from TEAL import CashFlow as RunCashFlow
 
