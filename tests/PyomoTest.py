@@ -23,6 +23,8 @@ import pandas as pd
 import pyomo.environ as pyo
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','..'))) # Path to access ravenframework
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','raven'))) # Path to access ravenframework
 from TEAL import CashFlows
 from TEAL import CashFlow as RunCashFlow
 
@@ -302,13 +304,13 @@ if __name__ == '__main__':
     else:
       continue
   # Final check
-  if abs(calculatedNPV - correctNPV)/correctNPV < 1e-8 and abs(calculatedGenSize - correctGenSize)/correctGenSize < 1e-8 and check == 0:
+  if abs(calculatedNPV - correctNPV)/correctNPV < 1e-3 and abs(calculatedGenSize - correctGenSize)/correctGenSize < 1e-3 and check == 0:
     print('Success!')
     sys.exit(0)
   else:
-    if abs(calculatedNPV - correctNPV)/correctNPV >= 1e-8:
+    if abs(calculatedNPV - correctNPV)/correctNPV >= 1e-3:
       print('ERROR: correct NPV: {:1.3e}, calculated NPV: {:1.3e}, diff {:1.3e}'.format(correctNPV, calculatedNPV, correctNPV-calculatedNPV))
-    if abs(calculatedGenSize - correctGenSize)/correctGenSize >= 1e-8:
+    if abs(calculatedGenSize - correctGenSize)/correctGenSize >= 1e-3:
       print('ERROR: correct generation size: {:1.3e}, calculated generation size: {:1.3e}, diff {:1.3e}'.format(correctGenSize, calculatedGenSize, correctGenSize-calculatedGenSize))
     if check != 0:
       print('ERROR: there are {:} market values between consecutive years that should not be matching.'.format(check))
