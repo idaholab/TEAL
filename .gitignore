@@ -1,0 +1,16 @@
+# mac stuff
+.DS_Store
+
+# vim stuff
+*.swp
+*~
+
+# python stuff
+__pycache__
+*.pyc
+
+.ravenconfig.xml
+.ravenStatus
+tests/**/dump*.*
+tests/**/NPV*
+!tests/gold/dump*.*
