@@ -102,6 +102,10 @@ def checkDrivers(settings, components, variables, v=100, pyomoVar=False):
   m = 'checkDrivers'
   #active = _get_active_drivers(settings, components)
   active = list(comp for comp in components if comp.name in settings.getActiveComponents())
+  ###
+  print("###############\nBuilding active list to feed into _createEvalProcess method\n############")
+  print(active)
+  ###
   vprint(v, 0, m, '... creating evaluation sequence ...')
   ordered = _createEvalProcess(active, variables, pyomoVar=pyomoVar)
   vprint(v, 0, m, '... evaluation sequence:', ordered)
@@ -124,6 +128,11 @@ def _createEvalProcess(components, variables, pyomoVar=False):
     lifetime = comp.getLifetime()
     # find multiplier variables
     multipliers = comp.getMultipliers()
+    ###
+    print('#############################################################')
+    print(f'name = {comp.name}/life = {lifetime}/multipliers = {multipliers}')
+    print('#############################################################')
+    ###
     for mult in multipliers:
       if mult is None:
         continue
@@ -135,13 +144,22 @@ def _createEvalProcess(components, variables, pyomoVar=False):
       driver = cf.getParam('driver')
       # does the driver come from the variable list, or from another cashflow, or is it already evaluated?
       cfn = '{}|{}'.format(comp.name, cf.name)
+      ###
+      print(f'Printing cfn variable #####\n{cfn}')
+      ###
       found = False
       if driver is None or mathUtils.isAFloatOrInt(driver) or isinstance(driver, np.ndarray) or pyomoVar:
+        ###
+        print('###\nFirst Conditional\n###')
+        ###
         found = True
         # TODO assert it's already filled?
         evaluated.append(cfn)
         continue
       elif driver in variables:
+        ###
+        print('############\n YOU SHOULD NOT BE HERE!!!!!! \n#############')
+        ###
         found = True
         # check length of driver
         n = len(np.atleast_1d(variables[driver]))
@@ -155,6 +173,9 @@ def _createEvalProcess(components, variables, pyomoVar=False):
                                      el=lifetime))
       else:
         # driver should be in cash flows if not in variables
+        ###
+        print('############\n YOU SHOULD NOT BE HERE!!!!!! \n#############')
+        ###
         driverComp, driverCf = driver.split('|')
         for matchComp in components:
           if matchComp.name == driverComp:
@@ -184,6 +205,11 @@ def _createEvalProcess(components, variables, pyomoVar=False):
       driverGraph[driver].append(cfn)
   ordered = evaluated + graphObject(driverGraph).createSingleListOfVertices()
   unique = list(OrderedDict.fromkeys(ordered))
+  ###
+  print(f'driverGraph: {driverGraph}')
+  print(f'ordered: {ordered}')
+  print(f'unique: {unique}')
+  ###
   return unique
 
 def componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=100, pyomoVar=False):
@@ -296,6 +322,7 @@ def projectLifeCashflows(settings, components, lifetimeCashflows, projectLength,
     inflation = comp.getInflation() if comp.getInflation() is not None else settings.getInflation()
     compProjCashflows = projectComponentCashflows(comp, tax, inflation, lifetimeCashflows[comp.name], projectLength, v=v, pyomoVar=pyomoVar)
     projectCashflows[comp.name] = compProjCashflows
+  exit()
   return projectCashflows
 
 def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength, v=100, pyomoVar=False):
@@ -337,6 +364,9 @@ def projectComponentCashflows(comp, tax, inflation, lifeCashflows, projectLength
     vprint(v, 1, m, ' ... tax rate: {}'.format(taxMult))
     lifeCf = lifeCashflows[cf.name]
     singleCashflow = projectSingleCashflow(cf, compStart, compEnd, compLife, lifeCf, taxMult, inflRate, projectLength, v=v, pyomoVar=pyomoVar)
+    ###
+    print(f"Single cash flow for lifetime of {comp.name},{cf.name}:\n", singleCashflow)
+    ###
     vprint(v, 0, m, 'Project Cashflow for Component "{}" CashFlow "{}":'.format(comp.name, cf.name))
     if v < 1:
       vprint(v, 0, m, 'Year, Time-Adjusted Value')
@@ -367,6 +397,9 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   m = 'proj c_fl'
   vprint(v, 1, m, "-"*50)
   vprint(v, 1, m, 'Computing PROJECT cash flow for CashFlow "{}" ...'.format(cf.name))
+  ####
+  print(f'start year: {start}, end year: {end}, total life = {life}')
+  ####
   if pyomoVar == False:
     projCf = np.zeros(projectLength)
   else:
@@ -377,10 +410,19 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   #        from operatingMask = np.logical_and(years >= start, years <= end)
   #        to operatingMask = np.logical_and(years >= start, years < end)
   operatingMask = np.logical_and(years >= start, years < end)
+  ####
+  print("Operating Mask: ", operatingMask)
+  ####
   operatingYears = years[operatingMask]
+  ####
+  print("Operational Years: ", operatingYears)
+  ####
   startShift = operatingYears - start # y_shift
   # what year realative to production is this component in, for each operating year?
   relativeOperation = startShift % life # yReal
+  ####
+  print("Relative Operation: ", relativeOperation)
+  ####
   # handle new builds
   ## three types of new builds:
   ### 1) first ever build (only construction cost)
@@ -388,14 +430,23 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   ### 3) years with both a decomissioning and a construction
   ## this is all years in which construction will occur (covers 1 and half of 3)
   newBuildMask = [a[relativeOperation==0] for a in np.where(operatingMask)]
+  ####
+  print("New build mask: ", newBuildMask)
+  ####
   # NOTE make the decomissionMask BEFORE removing the last-year-rebuild, if present.
   ## This lets us do smoother numpy operations.
   decomissionMask = [newBuildMask[0][1:]]
+  ####
+  print("Decomission mask: ", decomissionMask)
+  ####
   # if the last year is a rebuild year, don't rebuild, as it won't be operated.
   if newBuildMask[0][-1] == years[-1]:
     newBuildMask[0] = newBuildMask[0][:-1]
   ## numpy requires tuples as indices, not lists
   newBuildMask = tuple(newBuildMask)
+  ####
+  print("New build mask: ", newBuildMask)
+  ####
   ## add construction costs for all of these new build years
   if not pyomoVar:
     projCf[newBuildMask] = lifeCf[0] * taxMult * np.power(inflRate, -1*years[newBuildMask])
@@ -484,6 +535,10 @@ def FCFF(components, cashFlows, projectLength, mult=None, v=100, pyomoVar=False)
     vprint(v, 1, m, 'year, FCFF')
     for year, value in zip(range(projectLength+1), fcff):
       vprint(v, 1, m, '{:}: {:}'.format(year, type(value)))
+  print(fcff)
+  print(fcff[1])
+  print(cashFlows['import']['Hourly_1'][1])
+  exit()
   return fcff
 
 def NPV(components, cashFlows, projectLength, discountRate, mult=None, v=100, pyomoVar=False, returnFcff=False):
@@ -585,13 +640,16 @@ def run(settings, components, variables, pyomoVar=False):
   """
   # make a dictionary mapping component names to components
   compsByName = dict((c.name, c) for c in components)
+  ###
+  print("##############\nThis is TEAL mapping teal components\n################")
+  print(compsByName)
+  ###
   v = settings._verbosity
   m = 'run'
   vprint(v, 0, m, 'Starting CashFlow Run ...')
   # check mapping of drivers and determine order in which they should be evaluated
   vprint(v, 0, m, '... Checking if all drivers present ...')
   ordered = checkDrivers(settings, components, variables, v=v, pyomoVar=pyomoVar)
-
 
   # compute project cashflows
   ## this comes in multiple styles!
@@ -617,7 +675,9 @@ def run(settings, components, variables, pyomoVar=False):
     # calculate cash flow for component's lifetime for this cash flow
     lifeCf = componentLifeCashflow(comp, cf, variables, lifetimeCashflows, v=0, pyomoVar=pyomoVar)
     lifetimeCashflows[compName][cfName] = lifeCf
-
+  ###
+  print(lifetimeCashflows)
+  ###
   vprint(v, 0, m, '='*90)
   vprint(v, 0, m, 'Project Lifetime Cashflow Calculations')
   vprint(v, 0, m, '='*90)
@@ -625,6 +685,13 @@ def run(settings, components, variables, pyomoVar=False):
   projectLength = getProjectLength(settings, components, v=v)
   vprint(v, 0, m, ' ... project length: {} years'.format(projectLength))
   projectCashflows = projectLifeCashflows(settings, components, lifetimeCashflows, projectLength, v=v, pyomoVar=pyomoVar)
+  ###
+  print(projectCashflows)
+  print(lifetimeCashflows['import']['Hourly_2'][2])
+  # TODO why are these expressions different?
+  print(projectCashflows['import']['Hourly_2'][2])
+  exit()
+  ###
   # preserve cashflows by component so they're reportable as outputs
 
   vprint(v, 0, m, '='*90)
