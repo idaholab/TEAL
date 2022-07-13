@@ -1235,6 +1235,24 @@ class Recurring(CashFlow):
                 listArray[i] = value
               listArray[0] = 0
               toExtend[name] = np.array(listArray)
+          # alpha and driver arrays should be the same length as the project length
+          elif len(value) > 1 and len(value) < t or len(value) > t:
+            listArray = np.empty(t)
+            # minus 1 to remove 0 at beginning cf timeline
+            paramLength = len(value) - 1
+            # Starting at one since the first index will always be zero for driver and alpha
+            relativeIndex = 1
+            for i in range(t):
+              # Following the convention for recurring
+              if i == 0:
+                listArray[i] = 0
+                continue
+              listArray[i] = value[relativeIndex]
+              relativeIndex += 1
+              # Checking if it is necessary to start repeating driver/array from beginning
+              if relativeIndex > paramLength:
+                relativeIndex = 1
+            toExtend[name] = listArray
         elif type(value) is str:
           continue
         else:

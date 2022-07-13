@@ -58,12 +58,13 @@ def build_econ_settings(cfs, life=5, dr=0.1, tax=0.21, infl=0.02184):
   return settings
 
 
-def build_generator(size, lifetime, dispatch):
+def build_generator(size, lifetime, projectlife, dispatch):
   """
     Constructs the cash flow of each applicable components
     @ In, size, pyomo.core.base.var, build size
     @ In, lifetime, int, life time of the years to evaluate
     @ In, dispatch, numpy array, dispatch variables
+    @ In, projectlife, int, duration of project
     @ Out, generator, CashFlow.GlobalSettings, settings
   """
   # make the TEAL component
@@ -83,24 +84,25 @@ def build_generator(size, lifetime, dispatch):
 
   ## fixed OM
   alpha = -10.0 # $10/y for upkeep of a 1 MW generator
-  fixed_om = createRecurringYearly(generator, alpha, size)
+  fixed_om = createRecurringYearly(generator, alpha, projectlife, size)
   cfs.append(fixed_om)
 
   ## variable OM
   alpha = -1.0 # $0.10 per MWh produced
-  var_om = createRecurringHourly(generator, alpha, dispatch)
+  var_om = createRecurringHourly(generator, alpha, projectlife, dispatch)
   cfs.append(var_om)
 
   generator.addCashflows(cfs)
   return generator
 
 
-def build_market(size, life, prices, dispatch):
+def build_market(size, life, prices, projectlife, dispatch):
   """
     Constructs the cash flow of each applicable components
     @ In, size, pyomo.core.base.var, build size
     @ In, life, int, life time of the years to evaluate
     @ In, prices, numpy array, values of pricing
+    @ In, projectlife, int, length of project
     @ In, dispatch, numpy array, dispatch variables
     @ Out, market, TEAL.src.CashFlows.Component, hourly cashflow sales for each component
   """
@@ -110,7 +112,7 @@ def build_market(size, life, prices, dispatch):
   cfs = []
 
   ## market sales
-  sales = createRecurringHourly(market, prices, dispatch)
+  sales = createRecurringHourly(market, prices, projectlife, dispatch)
   cfs.append(sales)
 
   market.addCashflows(cfs)
@@ -143,15 +145,16 @@ def createCapex(comp, alpha, driver):
   return cf
 
 
-def createRecurringYearly(comp, alpha, driver):
+def createRecurringYearly(comp, alpha, projectlife, driver):
   """
     Constructs the parameters for capital expenditures
     @ In, comp, TEAL.src.CashFlows.Component, main structure to add component cash flows
     @ In, alpha, float, yearly price to populate
+    @ In, projectlife, int, length of project in years
     @ In, driver, pyomo.core.base.var.ScalarVar, quantity sold to populate
     @ Out, cf, TEAL.src.CashFlows.Component, cashflow sale for the recurring yearly
   """
-  life = comp.getLifetime()
+  life = projectlife
   cf = CashFlows.Recurring()
   cfFarams = {'name': 'FixedOM',
                'X': 1,
@@ -168,7 +171,7 @@ def createRecurringYearly(comp, alpha, driver):
   return cf
 
 
-def createRecurringHourly(comp, alpha, driver):
+def createRecurringHourly(comp, alpha, projectlife, driver):
   """
     Constructs recurring cashflow with one value per hour
     @ In, dfSet, tuple, includes pandas.Dataframe, dict of inputs, and pyomo concrete model loaded
@@ -176,9 +179,10 @@ def createRecurringHourly(comp, alpha, driver):
     @ In, comp, CashFlow.Component, component this cf will belong to
     @ In, driver, string, variable name in df to take driver from
     @ In, alpha, string, variable name in df to take alpha from
+    @ In, projectlife, int, length of project in years
     @ Out, comps, dict, dict mapping names to CashFlow component objects
   """
-  life = comp.getLifetime()
+  life = projectlife
   print('DEBUGG cRH life:', comp.name, life)
   cf = CashFlows.Recurring()
   cfParams = {'name': 'Hourly',
@@ -206,6 +210,7 @@ if __name__ == '__main__':
   expected_cfs = {'Generator': ['Cap', 'FixedOM', 'Hourly'],
                   'Market': ['Hourly']}
   tealSettings = build_econ_settings(expected_cfs, life=project_life)
+  project_time = tealSettings.getProjectTime()
 
   m = pyo.ConcreteModel()
   m.T = pyo.Set(initialize=hours)
@@ -230,14 +235,14 @@ if __name__ == '__main__':
   m.gen_size = generator_size
 
   # set up the generator's dispatch variables
-  generator_dispatch = np.zeros((generator_life, hours_in_year), dtype=object)
+  generator_dispatch = np.zeros((project_life, hours_in_year), dtype=object)
   for y in range(generator_life):
     # make a new pyomo var for this "year"'s dispatch
     var = pyo.Var(list(range(hours_in_year)), initialize=lambda m, t: 0, bounds=lambda m, t: (0, 100)) #generator_size))
     setattr(m, f'Gen_disp_year_{y+1}', var)
     generator_dispatch[y, :] = np.array(list(var.values()))
 
-  generator = build_generator(generator_size, generator_life, generator_dispatch)
+  generator = build_generator(generator_size, generator_life, project_life, generator_dispatch)
 
   # *** MARKET ***
   # make the TEAL component
@@ -258,7 +263,7 @@ if __name__ == '__main__':
     setattr(m, f'Market_disp_year_{y+1}', var)
     market_dispatch[y, :] = np.array(list(var.values()))
 
-  market = build_market(market_size, market_life, prices, market_dispatch)
+  market = build_market(market_size, market_life, prices, project_life, market_dispatch)
 
   metrics = RunCashFlow.run(tealSettings, [generator, market], {}, pyomoVar=True) # Past version was pyomoChk
 
