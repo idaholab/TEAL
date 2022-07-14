@@ -1237,13 +1237,13 @@ class Recurring(CashFlow):
               listArray[0] = 0
               toExtend[name] = np.array(listArray)
           # Checking for scenario where alpha or driver do not match project length
-          # There will be
+          # having mismatched alpha and driver will cause an operand error later in the workflow
           elif 1 < len(value) < t or len(value) > t:
-            listArray = np.zeros(t)
+            correctedCoefs = np.zeros(t)
             # cycling through driver/alpha array starting from 1 since recurring cfs are 0 in year 0
-            repeatingValues = it.cycle(value[1:])
-            listArray[1:] = [next(repeatingValues) for _ in listArray[1:]]
-            toExtend[name] = listArray
+            cycledCoefs = it.cycle(value[1:])
+            correctedCoefs[1:] = [next(cycledCoefs) for _ in correctedCoefs[1:]]
+            toExtend[name] = correctedCoefs
         elif type(value) is str:
           continue
         else:
