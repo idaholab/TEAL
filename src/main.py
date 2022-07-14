@@ -380,18 +380,14 @@ def projectRecurringCashflow(cf, start, end, lifeCf, taxMult, inflRate, projectL
   else:
     projCf = np.zeros(projectLength, dtype=object)
   years = np.arange(projectLength) # years in project time, year 0 is first year # TODO just indices, pandas?
-  # before the project starts, after it ends are zero; we want the working part
-  # ALFOA: Modified following expression (see issue #20):
-  #        from operatingMask = np.logical_and(years >= start, years <= end)
-  #        to operatingMask = np.logical_and(years >= start, years < end)
   operatingMask = np.logical_and(years >= start, years < end)
   operatingYears = years[operatingMask]
-  relativeOperatingYears = operatingYears - start # This is relative component startup year
-
-  # Calculating dispatch cashflow for the duration of the project for each year
-  # Handling inflation and tax rates for the project based on how many years into the project
+  # This considers components that dont start operation until later in the project
+  # It is neccessary to index lifeCf from 0 while still indexing projCf and years from current project year
+  relativeStartupYear = operatingYears - start
   for year in range(len(operatingYears)):
-    projCf[operatingYears[year]] = lifeCf[relativeOperatingYears[year]] * taxMult * np.power(inflRate, -1*years[operatingYears[year]])
+    # Necessary to discount the cashflow with tax and inflation, for recurring inflRate is typically 1
+    projCf[operatingYears[year]] = lifeCf[relativeStartupYear[year]] * taxMult * np.power(inflRate, -1*years[operatingYears[year]])
   return projCf
 
 def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, projectLength, v=100, pyomoVar=False):

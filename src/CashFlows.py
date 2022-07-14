@@ -28,7 +28,9 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 import time
-
+###
+import itertools as iter
+###
 from ..src import Amortization
 
 from ravenframework.utils import mathUtils
@@ -1235,23 +1237,14 @@ class Recurring(CashFlow):
                 listArray[i] = value
               listArray[0] = 0
               toExtend[name] = np.array(listArray)
-          # alpha and driver arrays should be the same length as the project length
-          elif len(value) > 1 and len(value) < t or len(value) > t:
+          # alpha and driver arrays should be the same length as the project life
+          # This conditional considers cases where driver and alpha array have same length as component life
+          # This will happen with xml runs of TEAL
+          elif 1 < len(value) < t or len(value) > t:
             listArray = np.empty(t)
-            # minus 1 to remove 0 at beginning cf timeline
-            paramLength = len(value) - 1
-            # Starting at one since the first index will always be zero for driver and alpha
-            relativeIndex = 1
-            for i in range(t):
-              # Following the convention for recurring
-              if i == 0:
-                listArray[i] = 0
-                continue
-              listArray[i] = value[relativeIndex]
-              relativeIndex += 1
-              # Checking if it is necessary to start repeating driver/array from beginning
-              if relativeIndex > paramLength:
-                relativeIndex = 1
+            # cycling through driver/alpha array starting from 1 since recurring cfs are 0 in year 0
+            repeatingValues = iter.cycle(value[1:])
+            listArray[1:] = [next(repeatingValues) for _ in listArray[1:]]
             toExtend[name] = listArray
         elif type(value) is str:
           continue
