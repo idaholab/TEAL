@@ -28,6 +28,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 import time
+import itertools as it
 
 from ..src import Amortization
 
@@ -1235,6 +1236,14 @@ class Recurring(CashFlow):
                 listArray[i] = value
               listArray[0] = 0
               toExtend[name] = np.array(listArray)
+          # Checking for scenario where alpha or driver do not match project length
+          # having mismatched alpha and driver will cause an operand error later in the workflow
+          elif 1 < len(value) < t or len(value) > t:
+            correctedCoefs = np.zeros(t)
+            # cycling through driver/alpha array starting from 1 since recurring cfs are 0 in year 0
+            cycledCoefs = it.cycle(value[1:])
+            correctedCoefs[1:] = [next(cycledCoefs) for _ in correctedCoefs[1:]]
+            toExtend[name] = correctedCoefs
         elif type(value) is str:
           continue
         else:

@@ -80,11 +80,11 @@ def build_econ_components(df, settings):
   cfs = []
 
   ### recurring cashflow evaluated hourly, to show usage
-  cf = createRecurringHourly(df, comp, 'A', 'D')
+  cf = createRecurringHourly(df, comp, life, 'A', 'D')
   cfs.append(cf)
   print('DEBUGG hourly recurring:', cf._yearlyCashflow)
   ### recurring cashflow evaluated yearly
-  cf = createRecurringYearly(df, comp, 'A', 'D')
+  cf = createRecurringYearly(df, comp, life, 'A', 'D')
   cfs.append(cf)
   print('DEBUGG yearly recurring:', cf._yearlyCashflow)
   ### capex cashflow
@@ -126,16 +126,16 @@ def createCapex(df, comp, driver, alpha):
   cf.setParams(cfFarams)
   return cf
 
-def createRecurringYearly(df, comp, driver, alpha):
+def createRecurringYearly(df, comp, life, driver, alpha):
   """
     Constructs recurring cashflow with one value per year
     @ In, df, pandas.Dataframe, loaded data to run
     @ In, comp, CashFlow.Component, component this cf will belong to
+    @ In, life, int, length of project in years
     @ In, driver, string, variable name in df to take driver from
     @ In, alpha, string, variable name in df to take alpha from
     @ Out, comps, dict, dict mapping names to CashFlow component objects
   """
-  life = comp.getLifetime()
   cf = CashFlows.Recurring()
   cfFarams = {'name': 'RecursYearly',
                'X': 1,
@@ -152,16 +152,16 @@ def createRecurringYearly(df, comp, driver, alpha):
   cf.computeYearlyCashflow(alphas, drivers)
   return cf
 
-def createRecurringHourly(df, comp, driver, alpha):
+def createRecurringHourly(df, comp, life, driver, alpha):
   """
     Constructs recurring cashflow with one value per hour
     @ In, df, pandas.Dataframe, loaded data to run
     @ In, comp, CashFlow.Component, component this cf will belong to
     @ In, driver, string, variable name in df to take driver from
+    @ In, life, int, length of project in years
     @ In, alpha, string, variable name in df to take alpha from
     @ Out, comps, dict, dict mapping names to CashFlow component objects
   """
-  life = comp.getLifetime()
   cf = CashFlows.Recurring()
   cfFarams = {'name': 'RecursHourly',
                'X': 1,
@@ -196,9 +196,7 @@ if __name__ == '__main__':
   datetime = years + hours
   df.index = datetime
   df = df.sort_index()[['A', 'B', 'C', 'D']]
-
   metrics = run(df)
-
   calculated = metrics['NPV']
   correct = 2.213218922e+08
   # NOTE if inflation is applied to all cashflows, answer is 2.080898547e+08
