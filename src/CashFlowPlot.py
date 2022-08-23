@@ -102,7 +102,7 @@ class CashFlowPlot(PlotPlugin):
     if self._startYear is None:
       startYear = 0
     if self._endYear is None:
-      endYear = 20 #len(df) - 1
+      endYear = len(df) - 1
     dfYear = df[startYear:endYear + 1]
     dfCashFlow = dfYear.loc[:, dfYear.columns.str.contains("_")]
 
@@ -135,7 +135,6 @@ class CashFlowPlot(PlotPlugin):
     yearNetCashFlow = dfCashFlow.sum(axis=1) # Sorted yearly net cash flow
     cumNetCashFlow = yearNetCashFlow.cumsum() # Cumulative net cash flow
     labels = pd.DataFrame(dfCashFlow.columns) # Sorted labels by CompName and sum of values
-
     ## Plot 1: Inflows, outflows and Net Cash Flow
     widthFlowbar = 0.35
     _, ax1 = plt.subplots(1, figsize = (15,8))
@@ -175,11 +174,11 @@ class CashFlowPlot(PlotPlugin):
     self.raiseAMessage(f'Saved figure to "{fName}"')
 
     ## Plot 2: Cumulative discounted free cash flow
-    lableLoc = np.arange(endYear + 1 - startYear)  # the label location
+    labelLoc = np.arange(startYear, endYear + 1)  # the label location
     widthCumBar = 0.2
     _, ax1 = plt.subplots(1, figsize = (25,12))
     for i, _ in enumerate(cumCashFlow):
-      ax1.bar(lableLoc + widthCumBar * (i - (len(cumCashFlow) + 1) / 2), dfCashFlow.iloc[:,i],
+      ax1.bar(labelLoc + widthCumBar * (i - (len(cumCashFlow) + 1) / 2), dfCashFlow.iloc[:,i],
         widthCumBar, color = compColor[i], label = labels.iloc[i,0], edgecolor='white')
     #grid
     ax1.set_axisbelow(True)
@@ -215,7 +214,7 @@ class CashFlowPlot(PlotPlugin):
     if diff >= 0:
       pieOut, _ = ax1.pie(cumOut, radius=radiusPie, colors = compColor[0:negVar]+[(0, 0, 0, 0)], startangle=90)
       pieIn, _ = ax2.pie(cumInFlow, radius=radiusPie - widthPie, colors = compColor[-posVar:], startangle=90)
-      ax1.text(-0.55,0.86,"Outflows - Inflows = {}".format(f'${abs(diff): 1.3e}'),
+      ax1.text(-0.55,0.86,"Inflows - Outflows = {}".format(f'${abs(diff): 1.3e}'),
         color="black",fontsize=16, fontweight='bold')
     else:
       pieOut, _ = ax1.pie(cumOutFlow, radius=radiusPie,colors = compColor[0:negVar], startangle=90)
