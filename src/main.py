@@ -455,7 +455,7 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
     for i in range(len(decomissionMask[0])):
       projCf[decomissionMask[0][i]] += lifeCf[-1] * taxMult * np.power(inflRate, -1*years[decomissionMask[0][i]])
   ## handle the non-build operational years
-  nonBuildMask = [a[relativeOperation!=0] for a in np.where(operatingMask)]
+  nonBuildMask = tuple(a[relativeOperation!=0] for a in np.where(operatingMask))
   projCf[nonBuildMask] += lifeCf[relativeOperation[relativeOperation!=0]] * taxMult * np.power(inflRate, -1*years[nonBuildMask])
   return projCf
 
