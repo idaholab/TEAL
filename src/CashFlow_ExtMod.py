@@ -35,7 +35,7 @@ try:
   from ravenframework.utils.graphStructure import graphObject
   from ravenframework.PluginBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase
 except:
-  raise IOError("CashFlow ERROR (Initialisation): RAVEN needs to be installed and CashFlow needs to be in its plugin directory for the plugin to work!'")
+  raise IOError("TEAL ERROR (Initialisation): RAVEN needs to be installed and TEAL needs to be installed as a plugin to work!'")
 
 
 class CashFlow(ExternalModelPluginBase):
