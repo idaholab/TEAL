@@ -15,13 +15,13 @@ sys.path.append(teal_path)
 try:
   from ravenframework.util import InputData
 except ModuleNotFoundError:
-  framework_path = os.path.join(teal_path, '..', 'ravenframework')
-  if os.path.exists(framework_path):
-    sys.path.append(os.path.dirname(framework_path))
+  frameworkPath = os.path.join(teal_path, '..', 'ravenframework')
+  if os.path.exists(frameworkPath):
+    sys.path.append(os.path.dirname(frameworkPath))
   else:
     from TEAL.src import _utils as hutils
-    framework_path = hutils.get_raven_loc()
-    sys.path.append(framework_path)
+    frameworkPath = hutils.get_raven_loc()
+    sys.path.append(frameworkPath)
   from ravenframework.utils import InputData
 from TEAL.src import CashFlows
 
