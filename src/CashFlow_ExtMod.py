@@ -20,13 +20,11 @@ This module contains the TEAL.CashFlow plugin module
 """
 from __future__ import division, print_function, unicode_literals, absolute_import
 import os
-import sys
 import numpy as np
 import warnings
 warnings.simplefilter('default', DeprecationWarning)
 
 from ..src import main
-from ..src import CashFlows
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.

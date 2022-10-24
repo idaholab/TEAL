@@ -20,14 +20,10 @@ Defines the Economics entity.
 Each component (or source?) can have one of these to describe its economics.
 """
 from __future__ import unicode_literals, print_function
-import os
-import sys
 from collections import defaultdict
-#from typing_extensions import Required #Where did this line come from??
 import xml.etree.ElementTree as ET
 
 import numpy as np
-import time
 
 from ..src import Amortization
 
