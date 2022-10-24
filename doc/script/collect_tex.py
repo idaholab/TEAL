@@ -19,7 +19,7 @@ except ModuleNotFoundError:
   if os.path.exists(frameworkPath):
     sys.path.append(os.path.dirname(frameworkPath))
   else:
-    from TEAL.src import _utils as hutils
+    from HERON.src import _utils as hutils
     frameworkPath = hutils.get_raven_loc()
     sys.path.append(frameworkPath)
   from ravenframework.utils import InputData
