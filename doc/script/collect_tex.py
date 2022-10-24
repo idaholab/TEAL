@@ -19,9 +19,13 @@ except ModuleNotFoundError:
   if os.path.exists(frameworkPath):
     sys.path.append(os.path.dirname(frameworkPath))
   else:
-    from HERON.src import _utils as hutils
-    frameworkPath = hutils.get_raven_loc()
-    sys.path.append(frameworkPath)
+    try:
+      from HERON.src import _utils as hutils
+      frameworkPath = hutils.get_raven_loc()
+      sys.path.append(frameworkPath)
+    except ModuleNotFoundError as mnfe:
+      print("Unable to find raven or HERON")
+      raise mnfe
   from ravenframework.utils import InputData
 from TEAL.src import CashFlows
 
