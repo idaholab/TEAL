@@ -80,7 +80,7 @@ class GlobalSettings:
     input_specs.addSub(InputData.parameterInputFactory('ProjectTime', contentType=InputTypes.IntegerType,
                          descr=r"""\textbf{Optional input}. If it is included in the input, the global project time is not the LCM of all components (see \xmlNode{Indicator} for more information), but the time indicated here."""))
     input_specs.addSub(InputData.parameterInputFactory('Output', contentType=InputTypes.BoolType,
-                          descr = r"""\textbd{Optional input}. Choose 'True' for a detailed output or 'False' for a simple output. You must create a seperate output file in RAVEN to use this feature. The variables must use specific names.
+                          descr = r"""\textbf{Optional input}. Choose 'True' for a detailed output or 'False' for a simple output. You must create a seperate output file in RAVEN to use this feature. The variables must use specific names.
                           Create a variable called 'ComponentName_CashFlowName' for each component. If MACRS depreciation is used, add variables 'ComponentName_Depreciate' and 'ComponentName_Amortize'. See User Guide for further details. Default setting is False."""))
 
     return input_specs
