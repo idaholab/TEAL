@@ -1,7 +1,7 @@
 ECHO Starting to compile manual...
 chmod u+x script/copy_tex.sh
 cd script
-copy_tex.sh
+bash.exe copy_tex.sh
 cd ..
 python script/generate_user_manual.py
 cd build
@@ -15,7 +15,6 @@ cd ..
 cp -f build/TEAL_user_manual.pdf pdf/
 ECHO User manual build complete.
 ECHO Cleaning build
-cd ..
 rm -rf build
 ECHO Done
 

@@ -7,16 +7,27 @@
 import os
 import sys
 
-teal_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'src'))
+teal_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
 build_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'build'))
 src_path = os.path.abspath(os.path.join(build_path, '..', 'src'))
 
 sys.path.append(teal_path)
-import CashFlows
-# import _utils as hutils
-# framework_path = hutils.get_raven_loc()
-# sys.path.append(framework_path)
-# from utils import InputData
+try:
+  from ravenframework.util import InputData
+except ModuleNotFoundError:
+  frameworkPath = os.path.join(teal_path, '..', 'ravenframework')
+  if os.path.exists(frameworkPath):
+    sys.path.append(os.path.dirname(frameworkPath))
+  else:
+    try:
+      from HERON.src import _utils as hutils
+      frameworkPath = hutils.get_raven_loc()
+      sys.path.append(frameworkPath)
+    except ModuleNotFoundError as mnfe:
+      print("Unable to find raven or HERON")
+      raise mnfe
+  from ravenframework.utils import InputData
+from TEAL.src import CashFlows
 
 specs_to_load = {'CashFlows': ['GlobalSettings', 'Component']
 }
