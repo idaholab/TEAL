@@ -21,6 +21,7 @@ from functools import partial
 import numpy as np
 import pyomo.environ as pyo
 
+
 # load TEAL if available (e.g. pip-installed), otherwise add to env
 try:
   import TEAL.src
@@ -28,15 +29,8 @@ except ModuleNotFoundError:
   tealPath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
   sys.path.append(tealPath)
 from TEAL.src import CashFlows
-from TEAL.src import CashFlow as RunCashFlow
-from TEAL.src import _utils as tutils
+from TEAL.src import main as RunCashFlow
 
-# load RAVEN if available (e.g. pip-installed), otherwise add to env
-try:
-  import ravenframework
-except ModuleNotFoundError:
-  loc = tutils.get_raven_loc()
-  sys.path.append(loc)
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','..'))) # Path to access ravenframework
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','raven'))) # Path to access ravenframework
 
