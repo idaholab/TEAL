@@ -19,7 +19,6 @@
   Date  :  2021-11-09
 """
 import os
-from matplotlib import cm
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -27,7 +26,8 @@ import numpy as np
 try:
   from ravenframework.PluginBaseClasses.OutStreamPlotPlugin import PlotPlugin, InputTypes, InputData
 except:
-  raise IOError('TEAL ERROR (initialization): RAVEN needs to be installed and TEAL needs to be installed as a plugin to work!')
+  raise IOError('TEAL ERROR (initialization): RAVEN needs to be installed and ' +
+                'TEAL needs to be installed as a plugin to work!')
 
 class CashFlowPlot(PlotPlugin):
   """
