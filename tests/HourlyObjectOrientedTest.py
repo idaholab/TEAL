@@ -23,11 +23,16 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))) #Plugins (including TEAL)
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))) #RAVEN
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'raven'))) #RAVEN (if TEAL and RAVEN in same directory)
-from TEAL import CashFlows
-from TEAL import CashFlow as RunCashFlow
+
+# load TEAL if available (e.g. pip-installed), otherwise add to env
+try:
+  import TEAL.src
+except ModuleNotFoundError:
+  tealPath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+  sys.path.append(tealPath)
+
+from TEAL.src import CashFlows
+from TEAL.src import main as RunCashFlow
 
 def run(df):
   """

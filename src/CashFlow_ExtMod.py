@@ -20,13 +20,11 @@ This module contains the TEAL.CashFlow plugin module
 """
 from __future__ import division, print_function, unicode_literals, absolute_import
 import os
-import sys
 import numpy as np
 import warnings
 warnings.simplefilter('default', DeprecationWarning)
 
 from ..src import main
-from ..src import CashFlows
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.
@@ -35,7 +33,7 @@ try:
   from ravenframework.utils.graphStructure import graphObject
   from ravenframework.PluginBaseClasses.ExternalModelPluginBase import ExternalModelPluginBase
 except:
-  raise IOError("CashFlow ERROR (Initialisation): RAVEN needs to be installed and CashFlow needs to be in its plugin directory for the plugin to work!'")
+  raise IOError("TEAL ERROR (Initialisation): RAVEN needs to be installed and TEAL needs to be installed as a plugin to work!'")
 
 
 class CashFlow(ExternalModelPluginBase):

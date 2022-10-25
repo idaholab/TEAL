@@ -19,15 +19,20 @@ import sys
 from functools import partial
 
 import numpy as np
-import pandas as pd
 import pyomo.environ as pyo
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','..'))) # Path to access ravenframework
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','raven'))) # Path to access ravenframework
-from TEAL import CashFlows
-from TEAL import CashFlow as RunCashFlow
 
+# load TEAL if available (e.g. pip-installed), otherwise add to env
+try:
+  import TEAL.src
+except ModuleNotFoundError:
+  tealPath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+  sys.path.append(tealPath)
+from TEAL.src import CashFlows
+from TEAL.src import main as RunCashFlow
+
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','..'))) # Path to access ravenframework
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','raven'))) # Path to access ravenframework
 
 # *** HELPER FUNCTIONS ***
 def build_econ_settings(cfs, life=5, dr=0.1, tax=0.21, infl=0.02184):

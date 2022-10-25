@@ -19,18 +19,22 @@
 Defines the Economics entity.
 Each component (or source?) can have one of these to describe its economics.
 """
-from __future__ import unicode_literals, print_function
-import os
 import sys
-from collections import defaultdict
-#from typing_extensions import Required #Where did this line come from??
 import xml.etree.ElementTree as ET
+import itertools as it
+from collections import defaultdict
 
 import numpy as np
-import time
-import itertools as it
 
 from ..src import Amortization
+from ..src import _utils as tutils
+
+# load RAVEN if available (e.g. pip-installed), otherwise add to env
+try:
+  import ravenframework
+except ModuleNotFoundError:
+  loc = tutils.get_raven_loc()
+  sys.path.append(loc)
 
 from ravenframework.utils import mathUtils
 from ravenframework.utils import InputData, InputTypes, TreeStructure, xmlUtils

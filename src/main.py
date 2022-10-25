@@ -19,9 +19,6 @@
 Execution for TEAL (Tool for Economic AnaLysis)
 """
 
-import os
-import sys
-import copy
 import functools
 from collections import defaultdict, OrderedDict
 

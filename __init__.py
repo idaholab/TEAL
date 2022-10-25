@@ -13,8 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from .src import Amortization
 from .src import CashFlow_ExtMod
 from .src import CashFlows
 from .src import CashFlowUser
 from .src import main as CashFlow
+from .src import CashFlowPlot
+
