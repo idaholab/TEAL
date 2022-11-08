@@ -95,7 +95,7 @@
   input = 'PyomoTest.py'
   python3_only = True
   minimum_library_versions = 'pyomo 6.2'
-  required_library = 'ipopt'
+  needed_executable = 'ipopt'
  [../]
 
  [./CashFlow_NPV]
