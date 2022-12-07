@@ -1,8 +1,8 @@
-name: GitHub Action TEAL test
+name: GitHub TEAL test
 run-name: ${{ github.actor }} is testing out TEAL
 on: [push]
 jobs:
-  Test-TEAL-Action-Linux:
+  Test-TEAL-Linux:
     runs-on: [self-hosted, linux]
     steps:
       - run: echo " The job was automatically triggered by a ${{ github.event_name }} event."
@@ -17,7 +17,7 @@ jobs:
       - run: cd ../raven && ./build_raven
       - run: ../raven/run_tests --library-report
       - run: ../raven/run_tests -j4 --plugins --re=TEAL
-  Test-TEAL-Action-Windows:
+  Test-TEAL-Windows:
     runs-on: [self-hosted, windows]
     steps:
       - run: echo " The job was automatically triggered by a ${{ github.event_name }} event."
