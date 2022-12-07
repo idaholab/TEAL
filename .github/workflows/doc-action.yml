@@ -3,6 +3,7 @@ on:
  push:
   branches:
    - devel
+   - workflow_adding
 jobs:
   build_docs:
    runs-on: [self-hosted, linux]
