@@ -16,8 +16,12 @@ try:
   from ravenframework.util import InputData
 except ModuleNotFoundError:
   frameworkPath = os.path.join(teal_path, '..', 'ravenframework')
+  frameworkAltPath = os.path.join(teal_path, 'raven', 'ravenframework')
+  print("paths to try", frameworkPath, frameworkAltPath)
   if os.path.exists(frameworkPath):
     sys.path.append(os.path.dirname(frameworkPath))
+  elif os.path.exists(frameworkAltPath):
+    sys.path.append(os.path.dirname(frameworkAltPath))
   else:
     try:
       from HERON.src import _utils as hutils
