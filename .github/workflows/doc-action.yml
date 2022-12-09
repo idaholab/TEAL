@@ -1,0 +1,30 @@
+name: Build docs
+on:
+ push:
+  branches:
+   - devel
+   - workflow_*
+jobs:
+  build_docs:
+   runs-on: [self-hosted, linux]
+   steps:
+     - name: Checkout repository
+       uses: actions/checkout@v3
+     - run: cd .. && rm -Rf raven && git clone https://github.com/idaholab/raven.git
+     - run: python3 ../raven/scripts/install_plugins.py -s HERON
+     - run: python3 ../raven/scripts/install_plugins.py -s ${{ github.workspace }}
+     - run: WD=`(cd ../../.. && pwd)` && export RAVEN_LIBS_NAME="raven_libs_"`basename $WD` && ../raven/scripts/establish_conda_env.sh --install --no-clean
+     - run: cd ../raven && ./build_raven
+     - name: Build documentation
+       run: |
+        cd ../raven
+        source ./scripts/establish_conda_env.sh --load
+        cd ../TEAL
+        (cd doc && make)
+     - name: Archive documents
+       uses: actions/upload-artifact@v3
+       with:
+         name: pdfs
+         path: |
+          doc/pdf
+     - run: update_teal_docs.sh doc/pdf/*.pdf
