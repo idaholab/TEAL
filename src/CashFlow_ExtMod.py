@@ -90,10 +90,10 @@ class CashFlow(ExternalModelPluginBase):
         if k == "all_data":
           for comp,cfs in v.items():
             for cf, data in cfs.items():
-              if cf.find('depreciate') >0 :
-                setattr(container, f'{comp}_Depreciate', data)
-              elif cf.find('amortize') > 0 :
-                setattr(container, f'{comp}_Amortize', data)
+              if cf.find('depreciation_tax_credit') > 0:
+                setattr(container, f'{comp}_depreciation_tax_credit', data)
+              elif cf.find('depreciation') > 0:
+                setattr(container, f'{comp}_depreciation', data)
               else:
                 setattr(container, f'{comp}_{cf}_CashFlow', data)
         else:
