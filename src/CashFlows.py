@@ -561,7 +561,6 @@ class Component:
     amort = ocf.getAmortization()
     if amort is None:
       return []
-    # TODO OLD originalValue = ocf.getParam('alpha') * -1.0 #start with a positive value
     scheme, plan = amort
     alpha = Amortization.amortize(scheme, plan, 1.0, self._lifetime)
     # first cash flow is POSITIVE on the balance sheet, is not taxed, and is a percent of the target
@@ -855,7 +854,6 @@ class CashFlow:
     """
     # load variable values from variables or other cash flows, as needed (ha!)
     for name, source in need.items():
-      print(f'DEBUGG ... name: {name}, source: {source}')
       if mathUtils.isAString(source):
         # as a string, this is either from the variables or other cashflows
         # look in variables first
@@ -866,12 +864,10 @@ class CashFlow:
             raise KeyError('Looking for variable "{}" to fill "{}" but not found among variables or other cashflows!'.format(source, name))
           comp, cf = source.split('|')
           value = cashflows[comp][cf][:]
-          print('DEBUGG ... ... value:', value)
         need[name] = np.atleast_1d(value)
     # now, each is already a float or an array, so in case they're a float expand them
     ## NOTE this expects the correct keys (namely alpha, driver) to expand, right?
     need = self.extendParameters(need, lifetime)
-    print('DEBUGG . extended driver:', need['driver'])
     return need
 
   def extendParameters(self, need, lifetime):
