@@ -685,8 +685,12 @@ def run(settings, components, variables, pyomoVar=False):
     results['PI'] = metric
   results['outputType'] = outputType
 
-  if outputType is True:
+  if outputType:
     results["all_data"] = projectCashflows
+    print('DEBUGG all data:')
+    for comp, cval in projectCashflows.items():
+      for cf, cfval in cval.items():
+        print('DEBUGG ...in CF', cf, len(cfval))
 
   return results
 
