@@ -22,7 +22,7 @@
   <VariableGroups>
     <Group name="GRO_CashFlow_in">BOP_capacity, BOP_TOT_revenueEL, IP_capacity, IP_TOT_revenueBY, Multiplier</Group>
     <Group name="GRO_CashFlow_out">IRR</Group>
-    <Group name="ALL_CashFlow"> BOP_CA_CashFlow, BOP_RE_CashFlow, IP_CA_CashFlow, IP_RE_CashFlow, BOP_Amortize, BOP_Depreciate, IRR</Group>
+    <Group name="ALL_CashFlow"> BOP_CA_CashFlow, BOP_RE_CashFlow, IP_CA_CashFlow, IP_RE_CashFlow, BOP_depreciation, BOP_depreciation_tax_credit, IRR</Group>
   </VariableGroups>
 
   <Models>

@@ -561,29 +561,26 @@ class Component:
     amort = ocf.getAmortization()
     if amort is None:
       return []
-    print('DEBUGG amortizing cf:', ocf.name)
-    originalValue = ocf.getParam('alpha') * -1.0 #start with a positive value
     scheme, plan = amort
     alpha = Amortization.amortize(scheme, plan, 1.0, self._lifetime)
     # first cash flow is POSITIVE on the balance sheet, is not taxed, and is a percent of the target
-    pos = Amortizor(component=self.name, verbosity=self._verbosity)
-    params = {'name': '{}_{}_{}'.format(self.name, 'amortize', ocf.name),
+    # -> this is the tax credit from MACRS for component value loss
+    pos = Amortizor(credit=True, component=self.name, verbosity=self._verbosity, pos=True)
+    params = {'name': f'{self.name}_{ocf.name}_{"depreciation_tax_credit"}',
               'driver': '{}|{}'.format(self.name, ocf.name),
               'tax': False,
               'inflation': 'real',
               'alpha': alpha,
-              # TODO is this reference and X right????
-              'reference': 1.0, #ocf.getParam('reference'),
-              'X': 1.0, #ocf.getParam('scale')
+              'reference': 1.0,
+              'X': 1.0,
               }
     pos.setParams(params)
     # second cash flow is as the first, except negative and taxed
-    neg = Amortizor(component=self.name, verbosity=self._verbosity)
+    # -> this is the MACRS-based loss of value of the component
+    neg = Amortizor(credit=False, component=self.name, verbosity=self._verbosity)
     nalpha = np.zeros(len(alpha))
     nalpha[alpha != 0] = -1
-    print('DEBUGG amort alpha:', alpha)
-    print('DEBUGG depre alpha:', nalpha)
-    params = {'name': '{}_{}_{}'.format(self.name, 'depreciate', ocf.name),
+    params = {'name': f'{self.name}_{ocf.name}_{"depreciation"}',
               'driver': '{}|{}'.format(self.name, pos.name),
               'tax': True,
               'inflation': 'real',
@@ -1264,6 +1261,19 @@ class Amortizor(Capex):
   """
     Particular cashflow for depreciation of capital expenditures
   """
+  def __init__(self, **kwargs):
+    """
+      Constructor
+      @ In, kwargs, dict, general keyword arguments
+      @ Out, None
+    """
+    try:
+      self._is_credit = kwargs['credit']
+    except KeyError as e:
+      raise RuntimeError('ERROR setting up TEAL Amortizor CashFlow: requires "credit" keyword but not found!')
+    assert mathUtils.isABoolean(self._is_credit)
+    Capex.__init__(self, **kwargs)
+
   def extendParameters(self, toExtend, t):
     """
       Extend values of parameters to the length of lifetime t
@@ -1275,7 +1285,7 @@ class Amortizor(Capex):
     # TODO forced driver values for now
     driver = toExtend['driver']
     # how we treat the driver depends on if this is the amortizer or the depreciator
-    if self.name.split('_')[-2] == 'amortize':
+    if self._is_credit:
       if not mathUtils.isAString(driver):
         toExtend['driver'] = np.ones(t) * driver[0] * -1.0
         toExtend['driver'][0] = 0.0
