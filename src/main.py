@@ -50,7 +50,7 @@ def readFromXml(xml):
     if node.tag == 'Global':
       globalSettings = CashFlows.GlobalSettings(**attr)
       globalSettings.readInput(node)
-      globalSettings._verbosity = verb
+      globalSettings.setVerbosity(verb)
     elif node.tag == 'Component':
       new = CashFlows.Component(**attr)
       new.readInput(node)
@@ -623,7 +623,7 @@ def run(settings, components, variables, pyomoVar=False):
   """
   # make a dictionary mapping component names to components
   compsByName = dict((c.name, c) for c in components)
-  v = settings._verbosity
+  v = settings.getVerbosity()
   m = 'run'
   vprint(v, 0, m, 'Starting CashFlow Run ...')
   # check mapping of drivers and determine order in which they should be evaluated

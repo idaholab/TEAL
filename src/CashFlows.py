@@ -267,6 +267,22 @@ class GlobalSettings:
     """
     return self._outputType
 
+  def getVerbosity(self):
+    """
+      Set verbosity level
+      @ In, v, float, Verbosity level between 0 and 100
+      @ Out, None
+    """
+    return self._verbosity
+
+  def setVerbosity(self, v):
+    """
+      Set verbosity level
+      @ In, v, float, Verbosity level between 0 and 100
+      @ Out, None
+    """
+    assert 0<=v<=100, "Verbosity level is not between 0 and 100"
+    self._verbosity = v
 
 class Component:
   """
