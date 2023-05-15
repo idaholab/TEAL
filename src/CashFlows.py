@@ -718,7 +718,7 @@ class CashFlow:
       @ Out, None
     """
     self.name = item.parameterValues['name']
-    print(' ... ... loading cash flow "{}"'.format(self.name))
+    print(f' ... ... loading cash flow "{self.name}"')
     # driver and alpha are specific to cashflow types # self._driver = item.parameterValues['driver']
     for key, value in item.parameterValues.items():
       if key == 'tax':
@@ -851,11 +851,11 @@ class CashFlow:
       if mathUtils.isAString(value) or mathUtils.isAFloatOrInt(value):
         ret = value
       else:
-        raise IOError('Unrecognized alpha/driver type: "{}" with type "{}"'.format(value, type(value)))
+        raise IOError(f'Unrecognized alpha/driver type: "{value}" with type "{type(value)}"')
     else:
       # should be floats; InputData assures the entries are the same type already
       if not mathUtils.isAFloatOrInt(value[0]):
-        raise IOError('Multiple non-number entries for alpha/driver found, but require either a single variable name or multiple float entries: {}'.format(value))
+        raise IOError(f'Multiple non-number entries for alpha/driver found, but require either a single variable name or multiple float entries: {value}')
       ret = np.asarray(value)
     return ret
 
@@ -877,7 +877,7 @@ class CashFlow:
         if value is None:
           # since not found in variables, try among cashflows
           if '|' not in source:
-            raise KeyError('Looking for variable "{}" to fill "{}" but not found among variables or other cashflows!'.format(source, name))
+            raise KeyError(f'Looking for variable "{source}" to fill "{name}" but not found among variables or other cashflows!')
           comp, cf = source.split('|')
           value = cashflows[comp][cf][:]
         need[name] = np.atleast_1d(value)
@@ -896,6 +896,46 @@ class CashFlow:
     # should be overwritten in the inheriting classes!
     raise NotImplementedError
 
+  def getDriver(self):
+    """
+      Get the driver for this component
+      @ In, None
+      @ Out, _driver, float | pyomo.Expression, quantity produced or "D" in cashflow
+    """
+    return self._driver
+
+  def getAlpha(self):
+    """
+      Get the alpha for this component
+      @ In, None
+      @ Out, _alpha, float | pyomo.Expression, price per quantity produced or "a" in cashflow
+    """
+    return self._alpha
+
+  def getReference(self):
+    """
+      Get the reference driver for this component
+      @ In, None
+      @ Out, _reference, float | pyomo.Expression, reference driver or "Dp" in cashflow
+    """
+    return self._reference
+
+  def getScale(self):
+    """
+      Get the economy of scale for this component
+      @ In, None
+      @ Out, _scale, float | pyomo.Expression, economy of scale or "x" in cashflow
+    """
+    return self._scale
+
+  def getYearlyCashflow(self):
+    """
+      Get the scale driver for this component
+      @ In, None
+      @ Out, _yearlyCashflow, float | pyomo.Expression, economy of scale or "x" in cashflow
+    """
+    # should be overwritten in the inheriting classes!
+    raise NotImplementedError
 
 class Capex(CashFlow):
   """
@@ -942,7 +982,6 @@ class Capex(CashFlow):
     """
     CashFlow.__init__(self, **kwargs)
     # new variables
-    self.type = 'Capex'
     self._amortScheme = None # amortization scheme for depreciating this capex
     self._amortPlan = None   # if scheme is MACRS, this is the years to recovery. Otherwise, vector percentages.
     # set defaults different from base class
@@ -1000,8 +1039,7 @@ class Capex(CashFlow):
     """
     if self._amortScheme is None:
       return None
-    else:
-      return self._amortScheme, self._amortPlan
+    return self._amortScheme, self._amortPlan
 
   def setAmortization(self, scheme, plan):
     """
@@ -1027,19 +1065,19 @@ class Capex(CashFlow):
           new = np.zeros(t)
           new[0] = float(value)
           toExtend[name] = new
-        elif type(value) in [list, np.ndarray]:
+        elif isinstance(value, (list, np.ndarray)):
           if len(value) == 1:
             if mathUtils.isAFloatOrInt(value[0]):
               new = np.zeros(t)
               new[0] = float(value)
               toExtend[name] = new
-            elif type(value) is str:
+            elif isinstance(value, str):
               continue
             else:
               listArray = [0]*t
               listArray[0] = value
               toExtend[name] = np.array(listArray)
-        elif type(value) is str:
+        elif isinstance(value, str):
           continue
         else:
           # the else is for any object type data. if other types require distinction, add new 'elif'
@@ -1102,14 +1140,9 @@ class Capex(CashFlow):
         continue
       # if it's valued, then it better be the same length as the lifetime (which is comp lifetime + 1)
       elif len(val) != lifetime:
-        preMsg = 'Component "{comp}" '.format(compName) if compName is not None else ''
-        raise IOError((preMsg + 'cashflow "{cf}" node <{param}> should have {correct} '+\
-                       'entries (1 + lifetime), but only found {found}!')
-                       .format(cf=self.name,
-                               correct=lifetime,
-                               param=param,
-                               found=len(val)))
-
+        preMsg = f'Component "{compName}" ' if compName is not None else ''
+        raise IOError((preMsg + f'cashflow "{self.name}" node <{param}> should have {lifetime} '+\
+                       f'entries (1 + lifetime), but only found {len(val)}!'))
 
 class Recurring(CashFlow):
   """
@@ -1171,7 +1204,7 @@ class Recurring(CashFlow):
     try:
       self._yearlyCashflow[year] = mult * (alpha * driver).sum() # +1 is for initial construct year
     except ValueError as e:
-      print('Error while computing yearly cash flow! Check alpha shape ({}) and driver shape ({})'.format(alpha.shape, driver.shape))
+      print(f'Error while computing yearly cash flow! Check alpha shape ({alpha.shape}) and driver shape ({driver.shape})')
       raise e
 
   def computeYearlyCashflow(self, alpha, driver):
@@ -1179,7 +1212,7 @@ class Recurring(CashFlow):
       Computes the yearly summary of recurring interactions, and sets them to self._yearlyCashflow
       Use this when you need to collapse one-point-per-year alpha and one-point-per-year driver
       into one-point-per-year summaries
-      Note this is more for once-per-year recurring cashflows
+      NOTE: this is more for once-per-year recurring cashflows
       @ In, alpha, np.array, array of "prices" (one entry per YEAR)
       @ In, driver, np.array, array of "quantities sold" (one entry per YEAR)
       @ Out, None
@@ -1239,18 +1272,16 @@ class Recurring(CashFlow):
           new = np.ones(t) * float(value)
           new[0] = 0
           toExtend[name] = new
-        elif type(value) in [list, np.ndarray]:
+        elif isinstance(value, (list, np.ndarray)):
           if len(value) == 1:
             if mathUtils.isAFloatOrInt(value[0]):
               new = np.ones(t) * float(value)
               new[0] = 0
               toExtend[name] = new
-            elif type(value) is str:
+            elif isinstance(value, str):
               continue
             else:
-              listArray = [0]*t
-              for i in range(len(listArray)):
-                listArray[i] = value
+              listArray = [value]*t
               listArray[0] = 0
               toExtend[name] = np.array(listArray)
           # Checking for scenario where alpha or driver do not match project length
@@ -1261,17 +1292,22 @@ class Recurring(CashFlow):
             cycledCoefs = it.cycle(value[1:])
             correctedCoefs[1:] = [next(cycledCoefs) for _ in correctedCoefs[1:]]
             toExtend[name] = correctedCoefs
-        elif type(value) is str:
+        elif isinstance(value, str):
           continue
         else:
           # the else is for any object type data. if other types require distinction, add new 'elif'
-          listArray = [0]*t
-          for i in range(len(listArray)):
-            listArray[i] = value
+          listArray = [value]*t
           listArray[0] = 0
           toExtend[name] = np.array(listArray)
     return toExtend
 
+  def getYearlyCashflow(self):
+    """
+      Get the scale driver for this component
+      @ In, None
+      @ Out, _yearlyCashflow, float | pyomo.Expression, economy of scale or "x" in cashflow
+    """
+    return self._yearlyCashflow
 
 class Amortizor(Capex):
   """
@@ -1286,7 +1322,7 @@ class Amortizor(Capex):
     try:
       self._is_credit = kwargs['credit']
     except KeyError as e:
-      raise RuntimeError('ERROR setting up TEAL Amortizor CashFlow: requires "credit" keyword but not found!')
+      raise RuntimeError('ERROR setting up TEAL Amortizor CashFlow: requires "credit" keyword but not found!') from e
     assert mathUtils.isABoolean(self._is_credit)
     Capex.__init__(self, **kwargs)
 
