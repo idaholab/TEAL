@@ -579,6 +579,7 @@ class Component:
       return []
     scheme, plan = amort
     alpha = Amortization.amortize(scheme, plan, 1.0, self._lifetime)
+    is_mult_target = ocf.isMultTarget() # if original CAPEX is mult target, these should be also
     # first cash flow is POSITIVE on the balance sheet, is not taxed, and is a percent of the target
     # -> this is the tax credit from MACRS for component value loss
     pos = Amortizor(credit=True, component=self.name, verbosity=self._verbosity, pos=True)
@@ -587,6 +588,7 @@ class Component:
               'tax': False,
               'inflation': 'real',
               'alpha': alpha,
+              'mult_target': is_mult_target, #this is dependent on CAPEX price, should be included
               'reference': 1.0,
               'X': 1.0,
               }
@@ -601,6 +603,7 @@ class Component:
               'tax': True,
               'inflation': 'real',
               'alpha': nalpha,
+              'mult_target': is_mult_target, #this is dependent on CAPEX price, should be included
               'reference': 1.0,
               'X': 1.0}
     neg.setParams(params)
