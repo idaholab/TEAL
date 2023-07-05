@@ -176,6 +176,9 @@ def createRecurringHourly(df, comp, life, driver, alpha):
   cf.initParams(life)
   yearDfs = df.groupby([df.index.year])
   for year, yearDf in yearDfs:
+    #year can be an number or tuple depending on pandas version
+    if isinstance(year, tuple):
+      year = year[0]
     y = year - 2018
     if y > life:
       break
