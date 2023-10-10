@@ -115,4 +115,12 @@
   rel_err = 0.001
  [../]
 
+ [./CashFlow_test_delayed_contruction_time]
+  type = 'RavenFramework'
+  input = 'CashFlow_test_NPV_delayed_construction.xml'
+  UnorderedCsv = 'dumpNPVDelay.csv'
+  max_time = 500
+  rel_err = 0.001
+ [../]
+
 []
