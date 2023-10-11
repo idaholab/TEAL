@@ -1101,19 +1101,19 @@ class Capex(CashFlow):
     ## FIXME what if I have set the values already?
     # get variable values, if needed
     need = {'alpha': self._alpha, 'driver': self._driver}
-    
+
     # load alpha, driver from variables if need be
     need = self.loadFromVariables(need, variables, lifetimeCashflows, lifetime)
     # for Capex, use m * alpha * (D/D')^X
     alpha = need['alpha']
     driver = need['driver']
     # check if not-zero alpha > 1
-    maskAlpha = np.where(alpha != 0.0, )[0]     
+    maskAlpha = np.where(alpha != 0.0, )[0]
     if len(maskAlpha) > 1:
       if len(np.where(driver != 0.0, )[0]) == 1:
         val = driver[np.where(driver != 0.0, )]
         driver[maskAlpha] = val
-        
+
     reference = self.getParam('reference')
     if reference is None:
       reference = 1.0
@@ -1350,7 +1350,7 @@ class Amortizor(Capex):
     # how we treat the driver depends on if this is the amortizer or the depreciator
     if self._is_credit:
       if not mathUtils.isAString(driver):
-        toExtend['driver'] = np.ones(t) * driver[0] * -1.0
+        toExtend['driver'] = np.ones(t) * np.sum(driver[np.where(driver != 0.0)]) * -1.0
         toExtend['driver'][0] = 0.0
       for name, value in toExtend.items():
         if name.lower() in ['driver']:
