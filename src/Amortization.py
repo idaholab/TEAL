@@ -44,9 +44,6 @@ def amortize(scheme, plan, startValue, componentLife):
     pcts = MACRS.get(ys, None)
     if pcts is None:
       raise IOError('Provided MACRS "{}" is not allowed.'.format(ys))
-    print(pcts)
-    print(startValue)
-    print(alpha)
     alpha[1:len(pcts)+1] = pcts * startValue
   elif lscheme == 'custom':
     alpha[1:len(plan)+1] = np.asarray(plan)/100. * startValue
