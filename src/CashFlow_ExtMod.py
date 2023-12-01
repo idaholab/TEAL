@@ -173,6 +173,8 @@ def TEALmain():
   myInputs = {}
   with open(inpOpt.iINP[0]) as f:
     for l in f:
+      if l.strip().startswith("#"):
+        continue
       (key, val) = l.split(' ', 1)
       myInputs[key] = np.array([float(n) for n in val.split(",")])
   #if Myverbosity < 2:
