@@ -17,7 +17,7 @@ Created on Dec 01, 2023
 
 @author: aalfonsi
 
-This is a package that properly imports Driver and runs it.
+This is a package that properly imports TEAL (CashFlow standalone driver) and runs it.
 """
 import sys
 from src.CashFlow_ExtMod import TEALmain
