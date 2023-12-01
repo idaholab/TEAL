@@ -24,7 +24,7 @@ import numpy as np
 import warnings
 warnings.simplefilter('default', DeprecationWarning)
 
-from ..src import main
+from . import main
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.
@@ -120,7 +120,8 @@ class CashFlow(ExternalModelPluginBase):
 #################################
 # Run the plugin in stand alone #
 #################################
-if __name__ == "__main__":
+def TEALmain():
+  """ run TEAL in standalone """
   # emulate RAVEN container
   class FakeSelf:
     """

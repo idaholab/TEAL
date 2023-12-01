@@ -15,7 +15,6 @@
 # limitations under the License.
 """
   utilities for use within TEAL
-
 """
 import xml.etree.ElementTree as ET
 from os import path
