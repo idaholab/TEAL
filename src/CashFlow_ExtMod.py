@@ -173,7 +173,7 @@ def TEALmain():
   myInputs = {}
   with open(inpOpt.iINP[0]) as f:
     for l in f:
-      if l.strip().startswith("#"):
+      if l.strip().startswith("#") or not len(l.strip()):
         continue
       (key, val) = l.split(' ', 1)
       myInputs[key] = np.array([float(n) for n in val.split(",")])
