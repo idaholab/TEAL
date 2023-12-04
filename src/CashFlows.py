@@ -26,8 +26,8 @@ from collections import defaultdict
 
 import numpy as np
 
-from ..src import Amortization
-from ..src import _utils as tutils
+from . import Amortization
+from . import _utils as tutils
 
 # load RAVEN if available (e.g. pip-installed), otherwise add to env
 try:

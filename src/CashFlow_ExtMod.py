@@ -24,7 +24,7 @@ import numpy as np
 import warnings
 warnings.simplefilter('default', DeprecationWarning)
 
-from ..src import main
+from . import main
 
 # This plugin imports RAVEN modules. if run in stand-alone, RAVEN needs to be installed and this file
 # needs to be in the propoer plugin directory.
@@ -120,7 +120,8 @@ class CashFlow(ExternalModelPluginBase):
 #################################
 # Run the plugin in stand alone #
 #################################
-if __name__ == "__main__":
+def TEALmain():
+  """ run TEAL in standalone """
   # emulate RAVEN container
   class FakeSelf:
     """
@@ -172,6 +173,8 @@ if __name__ == "__main__":
   myInputs = {}
   with open(inpOpt.iINP[0]) as f:
     for l in f:
+      if l.strip().startswith("#") or not len(l.strip()):
+        continue
       (key, val) = l.split(' ', 1)
       myInputs[key] = np.array([float(n) for n in val.split(",")])
   #if Myverbosity < 2:

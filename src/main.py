@@ -25,7 +25,7 @@ from collections import defaultdict, OrderedDict
 import numpy as np
 import numpy_financial as npf
 
-from ..src import CashFlows
+from . import CashFlows
 
 from ravenframework.utils.graphStructure import graphObject
 from ravenframework.utils import mathUtils
