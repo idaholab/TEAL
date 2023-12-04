@@ -2,7 +2,7 @@
 import os
 import sys
 # run the Cash Flow plugin as stand alone code
-os.system('python  ../src/CashFlow_ExtMod.py -iXML Cash_Flow_input_NPV.xml -iINP VarInp.txt -o out.out')
+os.system('python  ../teal_standalone.py -iXML Cash_Flow_input_NPV.xml -iINP VarInp.txt -o out.out')
 
 # read out.out and compare with gold
 last = None
@@ -24,9 +24,10 @@ else:
 #    <description>
 #      This input tests the RAVEN plugin CashFlow in standalone mode.
 #    </description>
-#    <classesTested>Models.ExternalModel.CashFlow</classesTested>
+#    <classesTested>Models.ExternalModel.TEAL.CashFlow</classesTested>
 #    <revisions>
 #      <revision author="alfoa" date="2019-11-25">Added classTested node</revision>
+#      <revision author="alfoa" date="2023-12-04">Reactivated test to test fix of issue #79</revision>
 #    </revisions>
 #    <requirements>CF-EA-5</requirements>
 #  </TestInfo>

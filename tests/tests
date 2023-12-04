@@ -58,7 +58,7 @@
  [./CashFlow_NPV_RunAsCode]
   type = 'RavenPython'
   input = 'CashFlow_test_NPV_RunAsCode.py'
-  skip = 'Need to create driver to make this work'
+  #skip = 'Fixed with issue #79'
  [../]
 
  [./CashFlow_NPV_customTime]

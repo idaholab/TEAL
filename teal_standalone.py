@@ -15,7 +15,7 @@
 """
 Created on Dec 01, 2023
 
-@author: aalfonsi
+@author: alfoa (A. Alfonsi)
 
 This is a package that properly imports TEAL (CashFlow standalone driver) and runs it.
 """
