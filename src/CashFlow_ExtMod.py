@@ -116,11 +116,15 @@ class CashFlow(ExternalModelPluginBase):
 
   # =====================================================================================================================
 
-
 #################################
-# Run the plugin in stand alone #
+# Function to Run the plugin in stand alone #
 #################################
-if __name__ == "__main__":
+def tealMain():
+  """
+    function to run as main
+    @ In, None
+    @ Out, None
+  """
   # emulate RAVEN container
   class FakeSelf:
     """
@@ -202,3 +206,7 @@ if __name__ == "__main__":
     csvWrite = csv.DictWriter(out, outDict.keys())
     csvWrite.writeheader()
     csvWrite.writerow(outDict)
+
+
+if __name__ == "__main__":
+  tealMain()

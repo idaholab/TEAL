@@ -1,8 +1,18 @@
 
 import os
 import sys
+
+#Check if path needed to be setup
+try:
+  import TEAL
+except ModuleNotFoundError:
+  sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+  import TEAL
+
 # run the Cash Flow plugin as stand alone code
-os.system('python  ../src/CashFlow_ExtMod.py -iXML Cash_Flow_input_NPV.xml -iINP VarInp.txt -o out.out')
+from TEAL.src import CashFlow_ExtMod
+sys.argv = [sys.argv[0],"-iXML","Cash_Flow_input_NPV.xml","-iINP","VarInp.txt","-o","out.out"]
+CashFlow_ExtMod.tealMain()
 
 # read out.out and compare with gold
 last = None
