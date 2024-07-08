@@ -126,16 +126,14 @@ class CashFlowPlot(PlotPlugin):
     colorLib *= int(np.ceil(len(compCount)/nColorLib))
     compColor = []
     compHatch = []
-    for i, _ in enumerate(compCount):
+    for i, count in enumerate(compCount):
       _cmap = plt.get_cmap(colorLib[i])
       _rawCmapList = [_cmap(k) for k in range(_cmap.N)]
-      compColor += _rawCmapList[defaultEndColor:defaultStartColor:-(defaultEndColor-defaultStartColor)//compCount[i]]
+      compColor += _rawCmapList[defaultEndColor:defaultStartColor:-(defaultEndColor-defaultStartColor)//count]
       # handle hatching
-      posInSequence = int(np.floor(i/nColorLib))
-      if posInSequence>0:
-        compHatch.append(hatchLib[posInSequence])
-      else:
-        compHatch.extend([None]*compCount[i])
+      posInSequence = int(np.floor(i/nColorLib)) # seeing if we need to move on to next hatch symbol
+      hatch = hatchLib[posInSequence] if posInSequence>0 else None # first sequence has no hatch symbol
+      compHatch.extend([hatch]*count)
     compColor = pd.DataFrame(compColor).set_axis([cumCashFlow.index.tolist()]).T
     compHatch = pd.DataFrame(compHatch).set_axis([cumCashFlow.index.tolist()]).T
     cumCashFlow = cumCashFlow.sort_values(ascending=True)
