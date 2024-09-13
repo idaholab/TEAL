@@ -1086,7 +1086,9 @@ class Capex(CashFlow):
           # the else is for any object type data. if other types require distinction, add new 'elif'
           listArray = [0]*t
           listArray[0] = value
-          toExtend[name] = np.array(listArray)
+          #value is sometimes a pyomo.core.base.var.ScalarVar which requires
+          # dtype=object
+          toExtend[name] = np.array(listArray,dtype=object)
     return toExtend
 
   def calculateCashflow(self, variables, lifetimeCashflows, lifetime, verbosity):
