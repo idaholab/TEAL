@@ -381,10 +381,10 @@ def projectRecurringCashflow(cf, start, end, lifeCf, taxMult, inflRate, projectL
   operatingYears = years[operatingMask]
   # This considers components that dont start operation until later in the project
   # It is neccessary to index lifeCf from 0 while still indexing projCf and years from current project year
-  relativeStartupYear = operatingYears - start
-  for o,opYear in enumerate(operatingYears):
+  relativeStartupYear = operatingYears - start if start >= 0 else operatingYears.copy()
+  for opYear,relStartYear in zip(operatingYears,relativeStartupYear):
     # Necessary to discount the cashflow with tax and inflation, for recurring inflRate is typically 1
-    projCf[opYear] = lifeCf[relativeStartupYear[o]] * taxMult * np.power(inflRate, -1*years[opYear])
+    projCf[opYear] = lifeCf[relStartYear] * taxMult * np.power(inflRate, -1*years[opYear])
   return projCf
 
 def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, projectLength, v=100, pyomoVar=False):
