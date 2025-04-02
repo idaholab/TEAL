@@ -377,7 +377,14 @@ def projectRecurringCashflow(cf, start, end, lifeCf, taxMult, inflRate, projectL
   else:
     projCf = np.zeros(projectLength, dtype=object)
   years = np.arange(projectLength) # years in project time, year 0 is first year # TODO just indices, pandas?
-  operatingMask = np.logical_and(years >= start, years < end)
+  # SOTOGJ: Modified following expression (see issue #92) to be opposite from projectSingleCashflow:
+  #        from operatingMask = np.logical_and(years >= start, years < end)
+  #        to operatingMask = np.logical_and(years >= start, years <= end)
+  #     reason why: when repetitions are requested, final year of operations was not included.
+  #     recall that components are built in their first year (year=0 or year=start) and start operating the following year.
+  #     if repetitions=0, end=projectLength (or projectTime+1 due to initial construction), last year included because end>years[-1]
+  #     if repetitions>0, end=start + life * repetitions, does not account for extra construction year, years<=end logic fixes this
+  operatingMask = np.logical_and(years >= start, years <= end)
   operatingYears = years[operatingMask]
   # This considers components that dont start operation until later in the project
   # It is neccessary to index lifeCf from 0 while still indexing projCf and years from current project year
