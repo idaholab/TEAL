@@ -11,6 +11,7 @@
     <classesTested>Models.ExternalModel.TEAL</classesTested>
     <revisions>
         <revision author="alfoa" date="2021-01-28">Added test for checking issue #20 is resolved</revision>
+        <revision author="sotogj" date="2025-04-03">Increasing parameters in Batt and Batt2 cashflows, issue #92 was not being caught</revision>
     </revisions>
     <requirements>CF-F-1 CF-F-2 CF-EA-1</requirements>
   </TestInfo>
