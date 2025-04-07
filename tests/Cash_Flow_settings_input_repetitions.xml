@@ -149,7 +149,7 @@
 
       <Recurring name="RE" tax="true" inflation="none" mult_target="true">
         <driver>Batt_OM_price</driver> <!--  $/MWh-year. -->
-        <alpha>1.0</alpha> <!--MW-yr -->
+        <alpha>10.0</alpha> <!--MW-yr -->
       </Recurring>
     </CashFlows>
   </Component>
@@ -176,7 +176,7 @@
 
       <Recurring name="RE" tax="true" inflation="none" mult_target="true">
         <driver>Batt_OM_price</driver> <!--  $/MWh-year. -->
-        <alpha>1</alpha> <!--MW-yr -->
+        <alpha>5</alpha> <!--MW-yr -->
       </Recurring>
     </CashFlows>
   </Component>

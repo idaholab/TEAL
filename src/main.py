@@ -377,14 +377,22 @@ def projectRecurringCashflow(cf, start, end, lifeCf, taxMult, inflRate, projectL
   else:
     projCf = np.zeros(projectLength, dtype=object)
   years = np.arange(projectLength) # years in project time, year 0 is first year # TODO just indices, pandas?
-  operatingMask = np.logical_and(years >= start, years < end)
+  # SOTOGJ: Modified following expression (see issue #92) to be opposite from projectSingleCashflow:
+  #        from operatingMask = np.logical_and(years >= start, years < end)
+  #        to operatingMask = np.logical_and(years >= start, years <= end)
+  #     reason why: when repetitions are requested, final year of operations was not included.
+  #     recall that components are built in their first year (year=0 or year=start) and start operating the following year.
+  #     if repetitions=0, end=projectLength (or projectTime+1 due to initial construction), last year included because end>years[-1]
+  #     if repetitions>0, end=start + life * repetitions, does not account for extra construction year, years<=end logic fixes this
+  operatingMask = np.logical_and(years >= start, years <= end)
   operatingYears = years[operatingMask]
   # This considers components that dont start operation until later in the project
   # It is neccessary to index lifeCf from 0 while still indexing projCf and years from current project year
-  relativeStartupYear = operatingYears - start
-  for o,opYear in enumerate(operatingYears):
+  # SOTOGJ: if start<0, this should behave the same as start=0 (operations are logged starting project year 1)
+  relativeStartupYear = operatingYears - start if start >= 0 else operatingYears.copy()
+  for opYear,relStartYear in zip(operatingYears,relativeStartupYear):
     # Necessary to discount the cashflow with tax and inflation, for recurring inflRate is typically 1
-    projCf[opYear] = lifeCf[relativeStartupYear[o]] * taxMult * np.power(inflRate, -1*years[opYear])
+    projCf[opYear] = lifeCf[relStartYear] * taxMult * np.power(inflRate, -1*years[opYear])
   return projCf
 
 def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, projectLength, v=100, pyomoVar=False):
@@ -416,6 +424,10 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   #        to operatingMask = np.logical_and(years >= start, years < end)
   operatingMask = np.logical_and(years >= start, years < end)
   operatingYears = years[operatingMask]
+  # SOTOGJ: quick note, this works if start<0 (i.e., if the component was already built)
+  #         say lifetime is 60 and start is -10; startShift[0] = 10 because the year 0 of
+  #         the simulation the component will be in its 10th year of operations.
+  #         NOTE: TEAL only starts logging operations at year 1 (11th year for component)
   startShift = operatingYears - start # y_shift
   # what year realative to production is this component in, for each operating year?
   relativeOperation = startShift % life # yReal

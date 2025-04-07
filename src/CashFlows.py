@@ -324,6 +324,12 @@ class Component:
                                 and will henceforth be included in the cash flows. The default is 0 and the component is built at the start of the project (year 0).
                                 For example, if the \xmlNode{ProjectTime} is 100 years, and for this component, the \xmlNode{StartTime} is 20 years, the cash flows for this
                                 component would be zero for years 0 to 19 of the project. Year 20 of the project would be year 0 of this component, project year 21 would be component year 1, and so on.
+                                Note that no operations occur on year 0 of the component, as this is assumed to be the first build year.
+
+                                \xmlNode{StartTime} has the option to be a negative value, such that the component is built before the start of the simulation. Any cash flows prior to project year 1
+                                would be zero for the project, if \xmlNode{StartTime} is negative. For example, say the \xmlNode{ProjectTime} is 100 years and the \xmlNode{StartTime} is -10 years
+                                for this component. Year -10 of the project would technically be year 0 of this component, or the initial construction year. The initial construction cashflow, however,
+                                would not be tallied since it is incurred before Year 1 of the project. Cashflows are only tallied starting at Year 1 of the project which would be year 11 for the component.
                                 """))
 
     input_specs.addSub(InputData.parameterInputFactory('Repetitions', contentType=InputTypes.IntegerType,
@@ -331,7 +337,8 @@ class Component:
                                 input \xmlNode{ProjectTime} is required. This input specifies the number of times this component is going to be rebuilt. The default is 0,
                                 which indicates that the component is going to be rebuilt indefinitely until the project end (\xmlNode{ProjectTime}) is reached.
                                 Lets assume the \xmlNode{ProjectTime} is 100 years, and the component \xmlNode{Life\_time} is 20 years. Specifying three repetitions of this
-                                component will build three components in succession, at years 0, 20, and 40. For years 61 to 100 of the project, the cash flows for this component would be zero."""))
+                                component will build three components in succession, at years 0, 20, and 40. For years 61 to 100 of the project, the cash flows for this component would be zero.
+                                Please note that rebuilds after the initial construction are assumed to occur immediately without interruption in operations."""))
 
     input_specs.addSub(InputData.parameterInputFactory('tax', contentType=InputTypes.FloatType,
                          descr=r"""This is an optional input. If the tax rate is specified here, inside the component block, the component will use this tax rate.
