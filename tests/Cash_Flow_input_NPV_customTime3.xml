@@ -13,6 +13,7 @@
   </Global>
   <Component name="BOP">
     <Life_time>60</Life_time>
+    <StartTime>-10</StartTime>
     <CashFlows>
       <Capex inflation="none" mult_target="false" multiply="Multiplier" name="CA" tax="false">
         <driver>BOP_capacity</driver>
@@ -31,7 +32,7 @@
   <Component name="IP">
     <Life_time>40</Life_time>
     <StartTime>-25</StartTime>
-    <Repetitions>3</Repetitions>
+    <Repetitions>2</Repetitions>
     <CashFlows>
       <Capex inflation="none" mult_target="false" name="CA" tax="false">
         <driver>IP_capacity</driver>

@@ -1,0 +1,1 @@
+Here are some Excel workbooks to run some analytics on the designed tests, essentially calculating the cashflows across the intended project times manually and check them against the TEAL-generated CSV results.

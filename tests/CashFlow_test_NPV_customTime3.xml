@@ -1,24 +1,24 @@
 <Simulation verbosity="debug">
   <TestInfo>
     <name>CashFlow_test_NPV</name>
-    <author>A. Epiney</author>
-    <created>2018-04-06</created>
+    <author>sotogj</author>
+    <created>2025-04-07</created>
     <description>
       This input tests the RAVEN plugin TEAL.
       The tested functionality is called NPV.
         Tests the ProjectTime, StartTime and Repetition functionalities.
-        No sub-project, i.e. component lifetime (including repetition)
-        finish before the ProjectTime finishes.
+        Start times here are negative, such that the component begins
+        operating before the simulated project time begins. One component
+        begins 10 years before the simulation start and no repetition is
+        specified: it should be rebuilt once but have no CAPEX at year 0.
+        The second component begins 25 years before the simulation with
+        two repetitions: with a lifetime of 40 years and project time of 80
+        years, it should be rebuilt only once and cease operations after
+        year 55.
     </description>
     <classesTested>Models.ExternalModel.CashFlow</classesTested>
-    <revisions>
-      <revision author="alfoa" date="2018-12-13">Added classTested node</revision>
-      <revision author="alfoa" date="2019-07-30">Added requirements</revision>
-      <revision author="wangc" date="2019-11-08">update ExternalXML with new structure cash flow input</revision>
-      <revision author="alfoa" date="2019-11-25">Added Plugin name extension</revision>
-      <revision author="alfoa" date="2020-07-28">Modified name from CashFlow to TEAL</revision>
-    </revisions>
-     <requirements>CF-EA-1 CF-IS-1</requirements>
+    <revisions/>
+    <requirements>CF-EA-1 CF-IS-1</requirements>
   </TestInfo>
 
   <RunInfo>

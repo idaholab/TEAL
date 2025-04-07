@@ -388,6 +388,7 @@ def projectRecurringCashflow(cf, start, end, lifeCf, taxMult, inflRate, projectL
   operatingYears = years[operatingMask]
   # This considers components that dont start operation until later in the project
   # It is neccessary to index lifeCf from 0 while still indexing projCf and years from current project year
+  # SOTOGJ: if start<0, this should behave the same as start=0 (operations are logged starting project year 1)
   relativeStartupYear = operatingYears - start if start >= 0 else operatingYears.copy()
   for opYear,relStartYear in zip(operatingYears,relativeStartupYear):
     # Necessary to discount the cashflow with tax and inflation, for recurring inflRate is typically 1
@@ -423,6 +424,10 @@ def projectSingleCashflow(cf, start, end, life, lifeCf, taxMult, inflRate, proje
   #        to operatingMask = np.logical_and(years >= start, years < end)
   operatingMask = np.logical_and(years >= start, years < end)
   operatingYears = years[operatingMask]
+  # SOTOGJ: quick note, this works if start<0 (i.e., if the component was already built)
+  #         say lifetime is 60 and start is -10; startShift[0] = 10 because the year 0 of
+  #         the simulation the component will be in its 10th year of operations.
+  #         NOTE: TEAL only starts logging operations at year 1 (11th year for component)
   startShift = operatingYears - start # y_shift
   # what year realative to production is this component in, for each operating year?
   relativeOperation = startShift % life # yReal
